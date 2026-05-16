@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\v\\\\Desktop\\\\urbanflow\" -Force)",
+      "Bash(Select-Object Name, Attributes)"
+    ]
+  }
+}
