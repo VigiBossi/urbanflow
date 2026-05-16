@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'core/constants/app_theme.dart';
+import 'core/providers/auth_provider.dart';
+import 'features/auth/login_screen.dart';
 import 'features/home/home_screen.dart';
 
 class UrbanFlowApp extends StatelessWidget {
@@ -11,7 +14,10 @@ class UrbanFlowApp extends StatelessWidget {
       title: 'UrbanFlow AI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const HomeScreen(),
+      home: Consumer<AuthProvider>(
+        builder: (_, auth, __) =>
+            auth.isLoggedIn ? const HomeScreen() : const LoginScreen(),
+      ),
     );
   }
 }

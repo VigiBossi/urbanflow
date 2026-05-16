@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app.dart';
+import 'core/providers/auth_provider.dart';
 import 'core/providers/parking_provider.dart';
 import 'core/providers/reports_provider.dart';
 
@@ -9,6 +10,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ParkingProvider()),
         ChangeNotifierProvider(create: (_) => ReportsProvider()),
       ],
