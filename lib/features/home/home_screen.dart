@@ -14,6 +14,8 @@ import '../reports/create_report_screen.dart';
 import '../city_map/city_map_screen.dart';
 import '../municipality/municipality_dashboard_screen.dart';
 import '../notifications/notifications_screen.dart';
+import '../parking/payment_history_screen.dart';
+import '../ai_assistant/ai_chat_screen.dart';
 import '../../core/services/notification_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -109,6 +111,16 @@ class _HomeTab extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FF),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const AiChatScreen())),
+        backgroundColor: AppColors.primary,
+        icon: const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
+        label: const Text('AI Assistant',
+            style:
+                TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+        elevation: 6,
+      ),
       body: CustomScrollView(
         slivers: [
           _buildSliverAppBar(context, l10n, user?.name.split(' ').first ?? 'there'),
@@ -377,7 +389,10 @@ class _QuickActionsGrid extends StatelessWidget {
           label: l10n.paymentHistory,
           color: const Color(0xFF00897B),
           gradient: const [Color(0xFF00796B), Color(0xFF00897B)],
-          onTap: () {},
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const PaymentHistoryScreen())),
         ),
     ];
 
