@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TACOS Staff • POS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body { font-family: 'Inter', system-ui, sans-serif; background: #0F0F0F; color: #E5E5E5; }
+
+    .serif { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; }
+
+    /* Nav active state — driven by data-view attr, toggled in JS */
+    [data-view].nav-active { background: #E6392E !important; color: #fff !important; border-radius: 12px; }
+
+    /* Section visibility */
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+
+    /* Table cards */
+    .table-card { transition: transform .15s, box-shadow .15s; cursor: pointer; }
+    .table-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+    .table-card.free     { border-color: #333; }
+    .table-card.occupied { border-color: #E6392E; background: #1C1010; }
+    .table-card.ready    { border-color: #10B981; background: #101C14; }
+    .table-card.ready    { animation: pulse-green 2s infinite; }
+
+    @keyframes pulse-green {
+      0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,.4); }
+      50%      { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+    }
+
+    /* KDS cards */
+    .kds-card { transition: border-color .3s, background .3s; }
+    .kds-timer-warn { color: #F59E0B; }
+    .kds-timer-crit { color: #E6392E; animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: .5; } }
+
+    /* Menu item hover in modal */
+    .menu-row { transition: background .12s; }
+    .menu-row:hover { background: #252525; }
+
+    /* Sidebar slide-in on mobile */
+    #sidebar {
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+    }
+    @media (max-width: 768px) {
+      #sidebar { position: fixed; inset: 0 auto 0 0; z-index: 40; width: 260px; transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); box-shadow: 8px 0 32px rgba(0,0,0,.6); }
+      #sidebar-backdrop { display: block; }
+    }
+
+    /* Notification badge */
+    .nav-badge {
+      min-width: 20px; height: 20px;
+      background: #E6392E; color: #fff;
+      font-size: 11px; font-weight: 700;
+      border-radius: 50px;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0 5px; margin-left: auto;
+    }
+
+    /* Toast */
+    .toast { animation: slideUp .35s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #1a1a1a; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+    /* Input styling */
+    .pos-input {
+      background: #111; border: 1.5px solid #333; color: #e5e5e5;
+      border-radius: 14px; padding: 0 16px; height: 44px; width: 100%;
+      outline: none; transition: border-color .2s;
+    }
+    .pos-input:focus { border-color: #E6392E; }
+    .pos-input-gold:focus { border-color: #D4AF37; }
+
+    select.pos-input { padding-right: 32px; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23888' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; background-size: 20px; }
+
+    /* Progress bar */
+    .stock-bar { height: 4px; background: #333; border-radius: 2px; overflow: hidden; margin-top: 4px; }
+    .stock-bar-fill { height: 100%; border-radius: 2px; transition: width .4s; }
+
+    @media print {
+      body * { display: none !important; }
+      #print-receipt { display: block !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- ════════════════════════════════════════════════════════════
+     LOGIN SCREEN
+     ════════════════════════════════════════════════════════════ -->
+<div id="login-screen" class="min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-md">
+
+    <div class="flex justify-center mb-8">
+      <div class="flex items-center gap-x-3">
+        <div class="w-14 h-14 bg-[#E6392E] rounded-2xl flex items-center justify-center shadow-lg shadow-red-900/40">
+          <i class="fa-solid fa-utensils text-white text-2xl"></i>
+        </div>
+        <div>
+          <span class="serif text-5xl text-white tracking-tight">TACOS</span>
+          <span class="block text-[10px] text-[#D4AF37] tracking-[3px] -mt-1">STAFF POS</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl p-8">
+      <div class="text-center mb-8">
+        <h1 class="text-2xl font-semibold">Welcome back</h1>
+        <p class="text-[#888] text-sm mt-1">Choose your role to sign in</p>
+      </div>
+
+      <!-- Role toggle -->
+      <div class="flex gap-3 mb-6">
+        <button onclick="selectRole('waiter')" data-role-btn="waiter"
+                class="flex-1 py-3 rounded-2xl border border-[#333] hover:border-[#E6392E] transition-all flex items-center justify-center gap-x-2 text-sm font-medium">
+          <i class="fa-solid fa-user-tie"></i> Waiter
+        </button>
+        <button onclick="selectRole('manager')" data-role-btn="manager"
+                class="flex-1 py-3 rounded-2xl border border-[#333] hover:border-[#D4AF37] transition-all flex items-center justify-center gap-x-2 text-sm font-medium">
+          <i class="fa-solid fa-user-shield"></i> Manager
+        </button>
+      </div>
+
+      <!-- Waiter login -->
+      <div id="waiter-login" class="hidden">
+        <label class="text-[10px] font-semibold text-[#888] tracking-widest block mb-2">WAITER CODE</label>
+        <input id="waiter-code" type="password" inputmode="numeric" maxlength="6" autocomplete="off"
+               placeholder="Enter today's code" class="pos-input text-center text-xl tracking-widest mb-4"
+               onkeydown="if(event.key==='Enter') loginAsWaiter()">
+        <button onclick="loginAsWaiter()"
+                class="w-full h-12 bg-[#E6392E] hover:bg-[#C62828] text-white font-semibold rounded-2xl transition-colors">
+          LOGIN AS WAITER
+        </button>
+      </div>
+
+      <!-- Manager login -->
+      <div id="manager-login" class="hidden">
+        <label class="text-[10px] font-semibold text-[#888] tracking-widest block mb-2">MANAGER PASSWORD</label>
+        <input id="manager-password" type="password" autocomplete="current-password"
+               placeholder="Enter password" class="pos-input pos-input-gold text-center text-xl tracking-widest mb-4"
+               onkeydown="if(event.key==='Enter') loginAsManager()">
+        <button onclick="loginAsManager()"
+                class="w-full h-12 bg-[#D4AF37] hover:bg-[#B8962D] text-black font-semibold rounded-2xl transition-colors">
+          LOGIN AS MANAGER
+        </button>
+      </div>
+
+      <p class="mt-6 text-center text-[10px] text-[#555]">TACOS Gostivar &bull; Fresh. Fast. Real.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     MAIN APP
+     ════════════════════════════════════════════════════════════ -->
+<div id="main-app" class="hidden min-h-screen flex flex-col">
+
+  <!-- Top bar -->
+  <div class="bg-[#111] border-b border-[#222] px-4 md:px-6 h-14 flex items-center justify-between flex-shrink-0 z-30 relative">
+    <!-- Left: hamburger + logo -->
+    <div class="flex items-center gap-x-3">
+      <button id="sidebar-toggle" onclick="toggleSidebar()"
+              class="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-[#1A1A1A] md:hidden">
+        <i class="fa-solid fa-bars text-[#888]"></i>
+      </button>
+      <div class="flex items-center gap-x-2">
+        <div class="w-8 h-8 bg-[#E6392E] rounded-xl flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid fa-utensils text-white text-xs"></i>
+        </div>
+        <span class="serif text-xl">TACOS</span>
+        <span class="text-[10px] text-[#D4AF37] hidden sm:block">POS</span>
+      </div>
+      <!-- Firebase status indicator -->
+      <div id="firebase-status" class="hidden sm:flex items-center gap-x-1.5 bg-[#1A1A1A] px-3 h-7 rounded-2xl text-[11px]">
+        <span id="firebase-dot" class="w-2 h-2 rounded-full bg-[#555]"></span>
+        <span id="firebase-label" class="text-[#666]">DEMO</span>
+      </div>
+    </div>
+
+    <!-- Right: clock + user + logout -->
+    <div class="flex items-center gap-x-3">
+      <div class="bg-[#1A1A1A] px-3 h-8 rounded-2xl text-sm flex items-center font-mono hidden sm:flex">
+        <span id="current-time">--:--</span>
+      </div>
+
+      <div class="flex items-center gap-x-2 bg-[#1A1A1A] border border-[#2A2A2A] px-4 h-9 rounded-2xl">
+        <div>
+          <div id="user-name" class="text-sm font-semibold leading-none"></div>
+          <div id="user-role" class="text-[10px] text-[#888] mt-0.5"></div>
+        </div>
+      </div>
+
+      <button onclick="logout()"
+              class="w-9 h-9 flex items-center justify-center rounded-xl border border-[#333] hover:bg-[#1A1A1A] transition-colors text-[#888] hover:text-white">
+        <i class="fa-solid fa-right-from-bracket text-sm"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="flex flex-1 overflow-hidden">
+
+    <!-- Mobile backdrop -->
+    <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/60 z-30 md:hidden" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-60 bg-[#111] border-r border-[#222] p-3 flex flex-col flex-shrink-0 overflow-y-auto md:relative md:transform-none z-40">
+      <div class="px-2 mb-3 mt-1">
+        <p class="text-[10px] font-semibold text-[#555] tracking-widest">MAIN MENU</p>
+      </div>
+      <nav id="sidebar-nav" class="space-y-0.5 flex-1"></nav>
+      <div class="mt-auto pt-3 border-t border-[#222] px-2">
+        <p class="text-[10px] text-[#555]">v2.0 &bull; Gostivar, MK</p>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="flex-1 overflow-auto p-4 md:p-6" id="content-area">
+
+      <!-- ── TABLES ───────────────────────────────────────────── -->
+      <div id="view-tables" class="view-section active">
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <div>
+            <h1 class="text-2xl font-semibold">Tables</h1>
+            <p class="text-[#888] text-sm">50 tables — tap to manage</p>
+          </div>
+          <div class="flex gap-3 text-sm">
+            <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl px-4 h-9 flex items-center gap-x-3">
+              <span class="text-[#10B981] font-semibold" id="tables-free-count">50</span>
+              <span class="text-[#555]">Free</span>
+              <span class="text-[#E6392E] font-semibold" id="tables-occ-count">0</span>
+              <span class="text-[#555]">Occupied</span>
+              <span class="text-[#10B981] font-semibold" id="tables-ready-count">0</span>
+              <span class="text-[#555]">Ready</span>
+            </div>
+          </div>
+        </div>
+        <div id="tables-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3"></div>
+      </div>
+
+      <!-- ── KITCHEN DISPLAY ──────────────────────────────────── -->
+      <div id="view-kitchen" class="view-section">
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <div>
+            <h1 class="text-2xl font-semibold">Kitchen Display</h1>
+            <p class="text-[#888] text-sm">Live orders — timers update every minute</p>
+          </div>
+          <button onclick="renderKitchenDisplay()"
+                  class="flex items-center gap-x-2 px-4 h-9 bg-[#1A1A1A] border border-[#333] rounded-2xl text-sm hover:bg-[#222] transition-colors">
+            <i class="fa-solid fa-rotate-right"></i> Refresh
+          </button>
+        </div>
+        <div id="kitchen-orders" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- ── TAKEOUT ORDERS ───────────────────────────────────── -->
+      <div id="view-takeout" class="view-section">
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <div>
+            <h1 class="text-2xl font-semibold">Takeout & Delivery</h1>
+            <p class="text-[#888] text-sm">Real-time orders from the customer website</p>
+          </div>
+          <div class="flex items-center gap-x-2 bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl px-4 h-9 text-sm">
+            <span id="takeout-count" class="font-semibold text-[#E6392E]">0</span>
+            <span class="text-[#888]">active</span>
+          </div>
+        </div>
+        <!-- Status filter tabs -->
+        <div class="flex gap-2 mb-5">
+          <button onclick="setTakeoutFilter('all')"    data-filter="all"     class="takeout-tab px-5 h-9 rounded-2xl text-sm font-medium border border-[#333] bg-[#1A1A1A] hover:bg-[#222] transition-colors">All</button>
+          <button onclick="setTakeoutFilter('pending')"data-filter="pending" class="takeout-tab px-5 h-9 rounded-2xl text-sm font-medium border border-[#333] bg-[#1A1A1A] hover:bg-[#222] transition-colors">Pending</button>
+          <button onclick="setTakeoutFilter('ready')"  data-filter="ready"   class="takeout-tab px-5 h-9 rounded-2xl text-sm font-medium border border-[#333] bg-[#1A1A1A] hover:bg-[#222] transition-colors">Ready</button>
+        </div>
+        <div id="takeout-list" class="space-y-4"></div>
+      </div>
+
+      <!-- ── INVENTORY (manager) ──────────────────────────────── -->
+      <div id="view-inventory" class="view-section">
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <div>
+            <h1 class="text-2xl font-semibold">Inventory</h1>
+            <p class="text-[#888] text-sm">Stock decreases automatically on paid orders</p>
+          </div>
+          <button onclick="openStockAdjustModal()"
+                  class="flex items-center gap-x-2 px-5 h-9 bg-[#E6392E] hover:bg-[#C62828] text-white font-semibold rounded-2xl text-sm transition-colors">
+            <i class="fa-solid fa-sliders"></i> Adjust Stock
+          </button>
+        </div>
+        <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl overflow-hidden">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[#2A2A2A] text-[#888] text-[11px] tracking-wider">
+                <th class="text-left py-3.5 px-5">ITEM</th>
+                <th class="text-left py-3.5 px-3">CATEGORY</th>
+                <th class="text-center py-3.5">STOCK</th>
+                <th class="text-center py-3.5">STATUS</th>
+                <th class="text-right py-3.5 px-5">ADJUST</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── REPORTS (manager) ────────────────────────────────── -->
+      <div id="view-reports" class="view-section">
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <div>
+            <h1 class="text-2xl font-semibold">Reports</h1>
+            <p class="text-[#888] text-sm">Today's sales — resets at midnight</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="clearTodaysSales()"
+                    class="flex items-center gap-x-2 px-4 h-9 bg-[#1A1A1A] border border-[#333] rounded-2xl text-sm hover:bg-[#222] transition-colors text-[#E6392E]">
+              <i class="fa-solid fa-trash"></i> Clear
+            </button>
+            <button onclick="exportReport()"
+                    class="flex items-center gap-x-2 px-5 h-9 bg-[#D4AF37] hover:bg-[#B8962D] text-black font-semibold rounded-2xl text-sm transition-colors">
+              <i class="fa-solid fa-file-arrow-down"></i> Export
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl p-5">
+            <p class="text-[#888] text-xs">Today's Revenue</p>
+            <p id="report-revenue" class="text-3xl font-bold mt-1 text-[#E6392E] serif">0 MKD</p>
+          </div>
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl p-5">
+            <p class="text-[#888] text-xs">Orders Completed</p>
+            <p id="report-orders" class="text-3xl font-bold mt-1">0</p>
+          </div>
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl p-5">
+            <p class="text-[#888] text-xs">Avg Order Value</p>
+            <p id="report-avg" class="text-3xl font-bold mt-1">0 MKD</p>
+          </div>
+        </div>
+        <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl p-5">
+          <h3 class="font-semibold mb-4">Top Selling Items</h3>
+          <div id="top-items" class="space-y-3"></div>
+        </div>
+        <div class="mt-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl p-5">
+          <h3 class="font-semibold mb-4">Order History</h3>
+          <div id="order-history" class="space-y-2 max-h-64 overflow-auto"></div>
+        </div>
+      </div>
+
+      <!-- ── MENU PRICES (manager) ────────────────────────────── -->
+      <div id="view-menu" class="view-section">
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <div>
+            <h1 class="text-2xl font-semibold">Menu &amp; Prices</h1>
+            <p class="text-[#888] text-sm">Changes sync to Firebase (customer site reads from there)</p>
+          </div>
+        </div>
+        <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl overflow-hidden">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[#2A2A2A] text-[#888] text-[11px] tracking-wider">
+                <th class="text-left py-3.5 px-5">ITEM</th>
+                <th class="text-left py-3.5">CATEGORY</th>
+                <th class="text-right py-3.5">PRICE (MKD)</th>
+                <th class="text-right py-3.5 px-5 w-28"></th>
+              </tr>
+            </thead>
+            <tbody id="menu-prices-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS (manager) ───────────────────────────────── -->
+      <div id="view-settings" class="view-section">
+        <div class="mb-5">
+          <h1 class="text-2xl font-semibold">Settings</h1>
+          <p class="text-[#888] text-sm">Staff access &amp; system configuration</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Waiter code -->
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl p-5">
+            <h3 class="font-semibold mb-1">Waiter Daily Code</h3>
+            <p class="text-xs text-[#888] mb-4">Waiters use this code to log in. Change it each shift.</p>
+            <div class="flex gap-2">
+              <input id="new-waiter-code" type="text" inputmode="numeric" maxlength="6"
+                     class="pos-input flex-1 font-mono tracking-widest text-center" placeholder="New code">
+              <button onclick="updateWaiterCode()"
+                      class="px-5 h-11 bg-[#E6392E] hover:bg-[#C62828] text-white font-semibold rounded-2xl text-sm transition-colors whitespace-nowrap">
+                Save
+              </button>
+            </div>
+            <p class="mt-3 text-xs text-[#888]">Current code:
+              <span id="current-code-display" class="font-mono text-[#D4AF37]"></span>
+            </p>
+          </div>
+
+          <!-- Firebase config -->
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl p-5">
+            <h3 class="font-semibold mb-1">Firebase Connection</h3>
+            <p class="text-xs text-[#888] mb-4">Status of real-time order sync from customer website.</p>
+            <div class="flex items-center gap-x-3 mb-3">
+              <div id="settings-fb-dot" class="w-3 h-3 rounded-full bg-[#555]"></div>
+              <span id="settings-fb-status" class="text-sm">Not connected (demo mode)</span>
+            </div>
+            <p class="text-xs text-[#555]">
+              To connect: paste your Firebase config into the <code class="text-[#D4AF37]">FIREBASE_CONFIG</code>
+              object at the top of this file's &lt;script&gt; block.
+            </p>
+          </div>
+
+          <!-- Danger zone -->
+          <div class="bg-[#1A1A1A] border border-[#E6392E]/30 rounded-3xl p-5">
+            <h3 class="font-semibold text-[#E6392E] mb-1">Danger Zone</h3>
+            <p class="text-xs text-[#888] mb-4">These actions cannot be undone.</p>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="resetInventory()"
+                      class="px-4 h-9 border border-[#E6392E]/50 text-[#E6392E] rounded-2xl text-sm hover:bg-[#E6392E]/10 transition-colors">
+                Reset Inventory
+              </button>
+              <button onclick="clearAllSales()"
+                      class="px-4 h-9 border border-[#E6392E]/50 text-[#E6392E] rounded-2xl text-sm hover:bg-[#E6392E]/10 transition-colors">
+                Clear All Sales
+              </button>
+            </div>
+          </div>
+
+          <!-- About -->
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-3xl p-5">
+            <h3 class="font-semibold mb-1">About</h3>
+            <p class="text-xs text-[#888] mt-2">TACOS Gostivar Staff POS v2.0</p>
+            <p class="text-xs text-[#888]">North Macedonia &bull; Fresh. Fast. Real.</p>
+            <p class="text-xs text-[#555] mt-3">Menu data syncs with customer website via Firebase Realtime Database.</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TABLE ORDER MODAL
+     ════════════════════════════════════════════════════════════ -->
+<div id="order-modal"
+     onclick="if(event.target===this)closeOrderModal()"
+     class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+  <div class="bg-[#1A1A1A] border border-[#2A2A2A] w-full max-w-2xl rounded-3xl overflow-hidden flex flex-col max-h-[90vh]">
+
+    <!-- Modal header -->
+    <div class="px-5 py-4 border-b border-[#2A2A2A] bg-[#111] flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-x-3">
+        <span class="text-xl font-semibold">Table <span id="modal-table-num"></span></span>
+        <span id="modal-table-status-badge"></span>
+      </div>
+      <button onclick="closeOrderModal()" class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-[#252525] text-[#888] hover:text-white">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="overflow-y-auto flex-1 p-5">
+      <!-- Search + category filter -->
+      <div class="mb-4">
+        <label class="text-[10px] font-semibold text-[#888] tracking-widest block mb-2">ADD FROM MENU</label>
+        <div class="flex gap-2 mb-2">
+          <input id="modal-search" oninput="filterModalMenu()"
+                 placeholder="Search menu items…" class="pos-input flex-1 text-sm h-10">
+          <select id="modal-category-filter" onchange="filterModalMenu()" class="pos-input text-sm h-10 w-40">
+            <option value="">All</option>
+          </select>
+        </div>
+        <div id="modal-menu-list" class="max-h-44 overflow-y-auto border border-[#2A2A2A] rounded-2xl divide-y divide-[#222]"></div>
+      </div>
+
+      <!-- Current order items -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-[10px] font-semibold text-[#888] tracking-widest">CURRENT ORDER</label>
+          <span id="modal-total" class="font-bold text-[#E6392E] text-lg serif">0 MKD</span>
+        </div>
+        <div id="modal-order-items" class="min-h-[100px] max-h-56 overflow-y-auto space-y-2 pr-1"></div>
+      </div>
+    </div>
+
+    <!-- Modal footer -->
+    <div class="px-5 py-4 border-t border-[#2A2A2A] bg-[#111] flex gap-3 flex-shrink-0">
+      <button onclick="sendToKitchen()"
+              class="flex-1 h-11 bg-[#1A1A1A] border border-[#333] hover:bg-[#252525] rounded-2xl font-semibold text-sm flex items-center justify-center gap-x-2 transition-colors">
+        <i class="fa-solid fa-fire-burner text-[#F59E0B]"></i> SEND TO KITCHEN
+      </button>
+      <button onclick="completeTableOrder()"
+              class="flex-1 h-11 bg-[#E6392E] hover:bg-[#C62828] text-white rounded-2xl font-semibold text-sm flex items-center justify-center gap-x-2 transition-colors">
+        <i class="fa-solid fa-circle-check"></i> PAY &amp; CLOSE
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     INVENTORY ADJUST MODAL
+     ════════════════════════════════════════════════════════════ -->
+<div id="stock-modal"
+     onclick="if(event.target===this)closeStockModal()"
+     class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+  <div class="bg-[#1A1A1A] border border-[#2A2A2A] w-full max-w-sm rounded-3xl p-6">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-lg font-semibold">Adjust Stock</h3>
+      <button onclick="closeStockModal()" class="text-[#888] hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <label class="text-[10px] text-[#888] tracking-widest mb-2 block">SELECT ITEM</label>
+    <select id="stock-item-select" class="pos-input mb-4"></select>
+    <label class="text-[10px] text-[#888] tracking-widest mb-2 block">NEW QUANTITY</label>
+    <input id="stock-quantity" type="number" min="0" max="999" class="pos-input mb-5" placeholder="e.g. 50">
+    <div class="flex gap-3">
+      <button onclick="closeStockModal()" class="flex-1 h-11 border border-[#333] rounded-2xl text-sm hover:bg-[#252525] transition-colors">Cancel</button>
+      <button onclick="saveStockAdjust()" class="flex-1 h-11 bg-[#D4AF37] hover:bg-[#B8962D] text-black font-semibold rounded-2xl text-sm transition-colors">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Hidden print receipt -->
+<div id="print-receipt" style="display:none; font-family:monospace; padding:20px; max-width:300px;">
+  <div style="text-align:center; margin-bottom:12px;">
+    <h2 style="font-size:22px; margin:0;">TACOS</h2>
+    <p style="margin:2px 0; font-size:11px;">Fresh. Fast. Real.</p>
+    <p style="margin:2px 0; font-size:11px;">Gostivar, North Macedonia</p>
+    <hr style="margin:8px 0;">
+  </div>
+  <div id="receipt-body"></div>
+  <hr style="margin:8px 0;">
+  <div style="text-align:center; font-size:11px; margin-top:8px;">Thank you! Come back soon 🌮</div>
+</div>
+
+
+<!-- Toast container -->
+<div id="toast-container" class="fixed bottom-5 right-5 z-[200] space-y-2 pointer-events-none"></div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ════════════════════════════════════════════════════════════ -->
+<script>
+// ══════════════════════════════════════════════════════════════
+// FIREBASE CONFIG — replace with your real project values
+// ══════════════════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  databaseURL:       "https://YOUR_PROJECT-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "YOUR_PROJECT",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID",
+};
+
+// Auth config — change manager password here, never in HTML
+const AUTH = {
+  managerPassword: "manager2026", // ← change this
+};
+
+const DELIVERY_FEE = 100;
+
+// ══════════════════════════════════════════════════════════════
+// APP STATE
+// ══════════════════════════════════════════════════════════════
+let currentRole   = null;
+let currentTable  = null;
+let currentOrder  = [];          // items in open table modal
+let takeoutFilter = 'all';
+
+// Menu items (source of truth for prices — can be overwritten by Firebase)
+let menuData = [
+  { id:1,  name:"Classic Beef Taco",          category:"Tacos",        price:180 },
+  { id:2,  name:"Grilled Chicken Taco",       category:"Tacos",        price:200 },
+  { id:3,  name:"Al Pastor Taco",             category:"Tacos",        price:220 },
+  { id:4,  name:"Crispy Fish Taco",           category:"Tacos",        price:230 },
+  { id:5,  name:"Veggie Supreme Taco",        category:"Tacos",        price:170 },
+  { id:6,  name:"Classic Beef Burrito",       category:"Burritos",     price:320 },
+  { id:7,  name:"Chicken Burrito",            category:"Burritos",     price:340 },
+  { id:8,  name:"Veggie Burrito",             category:"Burritos",     price:290 },
+  { id:9,  name:"Cheese Quesadilla",          category:"Quesadillas",  price:220 },
+  { id:10, name:"Chicken Quesadilla",         category:"Quesadillas",  price:280 },
+  { id:11, name:"Loaded Nachos",              category:"Sides",        price:250 },
+  { id:12, name:"Guacamole & Chips",          category:"Sides",        price:180 },
+  { id:13, name:"Rice & Beans",               category:"Sides",        price:130 },
+  { id:14, name:"Horchata",                   category:"Drinks",       price:100 },
+  { id:15, name:"Agua de Jamaica",            category:"Drinks",       price:90  },
+  { id:16, name:"Soft Drink",                 category:"Drinks",       price:70  },
+  { id:17, name:"Still Water",                category:"Drinks",       price:50  },
+  { id:18, name:"Churros & Chocolate",        category:"Desserts",     price:160 },
+  { id:19, name:"Creamy Flan",                category:"Desserts",     price:140 },
+];
+
+// Inventory: keyed by item ID (number). Always access with Number(id).
+let inventory = {};
+menuData.forEach(i => { inventory[i.id] = 50; });
+
+// Tables state
+let tables = {};
+for (let i = 1; i <= 50; i++) {
+  tables[i] = { id: i, status: 'free', currentOrder: [], total: 0, kitchenSent: false };
+}
+
+// Active KDS orders
+let kitchenOrders = [];
+
+// Takeout / delivery orders from Firebase
+let takeoutOrders = [];
+
+// Sales history for reports
+let salesHistory = [];
+
+// Waiter code (changeable by manager, persisted to localStorage)
+let waiterCode = "1234";
+
+// Firebase
+let db = null;
+let firebaseConnected = false;
+
+// ══════════════════════════════════════════════════════════════
+// FIREBASE INIT
+// ══════════════════════════════════════════════════════════════
+function initFirebase() {
+  if (FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') {
+    console.log('[POS] Firebase not configured — running in DEMO mode.');
+    setFirebaseStatus(false);
+    return;
+  }
+  try {
+    // Guard against re-initializing
+    const app = firebase.apps.length ? firebase.apps[0] : firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database(app);
+    firebaseConnected = true;
+    setFirebaseStatus(true);
+    listenForOrders();
+    loadMenuFromFirebase();
+  } catch (e) {
+    console.warn('[POS] Firebase error:', e);
+    setFirebaseStatus(false);
+  }
+}
+
+function setFirebaseStatus(connected) {
+  const dot   = document.getElementById('firebase-dot');
+  const label = document.getElementById('firebase-label');
+  const sdot  = document.getElementById('settings-fb-dot');
+  const slbl  = document.getElementById('settings-fb-status');
+
+  if (connected) {
+    dot.className   = 'w-2 h-2 rounded-full bg-[#10B981]';
+    label.textContent = 'LIVE';
+    label.className = 'text-[#10B981]';
+    if (sdot) { sdot.className = 'w-3 h-3 rounded-full bg-[#10B981]'; slbl.textContent = 'Connected — real-time sync active'; }
+  } else {
+    dot.className   = 'w-2 h-2 rounded-full bg-[#555]';
+    label.textContent = 'DEMO';
+    label.className = 'text-[#666]';
+    if (sdot) { sdot.className = 'w-3 h-3 rounded-full bg-[#555]'; slbl.textContent = 'Not connected (demo mode)'; }
+  }
+}
+
+function listenForOrders() {
+  if (!db) return;
+
+  // Listen to ALL orders, filter takeout/delivery in handler
+  db.ref('orders').on('child_added', snap => {
+    const order = snap.val();
+    order._key = snap.key;
+    // Customer site sends: order.type = 'takeout' | 'delivery' | 'dine-in'
+    if (order.type === 'takeout' || order.type === 'delivery') {
+      if (!takeoutOrders.find(o => o._key === order._key)) {
+        order.staffStatus = order.staffStatus || 'pending';
+        takeoutOrders.unshift(order);
+        updateTakeoutBadge();
+        renderTakeoutOrders();
+        playNotificationPing();
+        showToast(`New ${order.type} order — ${order.customer?.name}`, 'success');
+      }
+    }
+  });
+
+  db.ref('orders').on('child_changed', snap => {
+    const updated = snap.val();
+    updated._key = snap.key;
+    const idx = takeoutOrders.findIndex(o => o._key === updated._key);
+    if (idx !== -1) {
+      takeoutOrders[idx] = { ...takeoutOrders[idx], ...updated };
+      renderTakeoutOrders();
+    }
+  });
+}
+
+// Allow customer site to update prices dynamically
+function loadMenuFromFirebase() {
+  if (!db) return;
+  db.ref('menuPrices').once('value', snap => {
+    const prices = snap.val();
+    if (!prices) return;
+    menuData.forEach(item => {
+      if (prices[item.id]) item.price = prices[item.id];
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// AUDIO — Web Audio API notification ping (no file needed)
+// ══════════════════════════════════════════════════════════════
+function playNotificationPing() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [[660, 0], [880, 0.18]].forEach(([freq, delay]) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + delay;
+      gain.gain.setValueAtTime(0.35, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+      osc.start(t);
+      osc.stop(t + 0.4);
+    });
+  } catch (e) { /* browser blocked autoplay — silent fail */ }
+}
+
+// ══════════════════════════════════════════════════════════════
+// CLOCK (every second)
+// ══════════════════════════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  document.getElementById('current-time').textContent =
+    now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+
+// ══════════════════════════════════════════════════════════════
+// LOCAL STORAGE
+// ══════════════════════════════════════════════════════════════
+function saveLocal() {
+  localStorage.setItem('tacos_inventory',    JSON.stringify(inventory));
+  localStorage.setItem('tacos_waiter_code',  waiterCode);
+  localStorage.setItem('tacos_sales',        JSON.stringify(salesHistory));
+}
+
+function loadLocal() {
+  const inv = localStorage.getItem('tacos_inventory');
+  if (inv) inventory = JSON.parse(inv);
+
+  const wc = localStorage.getItem('tacos_waiter_code');
+  if (wc) waiterCode = wc;
+
+  const sales = localStorage.getItem('tacos_sales');
+  if (sales) salesHistory = JSON.parse(sales);
+}
+
+// ══════════════════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════════════════
+function selectRole(role) {
+  document.querySelectorAll('[data-role-btn]').forEach(b => {
+    b.classList.remove('border-[#E6392E]', 'border-[#D4AF37]', 'bg-[#1F1212]', 'bg-[#1A1A0F]');
+  });
+  document.getElementById('waiter-login').classList.add('hidden');
+  document.getElementById('manager-login').classList.add('hidden');
+
+  if (role === 'waiter') {
+    document.querySelector('[data-role-btn="waiter"]').classList.add('border-[#E6392E]', 'bg-[#1F1212]');
+    document.getElementById('waiter-login').classList.remove('hidden');
+    setTimeout(() => document.getElementById('waiter-code').focus(), 50);
+  } else {
+    document.querySelector('[data-role-btn="manager"]').classList.add('border-[#D4AF37]', 'bg-[#1A1A0F]');
+    document.getElementById('manager-login').classList.remove('hidden');
+    setTimeout(() => document.getElementById('manager-password').focus(), 50);
+  }
+}
+
+function loginAsWaiter() {
+  if (document.getElementById('waiter-code').value.trim() !== waiterCode) {
+    showToast('Invalid waiter code', 'error'); return;
+  }
+  enterApp('waiter', 'Waiter');
+}
+
+function loginAsManager() {
+  if (document.getElementById('manager-password').value !== AUTH.managerPassword) {
+    showToast('Incorrect password', 'error'); return;
+  }
+  enterApp('manager', 'Manager');
+}
+
+function enterApp(role, name) {
+  currentRole = role;
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('main-app').classList.remove('hidden');
+  document.getElementById('user-name').textContent = name;
+  document.getElementById('user-role').textContent  = role.toUpperCase();
+
+  buildSidebar();
+  initFirebase();
+  renderTables();
+  showView('tables');
+
+  // Seed some demo kitchen orders for demonstration
+  if (kitchenOrders.length === 0) seedDemoKitchenOrders();
+}
+
+function logout() {
+  if (!confirm('Log out?')) return;
+  location.reload();
+}
+
+// ══════════════════════════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════════════════════════
+const NAV_ITEMS = [
+  { view:'tables',    label:'Tables',           icon:'fa-chair',        roles:['waiter','manager'] },
+  { view:'kitchen',   label:'Kitchen Display',  icon:'fa-fire-burner',  roles:['waiter','manager'] },
+  { view:'takeout',   label:'Takeout & Delivery',icon:'fa-bag-shopping', roles:['waiter','manager'], badge:true },
+  { view:'inventory', label:'Inventory',         icon:'fa-boxes-stacked',roles:['manager'] },
+  { view:'reports',   label:'Reports',           icon:'fa-chart-bar',   roles:['manager'] },
+  { view:'menu',      label:'Menu Prices',       icon:'fa-pencil',      roles:['manager'] },
+  { view:'settings',  label:'Settings',          icon:'fa-gear',        roles:['manager'] },
+];
+
+function buildSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+
+  NAV_ITEMS.forEach(item => {
+    if (!item.roles.includes(currentRole)) return;
+    const btn = document.createElement('button');
+    btn.dataset.view = item.view;
+    btn.className = 'nav-item w-full flex items-center gap-x-3 px-3 h-10 text-sm font-medium rounded-xl text-[#888] hover:text-white hover:bg-[#1A1A1A] transition-colors';
+    btn.innerHTML = `
+      <i class="fa-solid ${item.icon} w-4 text-center flex-shrink-0"></i>
+      <span class="flex-1 text-left">${item.label}</span>
+      ${item.badge ? `<span class="nav-badge hidden" id="badge-${item.view}">0</span>` : ''}
+    `;
+    btn.onclick = () => { showView(item.view); closeSidebar(); };
+    nav.appendChild(btn);
+  });
+}
+
+function showView(viewName) {
+  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+  const section = document.getElementById(`view-${viewName}`);
+  if (section) section.classList.add('active');
+
+  document.querySelectorAll('[data-view]').forEach(btn => {
+    btn.classList.toggle('nav-active', btn.dataset.view === viewName);
+    btn.classList.toggle('text-[#888]', btn.dataset.view !== viewName);
+    btn.classList.toggle('text-white',  btn.dataset.view === viewName);
+  });
+
+  const loaders = {
+    kitchen:   renderKitchenDisplay,
+    takeout:   renderTakeoutOrders,
+    inventory: renderInventory,
+    reports:   updateReports,
+    menu:      renderMenuPrices,
+    settings:  renderSettings,
+  };
+  loaders[viewName]?.();
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  sidebar.classList.toggle('open');
+  backdrop.classList.toggle('hidden');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-backdrop').classList.add('hidden');
+}
+
+// ══════════════════════════════════════════════════════════════
+// TABLES
+// ══════════════════════════════════════════════════════════════
+function renderTables() {
+  const grid = document.getElementById('tables-grid');
+  grid.innerHTML = '';
+
+  let free = 0, occupied = 0, ready = 0;
+
+  for (let i = 1; i <= 50; i++) {
+    const t = tables[i];
+    if (t.status === 'free')     free++;
+    if (t.status === 'occupied') occupied++;
+    if (t.status === 'ready')    ready++;
+
+    const card = document.createElement('div');
+    card.className = `table-card border-2 rounded-3xl p-3 text-center ${t.status}`;
+
+    const badgeMap = {
+      free:     '',
+      occupied: `<span class="text-[9px] px-2 py-0.5 bg-[#E6392E] text-white rounded-2xl">ON</span>`,
+      ready:    `<span class="text-[9px] px-2 py-0.5 bg-[#10B981] text-white rounded-2xl">READY</span>`,
+    };
+
+    card.innerHTML = `
+      <div class="text-2xl font-bold mb-0.5">${i}</div>
+      ${badgeMap[t.status]}
+      ${t.total > 0 ? `<div class="text-[11px] mt-1 text-[#E6392E] font-semibold">${t.total} MKD</div>` : ''}
+    `;
+    card.onclick = () => openTableOrder(i);
+    grid.appendChild(card);
+  }
+
+  document.getElementById('tables-free-count').textContent = free;
+  document.getElementById('tables-occ-count').textContent  = occupied;
+  document.getElementById('tables-ready-count').textContent = ready;
+}
+
+// ── TABLE ORDER MODAL ─────────────────────────────────────────
+
+function openTableOrder(tableId) {
+  currentTable = tableId;
+  currentOrder = JSON.parse(JSON.stringify(tables[tableId].currentOrder || []));
+
+  document.getElementById('modal-table-num').textContent = tableId;
+
+  const statusMap = {
+    free:     `<span class="px-3 py-0.5 text-xs bg-[#333] rounded-2xl text-[#888]">FREE</span>`,
+    occupied: `<span class="px-3 py-0.5 text-xs bg-[#E6392E] text-white rounded-2xl">OCCUPIED</span>`,
+    ready:    `<span class="px-3 py-0.5 text-xs bg-[#10B981] text-white rounded-2xl">READY</span>`,
+  };
+  document.getElementById('modal-table-status-badge').innerHTML = statusMap[tables[tableId].status] || '';
+
+  populateCategoryFilter();
+  renderModalMenuList();
+  renderModalOrderItems();
+  updateModalTotal();
+
+  document.getElementById('order-modal').classList.remove('hidden');
+  document.getElementById('order-modal').classList.add('flex');
+}
+
+function closeOrderModal() {
+  // Persist partial order back to table state
+  if (currentTable) {
+    tables[currentTable].currentOrder = JSON.parse(JSON.stringify(currentOrder));
+    tables[currentTable].total = currentOrder.reduce((s, i) => s + i.price * i.qty, 0);
+    if (currentOrder.length > 0 && tables[currentTable].status === 'free') {
+      tables[currentTable].status = 'occupied';
+    }
+  }
+  document.getElementById('order-modal').classList.add('hidden');
+  document.getElementById('order-modal').classList.remove('flex');
+  currentTable = null;
+  currentOrder = [];
+  renderTables();
+}
+
+function populateCategoryFilter() {
+  const sel = document.getElementById('modal-category-filter');
+  sel.innerHTML = '<option value="">All</option>';
+  const cats = [...new Set(menuData.map(i => i.category))];
+  cats.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+function filterModalMenu() {
+  renderModalMenuList(
+    document.getElementById('modal-search').value.toLowerCase(),
+    document.getElementById('modal-category-filter').value
+  );
+}
+
+function renderModalMenuList(search = '', category = '') {
+  const container = document.getElementById('modal-menu-list');
+  const filtered  = menuData.filter(i =>
+    (!search   || i.name.toLowerCase().includes(search)) &&
+    (!category || i.category === category)
+  );
+
+  if (!filtered.length) {
+    container.innerHTML = `<div class="text-center py-6 text-[#555] text-sm">No items found</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(item => {
+    const stock = inventory[item.id] ?? 0;
+    const oos   = stock <= 0;
+    return `
+      <div class="menu-row flex items-center justify-between px-4 py-2.5 ${oos ? 'opacity-40' : ''}">
+        <div>
+          <span class="text-sm font-medium">${item.name}</span>
+          <span class="text-[11px] text-[#666] ml-2">${item.category}</span>
+        </div>
+        <div class="flex items-center gap-x-3">
+          <span class="text-sm font-semibold text-[#E6392E]">${item.price} MKD</span>
+          <button onclick="addItemToOrder(${item.id})"
+                  ${oos ? 'disabled' : ''}
+                  class="px-3 py-1 text-xs rounded-xl font-semibold ${oos ? 'bg-[#333] text-[#666] cursor-not-allowed' : 'bg-[#E6392E] hover:bg-[#C62828] text-white'} transition-colors">
+            ${oos ? 'OUT' : 'ADD'}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function addItemToOrder(itemId) {
+  const id   = Number(itemId);
+  const item = menuData.find(m => m.id === id);
+  if (!item) return;
+
+  if ((inventory[id] ?? 0) <= 0) { showToast('Out of stock!', 'error'); return; }
+
+  const existing = currentOrder.find(o => o.id === id);
+  if (existing) { existing.qty++; }
+  else          { currentOrder.push({ ...item, qty: 1 }); }
+
+  renderModalOrderItems();
+  updateModalTotal();
+}
+
+function changeModalQty(index, delta) {
+  currentOrder[index].qty = Math.max(1, currentOrder[index].qty + delta);
+  renderModalOrderItems();
+  updateModalTotal();
+}
+
+function removeFromOrder(index) {
+  currentOrder.splice(index, 1);
+  renderModalOrderItems();
+  updateModalTotal();
+}
+
+function renderModalOrderItems() {
+  const container = document.getElementById('modal-order-items');
+
+  if (!currentOrder.length) {
+    container.innerHTML = `<div class="text-center py-8 text-[#555] text-sm">No items yet — add from the menu above</div>`;
+    return;
+  }
+
+  container.innerHTML = currentOrder.map((item, i) => `
+    <div class="flex items-center gap-x-3 bg-[#111] border border-[#2A2A2A] px-4 py-2.5 rounded-2xl">
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium truncate">${item.name}</p>
+        <p class="text-[11px] text-[#888]">${item.price} MKD each</p>
+      </div>
+      <div class="flex items-center bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl overflow-hidden">
+        <button onclick="changeModalQty(${i},-1)" class="w-7 h-7 flex items-center justify-center hover:bg-[#252525] text-base leading-none">−</button>
+        <span class="px-2 text-sm font-mono">${item.qty}</span>
+        <button onclick="changeModalQty(${i},+1)" class="w-7 h-7 flex items-center justify-center hover:bg-[#252525] text-base leading-none">+</button>
+      </div>
+      <span class="w-16 text-right font-semibold text-sm">${item.price * item.qty} MKD</span>
+      <button onclick="removeFromOrder(${i})" class="text-[#555] hover:text-[#E6392E] transition-colors ml-1">
+        <i class="fa-solid fa-trash text-xs"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+function updateModalTotal() {
+  const total = currentOrder.reduce((s, i) => s + i.price * i.qty, 0);
+  document.getElementById('modal-total').textContent = `${total} MKD`;
+}
+
+function sendToKitchen() {
+  if (!currentTable || !currentOrder.length) { showToast('Add items first', 'error'); return; }
+
+  const table = tables[currentTable];
+  table.currentOrder = JSON.parse(JSON.stringify(currentOrder));
+  table.status = 'occupied';
+  table.total  = currentOrder.reduce((s, i) => s + i.price * i.qty, 0);
+  table.kitchenSent = true;
+
+  // Remove any existing KDS card for this table, then add fresh one
+  kitchenOrders = kitchenOrders.filter(o => !(o.type === 'table' && o.tableId === currentTable));
+  kitchenOrders.unshift({
+    id:        Date.now(),
+    type:      'table',
+    tableId:   currentTable,
+    items:     JSON.parse(JSON.stringify(currentOrder)),
+    status:    'new',
+    sentAt:    Date.now(),
+    total:     table.total,
+  });
+
+  showToast(`Table ${currentTable} — sent to kitchen 🔥`);
+  closeOrderModal();
+  renderKitchenDisplay();
+}
+
+function completeTableOrder() {
+  if (!currentTable || !currentOrder.length) { showToast('No items to complete', 'error'); return; }
+  if (!confirm(`Complete Table ${currentTable} order?\nTotal: ${currentOrder.reduce((s,i)=>s+i.price*i.qty,0)} MKD`)) return;
+
+  const total = currentOrder.reduce((s, i) => s + i.price * i.qty, 0);
+
+  // Deduct inventory
+  currentOrder.forEach(item => {
+    const id = Number(item.id);
+    inventory[id] = Math.max(0, (inventory[id] ?? 0) - item.qty);
+  });
+
+  // Record sale (timestamps as ISO strings for JSON safety)
+  salesHistory.unshift({
+    id:      Date.now(),
+    type:    'table',
+    tableId: currentTable,
+    items:   JSON.parse(JSON.stringify(currentOrder)),
+    total,
+    paidAt:  new Date().toISOString(),
+  });
+
+  // Print receipt
+  printReceipt(`Table ${currentTable}`, currentOrder, total, null);
+
+  // Reset table
+  tables[currentTable] = { id: currentTable, status: 'free', currentOrder: [], total: 0, kitchenSent: false };
+  kitchenOrders = kitchenOrders.filter(o => !(o.type === 'table' && o.tableId === currentTable));
+
+  saveLocal();
+  showToast(`Table ${currentTable} closed — ${total} MKD ✓`, 'success');
+  closeOrderModal();
+  updateReports();
+  renderInventory();
+}
+
+// ══════════════════════════════════════════════════════════════
+// KITCHEN DISPLAY
+// ══════════════════════════════════════════════════════════════
+function getElapsedLabel(sentAt) {
+  const minutes = Math.floor((Date.now() - sentAt) / 60000);
+  if (minutes < 1)  return '<span class="text-[#888]">Just sent</span>';
+  if (minutes < 8)  return `<span>${minutes} min</span>`;
+  if (minutes < 15) return `<span class="kds-timer-warn">⚠ ${minutes} min</span>`;
+  return `<span class="kds-timer-crit">🔴 ${minutes} min</span>`;
+}
+
+function renderKitchenDisplay() {
+  const container = document.getElementById('kitchen-orders');
+  container.innerHTML = '';
+
+  if (!kitchenOrders.length) {
+    container.innerHTML = `<div class="col-span-full text-center py-16 text-[#555]">
+      <i class="fa-solid fa-fire-burner text-4xl mb-3 block opacity-30"></i>
+      No active kitchen orders
+    </div>`;
+    return;
+  }
+
+  const borderMap  = { new:'border-[#3B82F6]', preparing:'border-[#F59E0B]', ready:'border-[#10B981]' };
+  const badgeMap   = { new:'bg-[#3B82F6]',     preparing:'bg-[#F59E0B]',     ready:'bg-[#10B981]' };
+
+  kitchenOrders.forEach((order, idx) => {
+    const card = document.createElement('div');
+    card.className = `kds-card bg-[#1A1A1A] border-[#2A2A2A] border rounded-3xl p-5 border-l-4 ${borderMap[order.status]}`;
+
+    const itemsHTML = order.items.map(i =>
+      `<div class="flex justify-between text-sm py-1 border-b border-[#222] last:border-none">
+         <span>${i.qty}× ${i.name}</span>
+         <span class="text-[#888]">${i.price * i.qty} MKD</span>
+       </div>`
+    ).join('');
+
+    const actionsMap = {
+      new:      `<button onclick="updateKdsStatus(${idx},'preparing')" class="flex-1 py-2 text-xs bg-[#F59E0B] hover:bg-[#D97706] text-black font-semibold rounded-2xl transition-colors">START COOKING</button>`,
+      preparing:`<button onclick="updateKdsStatus(${idx},'ready')"    class="flex-1 py-2 text-xs bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-2xl transition-colors">MARK READY</button>`,
+      ready:    `<button onclick="dismissKdsOrder(${idx})"            class="flex-1 py-2 text-xs bg-[#6B7280] hover:bg-[#4B5563] text-white font-semibold rounded-2xl transition-colors">DISMISS</button>`,
+    };
+
+    card.innerHTML = `
+      <div class="flex justify-between items-start mb-3">
+        <div>
+          <div class="font-semibold text-base">${order.type === 'table' ? `Table ${order.tableId}` : order.customer?.name || 'Takeout'}</div>
+          <div class="text-xs text-[#888] mt-0.5">${getElapsedLabel(order.sentAt)}</div>
+        </div>
+        <span class="px-3 py-1 text-[10px] font-semibold text-white rounded-2xl ${badgeMap[order.status]}">
+          ${order.status.toUpperCase()}
+        </span>
+      </div>
+      <div class="mb-4">${itemsHTML}</div>
+      <div class="flex gap-2">${actionsMap[order.status]}</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function updateKdsStatus(idx, status) {
+  kitchenOrders[idx].status = status;
+  if (status === 'ready' && kitchenOrders[idx].type === 'table') {
+    tables[kitchenOrders[idx].tableId].status = 'ready';
+    renderTables();
+    showToast(`Table ${kitchenOrders[idx].tableId} — food is ready! 🟢`, 'success');
+  }
+  renderKitchenDisplay();
+}
+
+function dismissKdsOrder(idx) {
+  kitchenOrders.splice(idx, 1);
+  renderKitchenDisplay();
+}
+
+// KDS timers refresh every minute
+setInterval(() => {
+  if (document.getElementById('view-kitchen').classList.contains('active')) renderKitchenDisplay();
+}, 60000);
+
+// ══════════════════════════════════════════════════════════════
+// TAKEOUT / DELIVERY ORDERS
+// ══════════════════════════════════════════════════════════════
+function setTakeoutFilter(filter) {
+  takeoutFilter = filter;
+  document.querySelectorAll('.takeout-tab').forEach(btn => {
+    const active = btn.dataset.filter === filter;
+    btn.classList.toggle('bg-[#E6392E]', active);
+    btn.classList.toggle('text-white', active);
+    btn.classList.toggle('border-[#E6392E]', active);
+    btn.classList.toggle('bg-[#1A1A1A]', !active);
+    btn.classList.toggle('text-[#888]', !active);
+  });
+  renderTakeoutOrders();
+}
+
+function updateTakeoutBadge() {
+  const pending = takeoutOrders.filter(o => o.staffStatus === 'pending').length;
+  const badge   = document.getElementById('badge-takeout');
+  if (!badge) return;
+  badge.textContent = pending;
+  badge.classList.toggle('hidden', pending === 0);
+}
+
+function renderTakeoutOrders() {
+  const container = document.getElementById('takeout-list');
+  container.innerHTML = '';
+
+  const shown = takeoutOrders.filter(o => takeoutFilter === 'all' || o.staffStatus === takeoutFilter);
+  const active = takeoutOrders.filter(o => o.staffStatus === 'pending').length;
+  document.getElementById('takeout-count').textContent = active;
+
+  if (!shown.length) {
+    container.innerHTML = `<div class="text-center py-12 text-[#555]">
+      <i class="fa-solid fa-bag-shopping text-4xl mb-3 block opacity-30"></i>
+      <p>${takeoutFilter === 'all' ? 'No takeout orders yet — new orders appear instantly.' : `No ${takeoutFilter} orders.`}</p>
+    </div>`;
+    return;
+  }
+
+  shown.forEach((order, idx) => {
+    const realIdx = takeoutOrders.indexOf(order);
+
+    // Parse timestamp (Firebase sends unix ms, customer site sets Date.now())
+    const placedAt = order.timestamp ? new Date(order.timestamp) : new Date();
+    const timeStr  = placedAt.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+
+    // Items — customer site sends array of {name, quantity, customizations:[{label}...]}
+    const itemsHTML = (order.items || []).map(i => {
+      const mods = Array.isArray(i.customizations) && i.customizations.length
+        ? `<span class="text-[#D4AF37]"> (${i.customizations.map(c => c.label || c).join(', ')})</span>` : '';
+      return `<div class="text-sm py-1">• ${i.quantity}× ${i.name}${mods}</div>`;
+    }).join('');
+
+    const typeIcon = order.type === 'delivery' ? '🛵' : '🥡';
+    const isBusy   = order.staffStatus === 'pending';
+
+    const el = document.createElement('div');
+    el.className = `bg-[#1A1A1A] border rounded-3xl p-5 border-l-4 ${isBusy ? 'border-[#E6392E]' : 'border-[#10B981]'}`;
+    el.innerHTML = `
+      <div class="flex justify-between items-start mb-3">
+        <div>
+          <div class="font-semibold">${typeIcon} ${order.customer?.name || '—'}</div>
+          <div class="text-xs text-[#888] mt-0.5">
+            📞 ${order.customer?.phone || '—'} &nbsp;•&nbsp; ${timeStr}
+            ${order.type === 'delivery' && order.customer?.address ? `&nbsp;•&nbsp; 📍 ${order.customer.address}` : ''}
+          </div>
+          ${order.orderNumber ? `<div class="text-[10px] text-[#555] mt-0.5">#${order.orderNumber}</div>` : ''}
+        </div>
+        <div class="text-right">
+          <div class="text-xl font-bold text-[#E6392E] serif">${order.total} MKD</div>
+          <div class="text-[10px] text-[#888] mt-0.5">${order.time?.value || 'ASAP'}</div>
+        </div>
+      </div>
+
+      <div class="border-y border-[#2A2A2A] py-3 mb-3">${itemsHTML}</div>
+
+      ${order.notes ? `<div class="text-xs text-[#D4AF37] mb-3">📝 ${order.notes}</div>` : ''}
+
+      <div class="flex gap-2">
+        ${isBusy ? `
+          <button onclick="acceptTakeout(${realIdx})" class="flex-1 py-2.5 text-sm bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-2xl transition-colors">
+            ACCEPT &amp; KITCHEN
+          </button>
+        ` : `
+          <button class="flex-1 py-2.5 text-sm bg-[#1A1A1A] border border-[#333] rounded-2xl text-[#10B981] font-semibold">
+            READY FOR ${order.type === 'delivery' ? 'RIDER' : 'PICKUP'}
+          </button>
+        `}
+        <button onclick="dismissTakeout(${realIdx})" class="px-4 py-2.5 text-sm bg-[#1A1A1A] border border-[#333] rounded-2xl hover:bg-[#252525] transition-colors text-[#888] hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+function acceptTakeout(idx) {
+  const order = takeoutOrders[idx];
+  order.staffStatus = 'ready';
+
+  kitchenOrders.unshift({
+    id:       Date.now(),
+    type:     'takeout',
+    customer: order.customer,
+    items:    (order.items || []).map(i => ({ ...i, qty: i.quantity, price: i.unitPrice || 0 })),
+    status:   'new',
+    sentAt:   Date.now(),
+    total:    order.total,
+  });
+
+  // Update in Firebase
+  if (db && order._key) db.ref(`orders/${order._key}/staffStatus`).set('ready');
+
+  updateTakeoutBadge();
+  renderTakeoutOrders();
+  renderKitchenDisplay();
+  showToast('Takeout accepted — sent to kitchen 🔥', 'success');
+}
+
+function dismissTakeout(idx) {
+  if (!confirm('Remove this order from the list?')) return;
+  takeoutOrders.splice(idx, 1);
+  updateTakeoutBadge();
+  renderTakeoutOrders();
+}
+
+// ══════════════════════════════════════════════════════════════
+// INVENTORY
+// ══════════════════════════════════════════════════════════════
+function renderInventory() {
+  const tbody = document.getElementById('inventory-body');
+  tbody.innerHTML = '';
+
+  menuData.forEach(item => {
+    const stock = inventory[item.id] ?? 0;
+    const max   = 100;
+    const pct   = Math.min(100, Math.round(stock / max * 100));
+    const isLow = stock < 15;
+    const oos   = stock <= 0;
+
+    const barColor = oos ? '#E6392E' : isLow ? '#F59E0B' : '#10B981';
+    const statusBadge = oos
+      ? `<span class="px-2 py-0.5 text-[10px] bg-[#E6392E] text-white rounded-xl">OUT</span>`
+      : isLow
+      ? `<span class="px-2 py-0.5 text-[10px] bg-[#F59E0B] text-black rounded-xl">LOW</span>`
+      : `<span class="px-2 py-0.5 text-[10px] bg-[#10B981] text-white rounded-xl">OK</span>`;
+
+    const row = document.createElement('tr');
+    row.className = `border-b border-[#222] last:border-none ${oos ? 'bg-[#1C1010]' : ''}`;
+    row.innerHTML = `
+      <td class="py-3 px-5 font-medium">${item.name}</td>
+      <td class="py-3 text-[#888] text-xs">${item.category}</td>
+      <td class="py-3 text-center">
+        <div class="font-mono text-sm ${isLow ? 'text-[#F59E0B] font-bold' : ''}">${stock}</div>
+        <div class="stock-bar w-20 mx-auto">
+          <div class="stock-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+        </div>
+      </td>
+      <td class="py-3 text-center">${statusBadge}</td>
+      <td class="py-3 px-5 text-right">
+        <div class="flex justify-end gap-1">
+          <button onclick="quickStock(${item.id},-5)"  class="px-2 py-1 text-xs border border-[#333] rounded-lg hover:bg-[#252525] transition-colors">−5</button>
+          <button onclick="quickStock(${item.id},+5)"  class="px-2 py-1 text-xs border border-[#333] rounded-lg hover:bg-[#252525] transition-colors">+5</button>
+          <button onclick="quickStock(${item.id},+20)" class="px-2 py-1 text-xs border border-[#333] rounded-lg hover:bg-[#252525] transition-colors">+20</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function quickStock(itemId, delta) {
+  const id = Number(itemId);
+  inventory[id] = Math.max(0, (inventory[id] ?? 0) + delta);
+  saveLocal();
+  renderInventory();
+}
+
+function openStockAdjustModal() {
+  const sel = document.getElementById('stock-item-select');
+  sel.innerHTML = menuData.map(i => `<option value="${i.id}">${i.name} (${inventory[i.id] ?? 0})</option>`).join('');
+  document.getElementById('stock-quantity').value = '';
+  document.getElementById('stock-modal').classList.remove('hidden');
+  document.getElementById('stock-modal').classList.add('flex');
+}
+
+function closeStockModal() {
+  document.getElementById('stock-modal').classList.add('hidden');
+  document.getElementById('stock-modal').classList.remove('flex');
+}
+
+function saveStockAdjust() {
+  const id  = Number(document.getElementById('stock-item-select').value);
+  const qty = parseInt(document.getElementById('stock-quantity').value);
+  if (isNaN(qty) || qty < 0) { showToast('Enter a valid quantity', 'error'); return; }
+  inventory[id] = qty;
+  saveLocal();
+  renderInventory();
+  closeStockModal();
+  showToast('Stock updated');
+}
+
+function resetInventory() {
+  if (!confirm('Reset ALL inventory to 50 units each?')) return;
+  menuData.forEach(i => { inventory[i.id] = 50; });
+  saveLocal();
+  renderInventory();
+  showToast('Inventory reset');
+}
+
+// ══════════════════════════════════════════════════════════════
+// REPORTS
+// ══════════════════════════════════════════════════════════════
+function updateReports() {
+  const todayStr = new Date().toDateString();
+  const today    = salesHistory.filter(s => new Date(s.paidAt).toDateString() === todayStr);
+
+  const revenue  = today.reduce((s, sale) => s + sale.total, 0);
+  const count    = today.length;
+  const avg      = count ? Math.round(revenue / count) : 0;
+
+  document.getElementById('report-revenue').textContent = `${revenue} MKD`;
+  document.getElementById('report-orders').textContent  = count;
+  document.getElementById('report-avg').textContent     = `${avg} MKD`;
+
+  // Top items
+  const itemCounts = {};
+  today.forEach(sale => {
+    sale.items.forEach(item => {
+      itemCounts[item.name] = (itemCounts[item.name] || 0) + item.qty;
+    });
+  });
+  const sorted = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+
+  const topContainer = document.getElementById('top-items');
+  topContainer.innerHTML = sorted.length
+    ? sorted.map(([name, count]) => `
+        <div class="flex justify-between items-center py-2 border-b border-[#222] last:border-none text-sm">
+          <span>${name}</span>
+          <div class="flex items-center gap-x-2">
+            <div class="h-1.5 bg-[#E6392E] rounded-full" style="width:${Math.min(100, count * 8)}px"></div>
+            <span class="font-mono text-[#E6392E] text-xs">${count}</span>
+          </div>
+        </div>`).join('')
+    : `<p class="text-[#555] text-sm">No sales recorded today.</p>`;
+
+  // Order history
+  const histContainer = document.getElementById('order-history');
+  histContainer.innerHTML = salesHistory.slice(0, 30).map(s => {
+    const t = new Date(s.paidAt).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    return `
+      <div class="flex justify-between items-center text-xs py-2 border-b border-[#222] last:border-none">
+        <span class="text-[#888]">${t}</span>
+        <span>${s.type === 'table' ? `Table ${s.tableId}` : 'Takeout'}</span>
+        <span class="font-semibold text-[#E6392E]">${s.total} MKD</span>
+      </div>`;
+  }).join('') || `<p class="text-[#555] text-sm">No history yet.</p>`;
+}
+
+function clearTodaysSales() {
+  if (!confirm('Clear today\'s sales data?')) return;
+  const todayStr = new Date().toDateString();
+  salesHistory = salesHistory.filter(s => new Date(s.paidAt).toDateString() !== todayStr);
+  saveLocal();
+  updateReports();
+  showToast('Today\'s data cleared');
+}
+
+function clearAllSales() {
+  if (!confirm('Clear ALL sales history? This cannot be undone.')) return;
+  salesHistory = [];
+  saveLocal();
+  updateReports();
+  showToast('All history cleared');
+}
+
+function exportReport() {
+  const todayStr = new Date().toDateString();
+  const today    = salesHistory.filter(s => new Date(s.paidAt).toDateString() === todayStr);
+  const revenue  = today.reduce((s, sale) => s + sale.total, 0);
+
+  const lines = [
+    `TACOS GOSTIVAR — DAILY REPORT`,
+    `Date: ${new Date().toLocaleDateString('en-GB')}`,
+    `Generated: ${new Date().toLocaleTimeString()}`,
+    ``,
+    `SUMMARY`,
+    `Revenue:    ${revenue} MKD`,
+    `Orders:     ${today.length}`,
+    `Avg order:  ${today.length ? Math.round(revenue / today.length) : 0} MKD`,
+    ``,
+    `ORDER HISTORY`,
+    ...today.map(s => {
+      const t = new Date(s.paidAt).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+      return `${t}  ${s.type === 'table' ? `Table ${s.tableId}` : 'Takeout'}  ${s.total} MKD`;
+    }),
+    ``,
+    `TACOS Gostivar • Fresh. Fast. Real.`,
+  ];
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `TACOS_Report_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Report exported');
+}
+
+// ══════════════════════════════════════════════════════════════
+// MENU PRICES
+// ══════════════════════════════════════════════════════════════
+function renderMenuPrices() {
+  const tbody = document.getElementById('menu-prices-body');
+  tbody.innerHTML = '';
+
+  menuData.forEach((item, idx) => {
+    const row = document.createElement('tr');
+    row.className = 'border-b border-[#222] last:border-none hover:bg-[#111] transition-colors';
+    row.innerHTML = `
+      <td class="py-3 px-5 font-medium">${item.name}</td>
+      <td class="py-3 text-[#888] text-xs">${item.category}</td>
+      <td class="py-3 px-4 text-right">
+        <input type="number" id="price-${item.id}" value="${item.price}" min="10"
+               class="w-24 bg-[#111] border border-[#333] text-right px-3 h-9 rounded-xl text-sm font-mono focus:border-[#D4AF37] outline-none transition-colors">
+      </td>
+      <td class="py-3 px-5 text-right">
+        <button onclick="savePrice(${item.id},${idx})"
+                class="px-4 py-1.5 text-xs bg-[#D4AF37] hover:bg-[#B8962D] text-black font-semibold rounded-xl transition-colors">
+          Save
+        </button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function savePrice(itemId, idx) {
+  const val = parseInt(document.getElementById(`price-${itemId}`).value);
+  if (!val || val < 10) { showToast('Invalid price', 'error'); return; }
+  menuData[idx].price = val;
+  // Sync to Firebase so customer site can read it
+  if (db) db.ref(`menuPrices/${itemId}`).set(val);
+  showToast(`Price updated → ${val} MKD`);
+}
+
+// ══════════════════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════════════════
+function renderSettings() {
+  document.getElementById('current-code-display').textContent = waiterCode;
+  setFirebaseStatus(firebaseConnected);
+}
+
+function updateWaiterCode() {
+  const code = document.getElementById('new-waiter-code').value.trim();
+  if (!code || code.length < 3) { showToast('Code must be at least 3 characters', 'error'); return; }
+  waiterCode = code;
+  saveLocal();
+  document.getElementById('current-code-display').textContent = waiterCode;
+  document.getElementById('new-waiter-code').value = '';
+  showToast(`Waiter code updated to: ${code}`, 'success');
+}
+
+// ══════════════════════════════════════════════════════════════
+// PRINT RECEIPT
+// ══════════════════════════════════════════════════════════════
+function printReceipt(label, items, total, orderNum) {
+  const now = new Date().toLocaleString('en-GB');
+  const rows = items.map(i => `${i.qty}x ${i.name}: ${i.price * i.qty} MKD`).join('\n');
+  const receipt = document.getElementById('receipt-body');
+  receipt.innerHTML = `
+    <div style="margin-bottom:8px; font-size:12px;">
+      <strong>${label}</strong><br>
+      ${now}<br>
+      ${orderNum ? `Order: #${orderNum}<br>` : ''}
+    </div>
+    <pre style="font-size:11px; white-space:pre-wrap;">${rows}</pre>
+    <div style="border-top:1px solid #000; margin-top:8px; padding-top:8px; font-weight:bold;">
+      TOTAL: ${total} MKD
+    </div>
+  `;
+  document.getElementById('print-receipt').style.display = 'block';
+  window.print();
+  document.getElementById('print-receipt').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════════════
+// TOAST NOTIFICATIONS
+// ══════════════════════════════════════════════════════════════
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const toast     = document.createElement('div');
+
+  const bg = type === 'error' ? 'bg-[#E6392E]' : 'bg-[#10B981]';
+  const ic = type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check';
+
+  toast.className = `toast flex items-center gap-x-2.5 px-5 py-3 rounded-2xl shadow-xl text-white text-sm font-medium ${bg} pointer-events-auto`;
+  toast.innerHTML = `<i class="fa-solid ${ic}"></i><span>${message}</span>`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.transition = 'opacity .3s, transform .3s';
+    toast.style.opacity    = '0';
+    toast.style.transform  = 'translateY(8px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ══════════════════════════════════════════════════════════════
+// DEMO DATA — simulated kitchen orders so app feels alive
+// ══════════════════════════════════════════════════════════════
+function seedDemoKitchenOrders() {
+  kitchenOrders = [
+    {
+      id: 9001, type: 'table', tableId: 4,
+      items: [{ name:'Classic Beef Taco', qty:2, price:180 }, { name:'Horchata', qty:2, price:100 }],
+      status: 'preparing', sentAt: Date.now() - 7 * 60000, total: 560,
+    },
+    {
+      id: 9002, type: 'table', tableId: 11,
+      items: [{ name:'Chicken Burrito', qty:1, price:340 }, { name:'Loaded Nachos', qty:1, price:250 }],
+      status: 'new', sentAt: Date.now() - 2 * 60000, total: 590,
+    },
+  ];
+  tables[4].status  = 'occupied';
+  tables[4].total   = 560;
+  tables[11].status = 'occupied';
+  tables[11].total  = 590;
+}
+
+// ══════════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeOrderModal();
+    closeStockModal();
+    closeSidebar();
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  loadLocal();
+  updateClock();
+  setInterval(updateClock, 1000); // ← every second, not 30s
+  // Start on login screen
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('main-app').classList.add('hidden');
+});
+</script>
+</body>
+</html>
