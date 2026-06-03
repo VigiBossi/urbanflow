@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TACOS — Fresh. Fast. Real. | Gostivar</title>
+  <meta name="description" content="Authentic tacos, burritos & more in Gostivar, North Macedonia. Order online for takeout, delivery, or dine-in.">
+  <meta name="theme-color" content="#C8553D">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════
+       HEADER
+       ══════════════════════════════════════════════════════════ -->
+  <header class="site-header" id="site-header">
+    <div class="container header-inner">
+
+      <!-- Logo (replace the <span> with your <img> when logo is ready) -->
+      <div class="logo-area">
+        <div class="logo-placeholder">
+          <!-- <img src="assets/logo.svg" alt="TACOS Logo" width="52" height="52"> -->
+          <span class="logo-text">TACOS</span>
+        </div>
+        <span class="logo-slogan">Fresh. Fast. Real.</span>
+      </div>
+
+      <!-- Desktop navigation -->
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="#specials" class="nav-link">Specials</a>
+        <a href="#menu"     class="nav-link">Menu</a>
+        <a href="#about"    class="nav-link">About</a>
+      </nav>
+
+      <!-- Cart toggle button -->
+      <button class="cart-toggle-btn" id="cart-toggle-btn" aria-label="Open shopping cart">
+        <span class="cart-icon" aria-hidden="true">🛒</span>
+        <span class="cart-count" id="cart-count" aria-live="polite">0</span>
+        <span class="cart-label">Cart</span>
+      </button>
+
+    </div>
+  </header>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       HERO
+       ══════════════════════════════════════════════════════════ -->
+  <section class="hero" id="home" aria-label="Welcome banner">
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Welcome to</p>
+      <h1 class="hero-title">TACOS</h1>
+      <p class="hero-subtitle">Fresh. Fast. Real.</p>
+      <p class="hero-location">📍 Gostivar, North Macedonia</p>
+      <div class="hero-actions">
+        <a href="#menu"     class="btn btn-primary btn-lg">Order Now</a>
+        <a href="#specials" class="btn btn-outline  btn-lg">Today's Specials</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       ORDER TYPE SELECTOR
+       ══════════════════════════════════════════════════════════ -->
+  <section class="order-type-section" id="order-type" aria-label="Choose order type">
+    <div class="container">
+      <p class="section-label">How would you like your order?</p>
+      <div class="order-type-tabs" role="group" aria-label="Order type">
+
+        <button class="order-type-tab active" data-type="takeout">
+          <span class="tab-icon" aria-hidden="true">🥡</span>
+          <span class="tab-name">Takeout</span>
+          <span class="tab-desc">Pick up at the restaurant</span>
+        </button>
+
+        <button class="order-type-tab" data-type="delivery">
+          <span class="tab-icon" aria-hidden="true">🛵</span>
+          <span class="tab-name">Delivery</span>
+          <span class="tab-desc">We deliver to you (+100 MKD)</span>
+        </button>
+
+        <button class="order-type-tab" data-type="dine-in">
+          <span class="tab-icon" aria-hidden="true">🪑</span>
+          <span class="tab-name">Dine-in</span>
+          <span class="tab-desc">Eat with us at the restaurant</span>
+        </button>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       DAILY SPECIALS
+       ══════════════════════════════════════════════════════════ -->
+  <section class="specials-section" id="specials" aria-labelledby="specials-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">🔥 Limited Time</span>
+        <h2 class="section-title" id="specials-heading">Today's Specials</h2>
+        <p class="section-subtitle">Handpicked deals to make your meal even better</p>
+      </div>
+      <!-- Filled by app.js → renderSpecials() -->
+      <div class="specials-grid" id="specials-grid" aria-live="polite"></div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       MENU
+       ══════════════════════════════════════════════════════════ -->
+  <section class="menu-section" id="menu" aria-labelledby="menu-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">🌮 Our Menu</span>
+        <h2 class="section-title" id="menu-heading">Fresh &amp; Delicious</h2>
+        <p class="section-subtitle">Every item made to order with the freshest ingredients</p>
+      </div>
+
+      <!-- Category tabs — filled by app.js → renderCategoryTabs() -->
+      <div class="category-tabs" id="category-tabs" role="tablist" aria-label="Menu categories"></div>
+
+      <!-- Menu item grid — filled by app.js → renderMenuGrid() -->
+      <div class="menu-grid" id="menu-grid" role="tabpanel" aria-live="polite"></div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       ABOUT
+       ══════════════════════════════════════════════════════════ -->
+  <section class="about-section" id="about" aria-labelledby="about-heading">
+    <div class="container about-grid">
+
+      <div class="about-image">
+        <img
+          src="https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?w=700&q=80"
+          alt="Freshly prepared tacos at TACOS Gostivar"
+          loading="lazy"
+        >
+      </div>
+
+      <div class="about-content">
+        <span class="section-tag">Our Story</span>
+        <h2 class="about-title" id="about-heading">Real Food, Real Flavor</h2>
+        <p class="about-text">
+          At TACOS, we believe great food starts with great ingredients.
+          Located in the heart of Gostivar, we bring bold Mexican-inspired
+          flavors to North Macedonia — every taco, burrito, and bite
+          made fresh to order.
+        </p>
+        <p class="about-text">
+          Whether you're grabbing a quick lunch or settling in for a
+          family feast, we're here to make every meal worth it.
+          Fresh produce, quality meats, homemade salsas — every single day.
+        </p>
+        <div class="about-badges">
+          <span class="badge">🌿 Fresh Daily</span>
+          <span class="badge">⚡ Ready in 10 min</span>
+          <span class="badge">❤️ Made with Love</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════════════════════ -->
+  <footer class="site-footer" aria-label="Site footer">
+    <div class="container footer-inner">
+
+      <div class="footer-brand">
+        <span class="logo-text footer-logo">TACOS</span>
+        <p>Fresh. Fast. Real.</p>
+        <p class="footer-location">📍 Gostivar, North Macedonia</p>
+      </div>
+
+      <div class="footer-info">
+        <h4>Hours</h4>
+        <p>Mon – Sat &nbsp; 10:00 – 22:00</p>
+        <p>Sunday &nbsp;&nbsp;&nbsp;&nbsp; 11:00 – 21:00</p>
+      </div>
+
+      <div class="footer-info">
+        <h4>Contact</h4>
+        <p>📞 +389 xx xxx xxx</p>
+        <p>📧 hello@tacosgostivar.mk</p>
+      </div>
+
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 TACOS Gostivar. All rights reserved.</p>
+    </div>
+  </footer>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       CART SIDEBAR
+       ══════════════════════════════════════════════════════════ -->
+  <div class="cart-overlay"  id="cart-overlay"  aria-hidden="true"></div>
+
+  <aside class="cart-sidebar" id="cart-sidebar" aria-label="Shopping cart">
+
+    <div class="cart-header">
+      <h3>Your Order</h3>
+      <button class="cart-close-btn" id="cart-close-btn" aria-label="Close cart">✕</button>
+    </div>
+
+    <div class="cart-order-type" id="cart-order-type-label" aria-live="polite">
+      <span class="order-type-badge">🥡 Takeout</span>
+    </div>
+
+    <div class="cart-body" id="cart-body">
+      <!-- Empty state -->
+      <div class="cart-empty" id="cart-empty">
+        <span class="cart-empty-icon" aria-hidden="true">🌮</span>
+        <p>Your cart is empty</p>
+        <button class="btn btn-outline" onclick="closeCart()">Browse Menu</button>
+      </div>
+      <!-- Populated by renderCart() -->
+      <div class="cart-items" id="cart-items" aria-live="polite"></div>
+    </div>
+
+    <div class="cart-footer" id="cart-footer" style="display:none">
+      <div class="cart-summary" aria-live="polite">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="cart-subtotal">0 MKD</span>
+        </div>
+        <div class="summary-row delivery-fee-row" id="delivery-fee-row" style="display:none">
+          <span>Delivery fee</span>
+          <span id="delivery-fee">100 MKD</span>
+        </div>
+        <div class="summary-row total-row">
+          <span>Total</span>
+          <span id="cart-total">0 MKD</span>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" id="checkout-btn">
+        Proceed to Checkout →
+      </button>
+    </div>
+
+  </aside>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       ITEM DETAIL MODAL
+       ══════════════════════════════════════════════════════════ -->
+  <div
+    class="modal-overlay"
+    id="item-modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-item-name"
+  >
+    <div class="modal item-modal" id="item-modal">
+
+      <button class="modal-close-btn" id="item-modal-close" aria-label="Close item details">✕</button>
+
+      <!-- Hero image -->
+      <div class="modal-image-wrap">
+        <img id="modal-item-image" src="" alt="" class="modal-item-image">
+        <button class="modal-fav-btn" id="modal-fav-btn" aria-label="Toggle favourite">♡</button>
+      </div>
+
+      <!-- Content -->
+      <div class="modal-content">
+
+        <div class="modal-item-header">
+          <h2 id="modal-item-name" class="modal-item-name"></h2>
+          <span class="modal-item-price" id="modal-item-price" aria-live="polite"></span>
+        </div>
+
+        <p class="modal-item-desc" id="modal-item-desc"></p>
+
+        <!-- Ingredients -->
+        <div class="modal-ingredients">
+          <h4>Ingredients</h4>
+          <div class="ingredient-tags" id="modal-ingredient-tags"></div>
+        </div>
+
+        <!-- Customizations (hidden when item has none) -->
+        <div class="modal-customizations" id="modal-customizations">
+          <h4>Customize Your Order</h4>
+
+          <div class="customization-group" id="customization-add-group">
+            <span class="customization-group-label add-label">➕ Add Extras</span>
+            <div class="customization-options" id="customization-add-options"></div>
+          </div>
+
+          <div class="customization-group" id="customization-remove-group">
+            <span class="customization-group-label remove-label">➖ Remove Ingredients</span>
+            <div class="customization-options" id="customization-remove-options"></div>
+          </div>
+        </div>
+
+        <!-- Quantity + Add to Cart -->
+        <div class="modal-add-to-cart">
+          <div class="quantity-selector" aria-label="Quantity">
+            <button class="qty-btn" id="modal-qty-minus" aria-label="Decrease quantity">−</button>
+            <span class="qty-value" id="modal-qty" aria-live="polite">1</span>
+            <button class="qty-btn" id="modal-qty-plus" aria-label="Increase quantity">+</button>
+          </div>
+          <button class="btn btn-primary btn-lg modal-add-btn" id="modal-add-btn">
+            Add to Cart — <span id="modal-add-price" aria-live="polite">0 MKD</span>
+          </button>
+        </div>
+
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+  </div><!-- /.modal-overlay -->
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       CHECKOUT MODAL
+       ══════════════════════════════════════════════════════════ -->
+  <div
+    class="modal-overlay"
+    id="checkout-modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Checkout"
+  >
+    <div class="modal checkout-modal" id="checkout-modal">
+
+      <button class="modal-close-btn" id="checkout-modal-close" aria-label="Close checkout">✕</button>
+      <h2 class="checkout-title">Complete Your Order</h2>
+
+      <!-- ── The order form ── -->
+      <form class="checkout-form" id="checkout-form" novalidate>
+
+        <!-- Customer details -->
+        <div class="form-section">
+          <h4>Your Details</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="checkout-name">Full Name *</label>
+              <input
+                type="text"
+                id="checkout-name"
+                name="name"
+                placeholder="e.g. Ana Dimitrova"
+                required
+                autocomplete="name"
+              >
+            </div>
+            <div class="form-group">
+              <label for="checkout-phone">Phone Number *</label>
+              <input
+                type="tel"
+                id="checkout-phone"
+                name="phone"
+                placeholder="+389 xx xxx xxx"
+                required
+                autocomplete="tel"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Delivery address (shown only for Delivery) -->
+        <div class="form-section delivery-address-section" id="delivery-address-section" style="display:none">
+          <h4>Delivery Address</h4>
+          <div class="form-group">
+            <label for="checkout-address">Street Address *</label>
+            <input
+              type="text"
+              id="checkout-address"
+              name="address"
+              placeholder="Street name and number"
+              autocomplete="street-address"
+            >
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="checkout-city">City</label>
+              <input
+                type="text"
+                id="checkout-city"
+                name="city"
+                value="Gostivar"
+                readonly
+              >
+            </div>
+            <div class="form-group">
+              <label for="checkout-floor">Floor / Apartment</label>
+              <input
+                type="text"
+                id="checkout-floor"
+                name="floor"
+                placeholder="Optional"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Table number (shown only for Dine-in) -->
+        <div class="form-section dine-in-section" id="dine-in-section" style="display:none">
+          <h4>Table Information</h4>
+          <div class="form-group">
+            <label for="checkout-table">Table Number</label>
+            <input
+              type="number"
+              id="checkout-table"
+              name="table"
+              placeholder="e.g. 5"
+              min="1"
+              max="50"
+            >
+          </div>
+        </div>
+
+        <!-- Pickup / Delivery time -->
+        <div class="form-section">
+          <h4>When Should It Be Ready?</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="checkout-time-type">Timing</label>
+              <select id="checkout-time-type" name="timeType">
+                <option value="asap">As soon as possible</option>
+                <option value="scheduled">Schedule for later</option>
+              </select>
+            </div>
+            <div class="form-group" id="time-picker-group" style="display:none">
+              <label for="checkout-time">Pick a time</label>
+              <input
+                type="time"
+                id="checkout-time"
+                name="time"
+                min="10:00"
+                max="22:00"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-section">
+          <div class="form-group">
+            <label for="checkout-notes">Order Notes</label>
+            <textarea
+              id="checkout-notes"
+              name="notes"
+              placeholder="Allergies, extra napkins, special requests…"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Order summary inside checkout -->
+        <div class="checkout-summary">
+          <h4>Order Summary</h4>
+          <div id="checkout-items-list"></div>
+          <div id="checkout-totals"   aria-live="polite"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-lg" id="place-order-btn">
+          🌮 Place Order
+        </button>
+
+      </form><!-- /#checkout-form -->
+
+      <!-- ── Order confirmed state ── -->
+      <div class="order-success" id="order-success" style="display:none" aria-live="polite">
+        <div class="success-icon" aria-hidden="true">✅</div>
+        <h3>Order Placed!</h3>
+        <p>Your order has been sent to our kitchen.</p>
+        <p class="order-number" id="order-number-display"></p>
+        <p class="success-note">
+          We'll call you at <strong id="success-phone"></strong> to confirm.
+        </p>
+        <button class="btn btn-primary btn-lg" id="order-success-close">
+          Back to Menu
+        </button>
+      </div>
+
+    </div><!-- /.checkout-modal -->
+  </div><!-- /.modal-overlay -->
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       FIREBASE (compat SDK — simpler syntax, no bundler needed)
+       Set up your project at https://console.firebase.google.com
+       then paste your config into js/app.js → FIREBASE_CONFIG
+       ══════════════════════════════════════════════════════════ -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- App scripts (order matters) -->
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
