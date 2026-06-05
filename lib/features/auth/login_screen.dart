@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/providers/auth_provider.dart';
@@ -11,61 +12,61 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
+  final _usernameController = TextEditingController();
+  String _pin = '';
+  bool _usernameSubmitted = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _usernameController.dispose();
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+  void _onDigit(String d) {
+    if (_pin.length < 6) {
+      setState(() => _pin += d);
+    }
+  }
 
+  void _onDelete() {
+    if (_pin.isNotEmpty) {
+      setState(() => _pin = _pin.substring(0, _pin.length - 1));
+    }
+  }
+
+  Future<void> _login() async {
     final auth = context.read<AuthProvider>();
-    final success = await auth.login(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+    final username = _usernameController.text.trim();
+    if (username.isEmpty || _pin.isEmpty) return;
 
+    final success = await auth.login(username, _pin);
     if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid credentials. Please try again.'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      setState(() => _pin = '');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = context.watch<AuthProvider>().isLoading;
-
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
+      body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
-          child: Form(
-            key: _formKey,
+          padding: const EdgeInsets.all(32),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 32),
-                _buildHeader(),
+                _buildLogo(),
                 const SizedBox(height: 48),
-                _buildEmailField(),
-                const SizedBox(height: 16),
-                _buildPasswordField(),
-                const SizedBox(height: 28),
-                _buildLoginButton(isLoading),
-                const SizedBox(height: 20),
-                _buildForgotPassword(),
+                _buildUsernameField(),
+                const SizedBox(height: 32),
+                _buildPinDisplay(),
+                const SizedBox(height: 24),
+                _buildNumpad(),
+                const SizedBox(height: 24),
+                _buildLoginButton(),
+                _buildError(),
               ],
             ),
           ),
@@ -74,119 +75,141 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildLogo() {
     return Column(
       children: [
         Container(
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color: AppColors.accent,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Icon(
-            Icons.location_city_rounded,
-            color: Colors.white,
-            size: 44,
-          ),
+          child: const Icon(Icons.restaurant_menu, size: 44, color: Colors.white),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         const Text(
-          'UrbanFlow AI',
+          'UrbanFlow POS',
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: AppColors.primary,
-            letterSpacing: 0.5,
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 6),
-        Text(
-          'Smart city management at your fingertips',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-          textAlign: TextAlign.center,
+        const Text(
+          'Restaurant Point of Sale',
+          style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
         ),
       ],
     );
   }
 
-  Widget _buildEmailField() {
-    return TextFormField(
-      controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
-      textInputAction: TextInputAction.next,
+  Widget _buildUsernameField() {
+    return TextField(
+      controller: _usernameController,
+      style: const TextStyle(color: AppColors.textPrimary, fontSize: 16),
       decoration: const InputDecoration(
-        labelText: 'Email',
-        hintText: 'you@example.com',
-        prefixIcon: Icon(Icons.email_outlined),
+        labelText: 'Username',
+        hintText: 'e.g. waiter1',
+        prefixIcon: Icon(Icons.person_outline, color: AppColors.textSecondary),
       ),
-      validator: (v) {
-        if (v == null || v.trim().isEmpty) return 'Enter your email';
-        if (!v.contains('@')) return 'Enter a valid email';
-        return null;
-      },
+      textInputAction: TextInputAction.next,
+      autocorrect: false,
     );
   }
 
-  Widget _buildPasswordField() {
-    return TextFormField(
-      controller: _passwordController,
-      obscureText: _obscurePassword,
-      textInputAction: TextInputAction.done,
-      onFieldSubmitted: (_) => _submit(),
-      decoration: InputDecoration(
-        labelText: 'Password',
-        hintText: '••••••••',
-        prefixIcon: const Icon(Icons.lock_outline),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+  Widget _buildPinDisplay() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(6, (i) {
+        final filled = i < _pin.length;
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 6),
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: filled ? AppColors.accent : AppColors.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: filled ? AppColors.accent : AppColors.cardBorder,
+              width: 2,
+            ),
           ),
-          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-        ),
-      ),
-      validator: (v) {
-        if (v == null || v.isEmpty) return 'Enter your password';
-        if (v.length < 6) return 'Password must be at least 6 characters';
-        return null;
-      },
+          child: filled
+              ? const Icon(Icons.circle, size: 14, color: Colors.white)
+              : null,
+        );
+      }),
     );
   }
 
-  Widget _buildLoginButton(bool isLoading) {
-    return SizedBox(
-      height: 52,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : _submit,
-        child: isLoading
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.5,
+  Widget _buildNumpad() {
+    final digits = [
+      ['1', '2', '3'],
+      ['4', '5', '6'],
+      ['7', '8', '9'],
+      ['', '0', '⌫'],
+    ];
+
+    return Column(
+      children: digits.map((row) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: row.map((d) {
+              if (d.isEmpty) return const SizedBox(width: 90, height: 72);
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: SizedBox(
+                  width: 90,
+                  height: 72,
+                  child: Material(
+                    color: d == '⌫' ? AppColors.surfaceVariant : AppColors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => d == '⌫' ? _onDelete() : _onDigit(d),
+                      child: Center(
+                        child: d == '⌫'
+                            ? const Icon(Icons.backspace_outlined, color: AppColors.textSecondary, size: 22)
+                            : Text(d, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                      ),
+                    ),
+                  ),
                 ),
-              )
-            : const Text(
-                'Log In',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
+              );
+            }).toList(),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return Consumer<AuthProvider>(
+      builder: (_, auth, __) => SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: auth.isLoading ? null : _login,
+          child: auth.isLoading
+              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+              : const Text('Login'),
+        ),
       ),
     );
   }
 
-  Widget _buildForgotPassword() {
-    return Center(
-      child: TextButton(
-        onPressed: () {},
-        child: const Text(
-          'Forgot password?',
-          style: TextStyle(color: AppColors.primary),
-        ),
-      ),
+  Widget _buildError() {
+    return Consumer<AuthProvider>(
+      builder: (_, auth, __) {
+        if (auth.error == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: Text(auth.error!, style: const TextStyle(color: AppColors.error, fontSize: 14)),
+        );
+      },
     );
   }
 }

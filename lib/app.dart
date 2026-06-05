@@ -11,9 +11,9 @@ class UrbanFlowApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'UrbanFlow AI',
+      title: 'UrbanFlow POS',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.darkTheme,
       home: Consumer<AuthProvider>(
         builder: (_, auth, __) =>
             auth.isLoggedIn ? const HomeScreen() : const LoginScreen(),

@@ -2,41 +2,76 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class AppTheme {
-  static ThemeData get lightTheme => ThemeData(
+  static ThemeData get darkTheme => ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          primary: AppColors.primary,
-          secondary: AppColors.secondary,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: AppColors.background,
+        colorScheme: const ColorScheme.dark(
+          primary: AppColors.accent,
+          secondary: AppColors.accent,
+          surface: AppColors.surface,
+          background: AppColors.background,
+          onPrimary: AppColors.onAccent,
+          onBackground: AppColors.textPrimary,
+          onSurface: AppColors.textPrimary,
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          backgroundColor: AppColors.surface,
+          foregroundColor: AppColors.textPrimary,
           elevation: 0,
-        ),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          elevation: 8,
+          surfaceTintColor: Colors.transparent,
         ),
         cardTheme: CardTheme(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          color: AppColors.surface,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: AppColors.cardBorder, width: 1),
+          ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            padding: const EdgeInsets.symmetric(vertical: 14),
+            backgroundColor: AppColors.accent,
+            foregroundColor: AppColors.onAccent,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.cardBorder),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.cardBorder),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.accent, width: 2),
+          ),
           filled: true,
-          fillColor: const Color(0xFFF5F7FF),
+          fillColor: AppColors.surface,
+          hintStyle: const TextStyle(color: AppColors.textSecondary),
+          labelStyle: const TextStyle(color: AppColors.textSecondary),
+        ),
+        dividerTheme: const DividerThemeData(color: AppColors.divider),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: AppColors.textPrimary),
+          bodyMedium: TextStyle(color: AppColors.textPrimary),
+          bodySmall: TextStyle(color: AppColors.textSecondary),
+          titleLarge: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+          titleMedium: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
+          titleSmall: TextStyle(color: AppColors.textSecondary),
+        ),
+        chipTheme: ChipThemeData(
+          backgroundColor: AppColors.surfaceVariant,
+          selectedColor: AppColors.accent,
+          labelStyle: const TextStyle(color: AppColors.textPrimary),
+          secondaryLabelStyle: const TextStyle(color: AppColors.onAccent),
+          side: BorderSide.none,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
       );
 }
