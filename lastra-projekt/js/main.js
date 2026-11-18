@@ -13,6 +13,10 @@
   const fine = matchMedia("(pointer: fine)").matches;
   const small = () => innerWidth < 900;
   const pad = n => String(n).padStart(2, "0");
+  /* contact channels: a value still holding a config.js placeholder is never shown or used */
+  const fake = v => !v || /X|example\.|0{6,}/i.test(String(v));
+  const has = { phone: !fake(S.phone) && !fake(S.phoneLink), whatsapp: !fake(S.whatsapp), email: !fake(S.email), facebook: !!S.facebook };
+  const messenger = S.facebook ? "https://m.me/" + S.facebook.replace(/\/+$/, "").split("/").pop() : "";
   /* jpg path from config -> optimised webp + 800w variant */
   const webp = p => p.replace(/\.jpe?g$/i, ".webp"), webp8 = p => p.replace(/\.jpe?g$/i, "-800.webp");
   const pic = (p, alt, sizes = "100vw", cls = "", lazy = true) =>
@@ -69,6 +73,7 @@
     fab.className = "fab";
     fab.innerHTML = `<a class="fab-call" data-site="phone-icon" href="#">${PH}<span data-i18n="call"></span></a><a class="fab-wa" data-site="whatsapp" href="#" target="_blank" rel="noopener">${WA}<span>WhatsApp</span></a>`;
     document.body.appendChild(fab);
+    if (!has.phone && !has.whatsapp) fab.hidden = true;
 
     const b = qs(".burger");
     const setMenu = o => {
@@ -110,7 +115,8 @@
     if (grid) { grid.innerHTML = S.projects.map((p, i) => card(p, i, "(max-width: 900px) 100vw, 50vw")).join(""); applyFilter((qs(".filters .on") || {}).dataset?.filter || "all"); }
     qsa(".stat-num").forEach(el => { el.dataset.val = S.stats[el.dataset.stat]; el.dataset.suf = el.dataset.stat === "satisfaction" ? "" : "+"; if (!el.dataset.counted) el.textContent = el.dataset.val + el.dataset.suf; });
     qsa("[data-site]").forEach(el => {
-      const k = el.dataset.site;
+      const k = el.dataset.site, need = k === "phone-icon" ? "phone" : k;
+      if (need in has && !has[need]) { (el.closest(".cinfo li, .flinks li") || el).hidden = true; return; }
       if (k === "phone") { el.href = "tel:" + S.phoneLink; el.textContent = S.phone; }
       if (k === "phone-icon") el.href = "tel:" + S.phoneLink;
       if (k === "email") { el.href = "mailto:" + S.email; el.textContent = S.email; }
@@ -259,6 +265,16 @@
   function form() {
     const f = qs("#quote-form"); if (!f) return;
     const err = qs(".form-error", f);
+    /* send channel: WhatsApp, else e-mail, else Facebook Messenger (copy + open) while the config still has placeholders */
+    const mode = has.whatsapp ? "wa" : has.email ? "mail" : messenger ? "msgr" : "none";
+    const submitLbl = qs('button[type="submit"] span', f), mailBtn = qs("#send-mail", f), note = qs(".form-note", f);
+    const setKey = (el, k) => { if (el) { el.dataset.i18n = k; el.textContent = t(k); } };
+    if (mode !== "wa" || !has.email) mailBtn.hidden = true;
+    if (mode === "mail") setKey(submitLbl, "fm_mail");
+    if (mode === "msgr") { setKey(submitLbl, "fm_msgr"); setKey(note, "msgr_note"); }
+    if (mode === "none") qs('button[type="submit"]', f).disabled = true;
+    const status = document.createElement("div"); status.className = "form-status full"; status.setAttribute("role", "status"); status.hidden = true;
+    qs(".form-actions", f).after(status);
     const build = () => {
       const d = new FormData(f), miss = [];
       ["name", "phone"].forEach(n => { const ok = String(d.get(n) || "").trim(); f[n].setAttribute("aria-invalid", !ok); if (!ok) miss.push(f[n]); });
@@ -268,15 +284,39 @@
       return [t("msg_intro"), "", `${t("fm_name")}: ${d.get("name")}`, `${t("fm_phone")}: ${d.get("phone")}`, `${t("fm_loc")}: ${d.get("location") || "-"}`, `${t("fm_size")}: ${d.get("size") || "-"}`, `${t("fm_budget")}: ${d.get("budget") ? b.textContent : "-"}`, `${t("fm_msg")}: ${d.get("message") || "-"}`].join("\n");
     };
     f.addEventListener("input", e => { if (e.target.getAttribute("aria-invalid") === "true" && e.target.value.trim()) e.target.setAttribute("aria-invalid", "false"); });
-    f.addEventListener("submit", e => { e.preventDefault(); const m = build(); if (m) window.open("https://wa.me/" + S.whatsapp + "?text=" + encodeURIComponent(m), "_blank", "noopener"); });
-    qs("#send-mail", f).addEventListener("click", () => { const m = build(); if (m) location.href = "mailto:" + S.email + "?subject=" + encodeURIComponent("Lastra Projekt – " + t("cta_quote")) + "&body=" + encodeURIComponent(m); });
+    const mail = m => { location.href = "mailto:" + S.email + "?subject=" + encodeURIComponent("Lastra Projekt – " + t("cta_quote")) + "&body=" + encodeURIComponent(m); };
+    const manual = m => { status.innerHTML = `<p>${t("msgr_manual")}</p><textarea readonly rows="7"></textarea>`; qs("textarea", status).value = m; status.hidden = false; qs("textarea", status).select(); };
+    f.addEventListener("submit", e => {
+      e.preventDefault(); const m = build(); if (!m) return;
+      if (mode === "wa") return void window.open("https://wa.me/" + S.whatsapp + "?text=" + encodeURIComponent(m), "_blank", "noopener");
+      if (mode === "mail") return mail(m);
+      if (mode === "msgr") {
+        window.open(messenger, "_blank", "noopener");   // opened synchronously so pop-up blockers allow it
+        const done = ok => { if (ok) { status.innerHTML = `<p>${t("msgr_copied")}</p>`; status.hidden = false; } else manual(m); };
+        if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(m).then(() => done(true), () => done(false)); else done(false);
+      }
+    });
+    mailBtn.addEventListener("click", () => { const m = build(); if (m) mail(m); });
   }
 
   /* ---------------- services index (home) ---------------- */
   function services() {
     const items = qsa(".sv-item"); if (!items.length) return;
-    const imgs = qsa(".sv-preview img"), tag = qs(".sv-tag");
-    const preview = i => { imgs.forEach((im, k) => im.classList.toggle("on", k === i)); if (tag) tag.textContent = `${pad(i + 1)} / ${pad(items.length)}`; };
+    const pv = qs(".sv-preview"), imgs = qsa(".sv-preview img"), tag = qs(".sv-tag");
+    let model = null, cur = 0;
+    const preview = i => { if (i < 0) return; cur = i; imgs.forEach((im, k) => im.classList.toggle("on", k === i)); if (tag) tag.textContent = `${pad(i + 1)} / ${pad(items.length)}`; if (model) model.set(i); };
+    /* interactive 3D maquette: fetched only when the block approaches the viewport; the photos stay as the fallback */
+    const gl2 = () => { try { return !!document.createElement("canvas").getContext("webgl2"); } catch (e) { return false; } };
+    if (pv && "IntersectionObserver" in window && gl2()) {
+      const lazy = new IntersectionObserver(([e]) => {
+        if (!e.isIntersecting) return; lazy.disconnect();
+        import("./layers3d.js").then(m => {
+          model = m.mount(pv); if (!model) return; model.set(cur);
+          const hint = document.createElement("span"); hint.className = "sv-hint mono"; hint.dataset.i18n = "drag_rotate"; hint.textContent = t("drag_rotate"); pv.appendChild(hint);
+        }).catch(err => console.warn("3D model unavailable, showing photos", err));
+      }, { rootMargin: "600px 0px" });
+      lazy.observe(pv);
+    }
     const openI = i => items.forEach((it, k) => { const o = k === i; it.classList.toggle("open", o); qs(".sv-btn", it).setAttribute("aria-expanded", o); if (o) preview(k); });
     items.forEach((it, i) => {
       qs(".sv-btn", it).addEventListener("click", () => openI(it.classList.contains("open") && small() ? -1 : i));

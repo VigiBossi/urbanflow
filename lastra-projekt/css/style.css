@@ -489,6 +489,7 @@ body.nav-open .burger i:first-of-type{top:21px;transform:rotate(45deg)}body.nav-
   .man-media{aspect-ratio:4/3}
   .sv-wrap{grid-template-columns:1fr}
   .sv-preview{position:relative;top:0;order:-1;aspect-ratio:16/11}
+  .sv-hint{top:12px;right:12px;bottom:auto}
   .sv-btn{grid-template-columns:44px 1fr 24px;padding:22px 0}
   .sv-panel > div{padding-left:56px}
   .sv-item.open .sv-t{transform:none}
@@ -585,3 +586,34 @@ body.nav-open .burger i:first-of-type{top:21px;transform:rotate(45deg)}body.nav-
   .hud-scroll i:after{display:none}
 }
 @media print{#site-header,.fab,.hero-hud,.page-curtain,.cursor-chip{display:none!important}.hero3d{height:auto}}
+
+/* ---------- services: interactive 3D maquette ---------- */
+.sv-preview.has-3d{background:radial-gradient(120% 90% at 50% 38%,var(--white) 0%,var(--paper-2) 62%,var(--paper-3) 100%)}
+.sv-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity 1s var(--ease);cursor:grab;touch-action:pan-y;z-index:1}
+.sv-preview.has-3d .sv-canvas{opacity:1}
+.sv-preview.has-3d img{opacity:0!important;transition:opacity .6s}
+.sv-preview.dragging .sv-canvas{cursor:grabbing}
+.sv-preview .sv-tag{z-index:2}
+.sv-hint{position:absolute;right:16px;bottom:16px;z-index:2;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(251,250,247,.72);color:var(--ink-2);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:11px;pointer-events:none;transition:opacity .5s var(--ease)}
+.sv-hint:before{content:"";width:14px;height:14px;border:1.4px solid currentColor;border-radius:50%;border-left-color:transparent;transform:rotate(-30deg)}
+.sv-preview.dragging .sv-hint{opacity:0}
+
+/* ---------- contact: send status ---------- */
+.form-status{padding:16px 18px;border:1px solid var(--line);border-left:2px solid var(--bronze);background:var(--white);border-radius:var(--r);font-size:15px}
+.form-status p{margin:0 0 .6em}.form-status p:last-child{margin:0}
+.form-status textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);font:14px/1.5 var(--mono);resize:vertical}
+
+/* ---------- touch: finger-sized targets in the footer and language switch ---------- */
+@media (pointer:coarse){
+  .flinks{gap:0}
+  .flinks a,.cinfo a{display:inline-flex;align-items:center;min-height:44px}
+  .lang button{min-width:44px;min-height:44px}
+  .to-top{min-height:44px;padding-inline:8px}
+}
+
+/* ---------- hero legibility on phones: the copy sits over the busiest part of the scene ---------- */
+@media (max-width:760px){
+  .hero-overlay:before{height:82%;background:linear-gradient(180deg,rgba(244,241,235,.9) 0,rgba(244,241,235,.8) 42%,rgba(244,241,235,.6) 64%,rgba(244,241,235,0) 100%)}
+  .hero-sub{opacity:1;color:var(--ink-2)}
+  .hero3d:not(.is-dusk):not(.fallback) .btn-glass{background:rgba(251,250,247,.72);border-color:rgba(20,20,19,.22)}
+}
