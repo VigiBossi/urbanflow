@@ -3,9 +3,11 @@
   const S = window.SITE, D = window.I18N, LANGS = ["sq", "mk", "en"];
   const qs = (s, r = document) => r.querySelector(s), qsa = (s, r = document) => [...r.querySelectorAll(s)];
   const urlLang = new URLSearchParams(location.search).get("lang");
-  let lang = LANGS.includes(urlLang) ? urlLang : localStorage.getItem("lp_lang");
+  /* storage can be blocked (private mode, sandboxed embeds): never let it stop the site */
+  const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
+  let lang = LANGS.includes(urlLang) ? urlLang : store.get("lp_lang");
   if (!LANGS.includes(lang)) lang = "sq";
-  if (urlLang && LANGS.includes(urlLang)) localStorage.setItem("lp_lang", lang);
+  if (urlLang && LANGS.includes(urlLang)) store.set("lp_lang", lang);
   const t = k => (D[lang] && D[lang][k]) || D.sq[k] || k;
   const L = o => (o && (o[lang] || o.sq)) || "";
   const page = document.body.dataset.page;
@@ -192,7 +194,7 @@
   }
   function setLang(l) {
     if (l === lang) return;
-    lang = l; localStorage.setItem("lp_lang", l);
+    lang = l; store.set("lp_lang", l);
     const u = new URL(location.href); if (u.searchParams.has("lang")) { u.searchParams.set("lang", l); history.replaceState(null, "", u); }
     renderDynamic(); translate(); qsa("[data-split]").forEach(e => e.classList.add("in")); observe();
     if (lb) lb.relabel();
