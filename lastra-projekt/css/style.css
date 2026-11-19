@@ -594,8 +594,8 @@ body.nav-open .burger i:first-of-type{top:21px;transform:rotate(45deg)}body.nav-
 .sv-preview.has-3d img{opacity:0!important;transition:opacity .6s}
 .sv-preview.dragging .sv-canvas{cursor:grabbing}
 .sv-preview .sv-tag{z-index:2}
-.sv-hint{position:absolute;right:16px;bottom:16px;z-index:2;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(251,250,247,.72);color:var(--ink-2);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:11px;pointer-events:none;transition:opacity .5s var(--ease)}
-.sv-hint:before{content:"";width:14px;height:14px;border:1.4px solid currentColor;border-radius:50%;border-left-color:transparent;transform:rotate(-30deg)}
+.sv-hint{position:absolute;right:14px;bottom:14px;z-index:2;display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;background:rgba(251,250,247,.6);color:var(--ink-2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-size:9px;letter-spacing:.06em;line-height:1;pointer-events:none;transition:opacity .5s var(--ease)}
+.sv-hint:before{content:"";width:9px;height:9px;border:1.2px solid currentColor;border-radius:50%;border-left-color:transparent;transform:rotate(-30deg)}
 .sv-preview.dragging .sv-hint{opacity:0}
 
 /* ---------- contact: send status ---------- */
