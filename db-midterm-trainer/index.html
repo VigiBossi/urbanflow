@@ -1,0 +1,1921 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAI 105 ERD Trainer</title>
+<style>
+:root{
+  --bg:#f5f6fa; --card:#ffffff; --ink:#1c2333; --muted:#5d6678; --line:#dce1ea; --soft:#eef1f7;
+  --accent:#3651d4; --accent-soft:#e8ecff; --accent-ink:#ffffff;
+  --ok:#237a3b; --okbg:#e9f8ee; --err:#c02b2b; --errbg:#fdeeee; --warn:#9a5b00; --warnbg:#fff6dc;
+  --ent:#e6efff; --rel:#ffefdc; --att:#eaf7ee; --stroke:#2b3447; --diag:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12151c; --card:#1b1f29; --ink:#e7eaf1; --muted:#9aa3b5; --line:#2e3443; --soft:#232836;
+    --accent:#8197ff; --accent-soft:#252c4a; --accent-ink:#0d1020;
+    --ok:#6fd08a; --okbg:#18301f; --err:#ff8a8a; --errbg:#3a1d1f; --warn:#f3c463; --warnbg:#3a3018;
+    --ent:#22304d; --rel:#45331d; --att:#1e3a29; --stroke:#c9d1e3; --diag:#1b1f29;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+header.top{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+.topin{max-width:1000px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-weight:700;text-decoration:none;color:var(--ink);white-space:nowrap}
+.brand span{color:var(--accent)}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav a{padding:6px 10px;border-radius:8px;text-decoration:none;color:var(--muted);font-size:14px}
+nav a.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#timerBadge{display:none;font-variant-numeric:tabular-nums;background:var(--errbg);color:var(--err);padding:4px 10px;border-radius:999px;font-weight:700;text-decoration:none;font-size:14px}
+main{max-width:1000px;margin:0 auto;padding:16px 16px 80px}
+h1{font-size:1.5rem;margin:.2em 0 .4em}
+h2{font-size:1.2rem;margin:1.2em 0 .5em}
+h3{font-size:1.05rem;margin:.8em 0 .4em}
+.muted{color:var(--muted)} .small{font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:9px;font:inherit;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.ghost{background:transparent}
+.btn.sm{padding:4px 10px;font-size:13px}
+.btn.danger{color:var(--err)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.actions.sticky{position:sticky;bottom:0;background:var(--bg);padding:10px 0;border-top:1px solid var(--line);z-index:5}
+.tabs{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}
+.tabs a{padding:8px 14px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted);background:var(--card);font-size:14px}
+.tabs a.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;background:var(--soft);color:var(--muted);margin-right:4px}
+.badge.ok{background:var(--okbg);color:var(--ok)} .badge.err{background:var(--errbg);color:var(--err)} .badge.acc{background:var(--accent-soft);color:var(--accent)}
+.story{border-left:4px solid var(--accent)}
+.lbl{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.callout{background:var(--accent-soft);border-radius:10px;padding:10px 14px;margin:10px 0}
+.twist{background:var(--warnbg);border-radius:10px;padding:8px 12px;margin:8px 0;font-size:14px}
+input.in,select,textarea{font:inherit;font-size:14px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+textarea{width:100%;min-height:110px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px}
+textarea.prose{font-family:inherit;min-height:90px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row > input.in{flex:1 1 160px}
+.icon{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:6px}
+.icon:hover{background:var(--errbg);color:var(--err)}
+.chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-size:12.5px;cursor:pointer;user-select:none;background:var(--card)}
+.chip:has(input:checked){background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.chip input{margin:0;accent-color:var(--accent)}
+.ent.card{border-left:4px solid var(--line)}
+.attrs{margin:8px 0 6px 6px;border-left:2px dashed var(--line);padding-left:10px}
+.attr{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px;border-radius:8px;margin:2px 0}
+.attr > input.in{flex:1 1 140px}
+.attr .flags{display:flex;gap:4px;flex-wrap:wrap}
+.attr input.parts{flex:1 1 100%}
+.relgrid{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;margin:8px 0}
+.relgrid label{display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:2px}
+.relgrid select{width:100%}
+.readas{background:var(--soft);border-radius:8px;padding:6px 10px;margin:6px 0}
+.bad{background:var(--errbg)!important;border-color:var(--err)!important}
+.ent.card.bad,.rel.card.bad{border-left-color:var(--err)!important}
+.good{border-left-color:var(--ok)!important}
+.attr.good{background:var(--okbg)}
+.fb .item{display:flex;gap:10px;padding:8px 10px;border-radius:8px;margin:4px 0;align-items:flex-start}
+.fb .item.err{background:var(--errbg)} .fb .item.warn{background:var(--warnbg)} .fb .item.ok{background:var(--okbg)}
+.fb .ic{font-weight:700;width:18px;flex:none;text-align:center}
+.fb .err .ic{color:var(--err)} .fb .warn .ic{color:var(--warn)} .fb .ok .ic{color:var(--ok)}
+.fb .hint{font-size:13px;color:var(--muted);margin-top:2px}
+.fb .ans{font-size:13px;margin-top:3px;font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--ink)}
+.scorebar{height:10px;background:var(--soft);border-radius:99px;overflow:hidden;margin:6px 0}
+.scorebar > div{height:100%;background:var(--accent)}
+.score{font-size:1.6rem;font-weight:700}
+.dtools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0}
+.dwrap{background:var(--diag);border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:78vh;touch-action:none}
+svg.erd{display:block;touch-action:none;user-select:none}
+svg.erd .sh{stroke:var(--stroke);stroke-width:1.5}
+svg.erd .ent{fill:var(--ent)} svg.erd .rel{fill:var(--rel)} svg.erd .att{fill:var(--att)}
+svg.erd .in{fill:none}
+svg.erd .dash{stroke-dasharray:5 3}
+svg.erd .tx{fill:var(--ink);font-size:13px;text-anchor:middle;dominant-baseline:central;font-family:system-ui,sans-serif}
+svg.erd .tx.b{font-weight:600}
+svg.erd .ul{stroke:var(--ink);stroke-width:1.2}
+svg.erd .ul.d{stroke-dasharray:3 2}
+svg.erd .ln{stroke:var(--stroke);stroke-width:1.4}
+svg.erd .ln2{stroke:var(--stroke);stroke-width:5}
+svg.erd .gap{stroke:var(--diag);stroke-width:1.8}
+svg.erd .card{fill:var(--accent);font-weight:700;font-size:13px;text-anchor:middle;dominant-baseline:central;font-family:system-ui,sans-serif}
+svg.erd .nd{cursor:grab}
+svg.erd .empty{fill:var(--muted);font-size:14px;text-anchor:middle}
+pre.schema{background:var(--soft);border-radius:10px;padding:12px;overflow:auto;font-size:13.5px;white-space:pre-wrap;margin:6px 0}
+code{background:var(--soft);padding:1px 5px;border-radius:5px;font-size:13px}
+table.t{border-collapse:collapse;width:100%;font-size:14px}
+table.t th,table.t td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+table.t th{background:var(--soft)}
+.unitcard h3{margin-top:0}
+.prog{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.dot{font-size:12px;padding:1px 7px;border-radius:99px;background:var(--soft);color:var(--muted)}
+.dot.done{background:var(--okbg);color:var(--ok)}
+.symgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.sym{border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--card);break-inside:avoid}
+.sym svg{width:100%;height:70px}
+.cover li.ok{color:var(--ok)} .cover li.miss{color:var(--err)}
+ol.steps li{margin:4px 0}
+details summary{cursor:pointer;color:var(--muted);font-size:14px;margin:6px 0}
+.wbar{height:8px;border-radius:99px;background:var(--soft);overflow:hidden;margin:4px 0}
+.wbar > div{height:100%;background:var(--err)}
+.timerbig{font-size:1.4rem;font-weight:700;font-variant-numeric:tabular-nums}
+@media (max-width:560px){
+  main{padding:12px 12px 80px}
+  .relgrid{grid-template-columns:1fr 1fr}
+  .relgrid .cardsel{grid-column:1 / -1;order:-1}
+  .relgrid .spacer{display:none}
+  nav a{padding:5px 7px;font-size:13px}
+}
+@media print{
+  header.top,.noprint,.actions{display:none!important}
+  body{background:#fff;color:#000}
+  main{max-width:none;padding:0}
+  .card{border:1px solid #bbb;break-inside:avoid}
+  :root{--bg:#fff;--card:#fff;--ink:#000;--muted:#444;--line:#bbb;--soft:#f1f1f1;--ent:#fff;--rel:#fff;--att:#fff;--stroke:#000;--diag:#fff}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="topin">
+    <a class="brand" href="#/">CAI 105 <span>ERD Trainer</span></a>
+    <a id="timerBadge" href="#/exam"></a>
+    <nav>
+      <a href="#/" data-nav="home">Learn</a>
+      <a href="#/exam" data-nav="exam">Exam</a>
+      <a href="#/weak" data-nav="weak">Weak spots</a>
+      <a href="#/sheet" data-nav="sheet">Review sheet</a>
+    </nav>
+  </div>
+</header>
+<main id="app"></main>
+
+<script>
+/* =====================================================================
+   SCENARIO DATA
+   ---------------------------------------------------------------------
+   Add your own scenarios by copying one of these objects.
+   Entity:      { name, weak?, owner?, aka?:[other accepted names], attrs:[...] }
+   Attribute:   'Name'  (plain)  or  { name, key?, partial?, multi?, derived?,
+                parts?:['First','Last'] (composite), aka?:[...] }
+   Relationship:{ name, a, b, card:'1:1'|'1:N'|'N:1'|'M:N' (read "a : b"),
+                partA/partB:'total'|'partial', identifying?, attrs?:[...],
+                keyAttr? (M:N attribute that must be part of the PK when the same
+                pair can repeat), keyAttrRequired?, fkIn?:'a'|'b' (1:1 default
+                side when both sides have the same participation),
+                fkName? (nicer FK column name), flex?:['a','b'] (participation
+                is debatable -> not graded), aka?:[...] }
+   The relational schema (model answer for Type 2) and the mapping
+   explanation are generated automatically from the ERD using the
+   course mapping rules, so you only write the ERD.
+   ===================================================================== */
+const SCENARIOS = [
+/* ---------------- Unit 1: entities, keys, 1:N ---------------- */
+{ id:'company', unit:1, role:'worked', level:1, title:'Company departments',
+  story:'A small company keeps track of its departments and employees. Each department has a department ID and a name. Each employee has an employee ID, a name and a salary. Every employee works in exactly one department. A department can have many employees, but a newly created department may have no employees yet.',
+  entities:[
+    {name:'DEPARTMENT', aka:['DEPT'], attrs:[{name:'DeptID',key:true},'DeptName']},
+    {name:'EMPLOYEE', aka:['EMP'], attrs:[{name:'EmpID',key:true},'EmpName','Salary']}
+  ],
+  rels:[{name:'WORKS_IN', aka:['WORKS_FOR','BELONGS_TO','EMPLOYS'], a:'EMPLOYEE', b:'DEPARTMENT', card:'N:1', partA:'total', partB:'partial'}],
+  steps:[
+    'Entities = nouns that have their own data: DEPARTMENT and EMPLOYEE.',
+    'Attributes: DEPARTMENT(DeptID, DeptName), EMPLOYEE(EmpID, EmpName, Salary). The IDs are the keys (underlined).',
+    'Relationship = the verb "works in". Ask twice: one employee works in how many departments? ONE. One department has how many employees? MANY. So EMPLOYEE N:1 DEPARTMENT.',
+    'Participation: "every employee works in exactly one" -> EMPLOYEE total (double line). "may have no employees yet" -> DEPARTMENT partial (single line).',
+    'Mapping: each entity becomes a table. 1:N -> the PK of the 1 side (DeptID) goes as FK into the N side (EMPLOYEE).'
+  ],
+  assumptions:['Department IDs and employee IDs are unique.','An employee belongs to only one department at a time.']
+},
+{ id:'league', unit:1, role:'similar', level:1, title:'Sports league',
+  twist:'Same pattern as the worked example: two entities and one 1:N relationship.',
+  story:'A sports league stores teams and players. A team has a team ID, a team name and a home city. A player has a player ID, a name and a position. Each player plays for exactly one team, and a team has many players. Every team in the league must have at least one player.',
+  entities:[
+    {name:'TEAM', attrs:[{name:'TeamID',key:true},'TeamName',{name:'City',aka:['HomeCity']}]},
+    {name:'PLAYER', attrs:[{name:'PlayerID',key:true},'PlayerName','Position']}
+  ],
+  rels:[{name:'PLAYS_FOR', aka:['PLAYS_IN','HAS','BELONGS_TO'], a:'PLAYER', b:'TEAM', card:'N:1', partA:'total', partB:'total'}],
+  assumptions:['A player plays for one team at a time.']
+},
+{ id:'carrental', unit:1, role:'twist', level:2, title:'Car rental branches',
+  twist:'Twist: the 1:N relationship has its own attribute (BasedSince). In the schema it travels with the FK to the N side.',
+  story:'A car rental company has branches and cars. Each branch has a branch ID, a city and a phone number. Each car has a plate number, a model and a year. Every car is based at exactly one branch, and the company records since when the car has been based there (based-since date). A branch may have many cars, but a new branch may have none.',
+  entities:[
+    {name:'BRANCH', attrs:[{name:'BranchID',key:true},'City','Phone']},
+    {name:'CAR', attrs:[{name:'PlateNo',key:true,aka:['Plate','LicensePlate','PlateNumber']},'Model','Year']}
+  ],
+  rels:[{name:'BASED_AT', aka:['BELONGS_TO','HAS','LOCATED_AT'], a:'CAR', b:'BRANCH', card:'N:1', partA:'total', partB:'partial', attrs:[{name:'BasedSince',aka:['Since','SinceDate']}]}],
+  assumptions:['A car is based at one branch at a time, so BasedSince is stored in CAR next to the FK BranchID.']
+},
+/* ---------------- Unit 2: composite (+ derived) ---------------- */
+{ id:'gym', unit:2, role:'worked', level:2, title:'Gym members and trainers',
+  story:'A gym stores its members and personal trainers. A member has a member ID, a name (first name and last name), an address (street, city, ZIP) and a join date. A trainer has a trainer ID and a name (first name and last name). A member may have one personal trainer; a trainer can train many members, and some trainers have no members yet.',
+  entities:[
+    {name:'MEMBER', attrs:[{name:'MemberID',key:true},{name:'Name',parts:['FirstName','LastName']},{name:'Address',parts:['Street','City','ZIP']},'JoinDate']},
+    {name:'TRAINER', attrs:[{name:'TrainerID',key:true},{name:'Name',parts:['FirstName','LastName']}]}
+  ],
+  rels:[{name:'TRAINED_BY', aka:['TRAINS','HAS_TRAINER'], a:'MEMBER', b:'TRAINER', card:'N:1', partA:'partial', partB:'partial'}],
+  steps:[
+    'Entities: MEMBER and TRAINER.',
+    '"a name (first name and last name)" -> Name is COMPOSITE with parts FirstName, LastName. "an address (street, city, ZIP)" -> Address is composite with parts Street, City, ZIP. In Chen the parts are small ovals hanging off the Name/Address oval.',
+    'TRAINED_BY: one member has at most ONE trainer, one trainer has MANY members -> MEMBER N:1 TRAINER. Both sides partial ("may", "some trainers have no members").',
+    'Mapping: a composite is NOT a column. Only its simple parts are stored: MEMBER(MemberID, FirstName, LastName, Street, City, ZIP, JoinDate, TrainerID FK).',
+    'TrainerID can be NULL in MEMBER because participation of MEMBER is partial.'
+  ],
+  assumptions:['A member has at most one personal trainer at a time.']
+},
+{ id:'petclinic', unit:2, role:'similar', level:2, title:'Pet clinic',
+  twist:'Same idea: split the composite Name and Address into their parts.',
+  story:'A pet clinic stores owners and their pets. An owner has an owner ID, a name (first and last), an address (street, city, ZIP) and a phone number. A pet has a pet ID, a pet name and a species. Every pet belongs to exactly one owner, and an owner can have several pets. Only people who have at least one pet are stored as owners.',
+  entities:[
+    {name:'OWNER', attrs:[{name:'OwnerID',key:true},{name:'Name',parts:['FirstName','LastName']},{name:'Address',parts:['Street','City','ZIP']},'Phone']},
+    {name:'PET', attrs:[{name:'PetID',key:true},'PetName','Species']}
+  ],
+  rels:[{name:'OWNS', aka:['HAS','BELONGS_TO'], a:'OWNER', b:'PET', card:'1:N', partA:'total', partB:'total'}],
+  assumptions:['An owner has only one phone number (the story says "a phone number").']
+},
+{ id:'courses', unit:2, role:'twist', level:3, title:'Online course platform',
+  twist:'Twist: a DERIVED attribute (YearsOfService). Draw it as a dashed oval and do NOT store it as a column.',
+  story:'An online learning platform stores instructors and courses. An instructor has an instructor ID, a name (first and last), a hire date and years of service (calculated from the hire date). A course has a course code, a title and a number of credits. Each course is taught by exactly one instructor; an instructor can teach many courses, and new instructors may not teach any course yet.',
+  entities:[
+    {name:'INSTRUCTOR', attrs:[{name:'InstructorID',key:true},{name:'Name',parts:['FirstName','LastName']},'HireDate',{name:'YearsOfService',derived:true,aka:['Years','ServiceYears']}]},
+    {name:'COURSE', attrs:[{name:'CourseCode',key:true},'Title','Credits']}
+  ],
+  rels:[{name:'TEACHES', aka:['TAUGHT_BY'], a:'INSTRUCTOR', b:'COURSE', card:'1:N', partA:'partial', partB:'total'}],
+  assumptions:['YearsOfService is computed from HireDate and today\'s date, so it is not stored.']
+},
+/* ---------------- Unit 3: multivalued ---------------- */
+{ id:'restaurant', unit:3, role:'worked', level:3, title:'Restaurant chain',
+  story:'A restaurant chain stores restaurants and chefs. A restaurant has a restaurant ID, a name, an address (street, city, ZIP) and several phone numbers. A chef has a chef ID, a name (first and last) and a hire date. Every chef works at exactly one restaurant; a restaurant employs many chefs and must have at least one.',
+  entities:[
+    {name:'RESTAURANT', aka:['REST'], attrs:[{name:'RestaurantID',key:true,aka:['RestID']},'RestaurantName',{name:'Address',parts:['Street','City','ZIP']},{name:'Phone',multi:true}]},
+    {name:'CHEF', attrs:[{name:'ChefID',key:true},{name:'Name',parts:['FirstName','LastName']},'HireDate']}
+  ],
+  rels:[{name:'WORKS_AT', aka:['WORKS_IN','EMPLOYS'], a:'CHEF', b:'RESTAURANT', card:'N:1', partA:'total', partB:'total'}],
+  steps:[
+    '"several phone numbers" -> Phone is MULTIVALUED: one restaurant has many values of the same attribute. Chen: double oval.',
+    'Address is composite (street, city, ZIP); chef Name is composite.',
+    'WORKS_AT: CHEF N:1 RESTAURANT, both total ("every chef", "must have at least one").',
+    'Mapping: a table cell holds ONE value, so Phone cannot stay in RESTAURANT. New table RESTAURANT_PHONE(RestaurantID FK, Phone) with PK = (RestaurantID, Phone) - both columns, so a restaurant can have many phones but not the same phone twice.',
+    'CHEF gets RestaurantID as FK (1:N rule).'
+  ],
+  assumptions:['Two restaurants may share a phone number (that is why the owner key is part of the PK).']
+},
+{ id:'agents', unit:3, role:'similar', level:3, title:'Literary agents',
+  twist:'Same idea: multivalued attributes on both entities.',
+  story:'A publishing agency stores authors and agents. An author has an author ID, a name (first and last) and one or more email addresses. An agent has an agent ID, an agent name and several phone numbers. An agent represents many authors; each author is represented by at most one agent. Every agent represents at least one author.',
+  entities:[
+    {name:'AUTHOR', attrs:[{name:'AuthorID',key:true},{name:'Name',parts:['FirstName','LastName']},{name:'Email',multi:true}]},
+    {name:'AGENT', attrs:[{name:'AgentID',key:true},'AgentName',{name:'Phone',multi:true}]}
+  ],
+  rels:[{name:'REPRESENTS', aka:['REPRESENTED_BY','HAS_AGENT'], a:'AGENT', b:'AUTHOR', card:'1:N', partA:'total', partB:'partial'}]
+},
+{ id:'apartments', unit:3, role:'twist', level:4, title:'Apartment rentals',
+  twist:'Twist: composite + multivalued + derived together, and the multivalued attribute is a "list of features", not a phone number.',
+  story:'A rental agency stores landlords and apartments. A landlord has a landlord ID, a name (first and last) and several phone numbers. An apartment has an apartment ID, an address (street, city, ZIP), a size in square meters, a monthly rent, a rent per square meter (computed from rent and size) and a list of features (for example balcony, parking, elevator). Each apartment is owned by exactly one landlord; a landlord owns one or more apartments.',
+  entities:[
+    {name:'LANDLORD', attrs:[{name:'LandlordID',key:true},{name:'Name',parts:['FirstName','LastName']},{name:'Phone',multi:true}]},
+    {name:'APARTMENT', aka:['APT','FLAT'], attrs:[{name:'ApartmentID',key:true,aka:['AptID']},{name:'Address',parts:['Street','City','ZIP']},'Size',{name:'Rent',aka:['MonthlyRent']},{name:'RentPerSqm',derived:true,aka:['PricePerSqm','RentPerM2','RentPerSquareMeter','RentPerSqMeter']},{name:'Feature',multi:true}]}
+  ],
+  rels:[{name:'OWNS', aka:['OWNED_BY','HAS'], a:'LANDLORD', b:'APARTMENT', card:'1:N', partA:'total', partB:'total'}]
+},
+/* ---------------- Unit 4: weak entities ---------------- */
+{ id:'dependents', unit:4, role:'worked', level:4, title:'Employees and dependents',
+  story:'A company stores employees and their dependents (children, spouses) for insurance. An employee has an employee ID, a name (first and last) and a salary. A dependent has a name, a birth date and a relationship to the employee (e.g. son, spouse). Dependents do not have their own ID: two different employees could each have a dependent called "Sara", so a dependent can only be identified by the employee it belongs to together with the dependent name. An employee may have zero or more dependents.',
+  entities:[
+    {name:'EMPLOYEE', aka:['EMP'], attrs:[{name:'EmpID',key:true},{name:'Name',parts:['FirstName','LastName']},'Salary']},
+    {name:'DEPENDENT', weak:true, owner:'EMPLOYEE', attrs:[{name:'DependentName',partial:true,aka:['DepName']},{name:'BirthDate',aka:['DOB']},'Relationship']}
+  ],
+  rels:[{name:'HAS_DEPENDENT', aka:['HAS','DEPENDS_ON','DEPENDENTS_OF'], a:'EMPLOYEE', b:'DEPENDENT', card:'1:N', partA:'partial', partB:'total', identifying:true}],
+  steps:[
+    '"Dependents do not have their own ID ... identified by the employee together with the dependent name" -> DEPENDENT is a WEAK entity (double rectangle). Owner = EMPLOYEE.',
+    'DependentName is the PARTIAL key (dashed underline): unique only inside one employee.',
+    'HAS_DEPENDENT is the IDENTIFYING relationship (double diamond), 1:N. The weak side is always total (a dependent cannot exist without its employee).',
+    'Mapping: DEPENDENT(EmpID PK FK->EMPLOYEE, DependentName PK, BirthDate, Relationship). PK = owner key + partial key. ON DELETE CASCADE: deleting the employee deletes their dependents.',
+    'The identifying relationship does NOT get its own table - the owner key inside DEPENDENT already represents it.'
+  ],
+  assumptions:['An employee never has two dependents with the same name.']
+},
+{ id:'hotelrooms', unit:4, role:'similar', level:4, title:'Hotel rooms',
+  twist:'Same pattern: a weak entity identified by its owner plus a partial key.',
+  story:'A hotel group stores hotels and rooms. A hotel has a hotel ID, a name, a city and several phone numbers. Rooms are numbered inside each hotel: room 101 exists in many hotels, so a room is identified by its hotel together with the room number. A room also has a type (single, double, suite) and a price per night. Every hotel has at least one room.',
+  entities:[
+    {name:'HOTEL', attrs:[{name:'HotelID',key:true},'HotelName','City',{name:'Phone',multi:true}]},
+    {name:'ROOM', weak:true, owner:'HOTEL', attrs:[{name:'RoomNo',partial:true},'RoomType',{name:'Price',aka:['PricePerNight','NightPrice']}]}
+  ],
+  rels:[{name:'HAS_ROOM', aka:['HAS','CONTAINS','ROOM_OF'], a:'HOTEL', b:'ROOM', card:'1:N', partA:'total', partB:'total', identifying:true}]
+},
+{ id:'sections', unit:4, role:'twist', level:5, title:'Course sections',
+  twist:'Twist: the weak entity also takes part in a NORMAL 1:N relationship, so its table gets one extra FK.',
+  story:'A university offers courses, and each course is split into sections. A course has a course code, a title and credits. A section is numbered inside its course (section 1, 2, 3 of each course), so it is identified by the course plus the section number; a section also has a room and a capacity. An instructor has an instructor ID and a name (first and last). Every section is taught by exactly one instructor; an instructor may teach many sections or none. Every course has at least one section.',
+  entities:[
+    {name:'COURSE', attrs:[{name:'CourseCode',key:true},'Title','Credits']},
+    {name:'SECTION', weak:true, owner:'COURSE', attrs:[{name:'SectionNo',partial:true},'Room','Capacity']},
+    {name:'INSTRUCTOR', attrs:[{name:'InstructorID',key:true},{name:'Name',parts:['FirstName','LastName']}]}
+  ],
+  rels:[
+    {name:'HAS_SECTION', aka:['HAS','OFFERS','SECTION_OF'], a:'COURSE', b:'SECTION', card:'1:N', partA:'total', partB:'total', identifying:true},
+    {name:'TEACHES', aka:['TAUGHT_BY'], a:'INSTRUCTOR', b:'SECTION', card:'1:N', partA:'partial', partB:'total'}
+  ]
+},
+/* ---------------- Unit 5: M:N with attributes ---------------- */
+{ id:'enrollment', unit:5, role:'worked', level:5, title:'Students and courses',
+  story:'A college stores students and courses. A student has a student ID, a name and a major. A course has a course code, a title and credits. A student can enroll in many courses and a course has many students. For every enrollment the college records the grade the student received. Students may be enrolled in no course yet, and new courses may have no students.',
+  entities:[
+    {name:'STUDENT', attrs:[{name:'StudentID',key:true},'StudentName','Major']},
+    {name:'COURSE', attrs:[{name:'CourseCode',key:true},'Title','Credits']}
+  ],
+  rels:[{name:'ENROLLS', aka:['ENROLLED_IN','TAKES','ENROLLMENT','ENROLL'], a:'STUDENT', b:'COURSE', card:'M:N', partA:'partial', partB:'partial', attrs:['Grade']}],
+  steps:[
+    'One student - many courses, one course - many students -> M:N.',
+    'Grade does not describe a student alone (a student has many grades) nor a course alone. It describes ONE student in ONE course -> it is an attribute of the relationship ENROLLS (oval on the diamond).',
+    'Mapping: M:N always becomes a NEW table: ENROLLS(StudentID PK FK->STUDENT, CourseCode PK FK->COURSE, Grade).',
+    'PK = both FKs together. If a student could repeat the same course, we would add e.g. Semester to the key - state that as an assumption.'
+  ],
+  assumptions:['A student takes a course only once, so PK(StudentID, CourseCode) is enough.']
+},
+{ id:'projects', unit:5, role:'similar', level:5, title:'Employees on projects',
+  twist:'Same pattern: M:N with a relationship attribute (Hours).',
+  story:'A consulting firm stores employees and projects. An employee has an employee ID, a name and an email. A project has a project ID, a project name and a budget. An employee can work on many projects and a project has many employees; the firm records the number of hours each employee works on each project. Every project must have at least one employee, but some employees are not on any project.',
+  entities:[
+    {name:'EMPLOYEE', aka:['EMP'], attrs:[{name:'EmpID',key:true},'EmpName','Email']},
+    {name:'PROJECT', attrs:[{name:'ProjectID',key:true,aka:['ProjID']},'ProjectName','Budget']}
+  ],
+  rels:[{name:'WORKS_ON', aka:['ASSIGNED_TO','ASSIGNMENT','WORKS_IN'], a:'EMPLOYEE', b:'PROJECT', card:'M:N', partA:'partial', partB:'total', attrs:['Hours']}]
+},
+{ id:'videorental', unit:5, role:'twist', level:6, title:'Video rentals',
+  twist:'Twist: the same customer can rent the same movie AGAIN, so the M:N key must include RentDate. Also two multivalued attributes.',
+  story:'A video store rents movies. A customer has a customer ID, a name (first and last) and several phone numbers. A movie has a movie ID, a title, a release year and one or more genres. A customer can rent many movies and a movie can be rented by many customers. For each rental the store records the rent date, the return date and the fee. The same customer can rent the same movie again on a different day.',
+  entities:[
+    {name:'CUSTOMER', aka:['CUST'], attrs:[{name:'CustomerID',key:true,aka:['CustID']},{name:'Name',parts:['FirstName','LastName']},{name:'Phone',multi:true}]},
+    {name:'MOVIE', attrs:[{name:'MovieID',key:true},'Title',{name:'ReleaseYear',aka:['Year']},{name:'Genre',multi:true}]}
+  ],
+  rels:[{name:'RENTS', aka:['RENTAL','RENTED','RENT'], a:'CUSTOMER', b:'MOVIE', card:'M:N', partA:'partial', partB:'partial', flex:['a','b'], attrs:['RentDate','ReturnDate','Fee'], keyAttr:'RentDate', keyAttrRequired:true}],
+  assumptions:['The same customer can rent the same movie on different days, so RentDate is part of the PK of RENTS.','A customer does not rent the same movie twice on the same day.']
+},
+/* ---------------- Unit 6: 1:1 + total participation ---------------- */
+{ id:'managers', unit:6, role:'worked', level:6, title:'Department managers',
+  story:'A company stores departments and employees. A department has a department ID and a name. An employee has an employee ID, a name (first and last) and a salary. Every employee works in exactly one department, and a department has many employees. In addition, every department is managed by exactly one employee, and the company records the date that employee started managing it. An employee manages at most one department (most employees manage none).',
+  entities:[
+    {name:'DEPARTMENT', aka:['DEPT'], attrs:[{name:'DeptID',key:true},'DeptName']},
+    {name:'EMPLOYEE', aka:['EMP'], attrs:[{name:'EmpID',key:true},{name:'Name',parts:['FirstName','LastName']},'Salary']}
+  ],
+  rels:[
+    {name:'WORKS_IN', aka:['WORKS_FOR','EMPLOYS'], a:'EMPLOYEE', b:'DEPARTMENT', card:'N:1', partA:'total', partB:'total', flex:['b']},
+    {name:'MANAGES', aka:['MANAGED_BY','HEADS'], a:'EMPLOYEE', b:'DEPARTMENT', card:'1:1', partA:'partial', partB:'total', attrs:[{name:'StartDate',aka:['MgrStartDate','ManagerSince','Since']}], fkName:'ManagerID'}
+  ],
+  steps:[
+    'There are TWO relationships between the same two entities: WORKS_IN (N:1) and MANAGES (1:1). Draw two diamonds.',
+    'MANAGES: one department has exactly one manager, one employee manages at most one department -> 1:1.',
+    'Participation of MANAGES: DEPARTMENT total ("every department is managed"), EMPLOYEE partial ("most manage none").',
+    'StartDate belongs to the management relationship -> oval on the MANAGES diamond.',
+    'Mapping 1:1: put the FK on the TOTAL side -> DEPARTMENT gets ManagerID FK->EMPLOYEE, UNIQUE, plus StartDate. Every department has a value, so no NULLs. UNIQUE makes sure one employee manages at most one department (otherwise it would be 1:N).',
+    'If we put it in EMPLOYEE instead, almost every employee row would have NULL - that is the trap.'
+  ],
+  assumptions:['ManagerID is the EmpID of the manager (renamed so it is not confused with the WORKS_IN FK).']
+},
+{ id:'parking', unit:6, role:'similar', level:6, title:'Parking spots',
+  twist:'Same pattern: 1:1 where only one side has total participation.',
+  story:'A company assigns parking spots to employees. An employee has an employee ID, a name and a phone number. A parking spot has a spot number and a level. Every parking spot is assigned to exactly one employee, and the company records the date of assignment. An employee has at most one parking spot; many employees have none.',
+  entities:[
+    {name:'EMPLOYEE', aka:['EMP'], attrs:[{name:'EmpID',key:true},'EmpName','Phone']},
+    {name:'PARKING_SPOT', aka:['SPOT','PARKING','PARKINGSPACE'], attrs:[{name:'SpotNo',key:true},{name:'Level',aka:['Floor']}]}
+  ],
+  rels:[{name:'ASSIGNED_TO', aka:['HAS_SPOT','USES','ASSIGNED','HAS'], a:'EMPLOYEE', b:'PARKING_SPOT', card:'1:1', partA:'partial', partB:'total', attrs:[{name:'AssignDate',aka:['AssignedDate','AssignmentDate','DateAssigned']}]}]
+},
+{ id:'principals', unit:6, role:'twist', level:7, title:'Schools and principals',
+  twist:'Twist: BOTH sides of the 1:1 are total. Either side may hold the FK (say which one in your assumptions) - you could even merge the two tables.',
+  story:'A school district stores schools and principals. A school has a school ID, a name and an address (street, city, ZIP). A principal has a principal ID, a name (first and last) and several phone numbers. Every school is led by exactly one principal and every principal leads exactly one school; the district records the start date of each principal at their school.',
+  entities:[
+    {name:'SCHOOL', attrs:[{name:'SchoolID',key:true},'SchoolName',{name:'Address',parts:['Street','City','ZIP']}]},
+    {name:'PRINCIPAL', attrs:[{name:'PrincipalID',key:true},{name:'Name',parts:['FirstName','LastName']},{name:'Phone',multi:true}]}
+  ],
+  rels:[{name:'LEADS', aka:['HEADS','MANAGES','RUNS','LED_BY'], a:'PRINCIPAL', b:'SCHOOL', card:'1:1', partA:'total', partB:'total', attrs:['StartDate'], fkIn:'b'}],
+  assumptions:['Both sides are total, so the FK could go on either side; I put PrincipalID (UNIQUE) in SCHOOL.']
+},
+/* ---------------- Unit 7: exam-style ---------------- */
+{ id:'library', unit:7, role:'exam', level:8, title:'City library',
+  story:'A city library wants a database. Each member has a member ID, a name (first name and last name), an address (street, city, ZIP) and can have several phone numbers. Every member has exactly one library card, with a card number, an issue date and an expiry date; each card belongs to exactly one member. The library stores books with their ISBN, title and a set of keywords. Every book is published by exactly one publisher (publisher ID, name, country); a publisher can publish many books. A book is written by one or more authors (author ID, name, nationality) and an author can write many books. The library owns physical copies of each book. A copy has no ID of its own: it is identified only by its copy number together with the book (copy 1, copy 2 of each ISBN); a copy also has a shelf location and a condition. Members borrow copies: a member can borrow many copies and a copy can be borrowed by many members over time. For each loan the library records the loan date, the due date and the return date.',
+  entities:[
+    {name:'MEMBER', attrs:[{name:'MemberID',key:true},{name:'Name',parts:['FirstName','LastName']},{name:'Address',parts:['Street','City','ZIP']},{name:'Phone',multi:true}]},
+    {name:'LIBRARY_CARD', aka:['CARD','LIBCARD'], attrs:[{name:'CardNo',key:true},'IssueDate',{name:'ExpiryDate',aka:['ExpDate','ExpirationDate']}]},
+    {name:'BOOK', attrs:[{name:'ISBN',key:true},'Title',{name:'Keyword',multi:true}]},
+    {name:'PUBLISHER', aka:['PUB'], attrs:[{name:'PublisherID',key:true,aka:['PubID']},{name:'PublisherName',aka:['PubName']},'Country']},
+    {name:'AUTHOR', attrs:[{name:'AuthorID',key:true},'AuthorName','Nationality']},
+    {name:'COPY', aka:['BOOK_COPY','BOOKCOPY'], weak:true, owner:'BOOK', attrs:[{name:'CopyNo',partial:true},{name:'ShelfLocation',aka:['Shelf','Location']},'Condition']}
+  ],
+  rels:[
+    {name:'HAS_CARD', aka:['HAS','OWNS','HOLDS'], a:'MEMBER', b:'LIBRARY_CARD', card:'1:1', partA:'total', partB:'total', fkIn:'b'},
+    {name:'PUBLISHES', aka:['PUBLISHED_BY'], a:'PUBLISHER', b:'BOOK', card:'1:N', partA:'partial', partB:'total', flex:['a']},
+    {name:'WRITES', aka:['WRITTEN_BY','WROTE','AUTHORED'], a:'AUTHOR', b:'BOOK', card:'M:N', partA:'total', partB:'total', flex:['a']},
+    {name:'HAS_COPY', aka:['HAS','COPY_OF','HAS_COPIES'], a:'BOOK', b:'COPY', card:'1:N', partA:'partial', partB:'total', identifying:true, flex:['a']},
+    {name:'BORROWS', aka:['LOAN','BORROW','LOANS','BORROWED'], a:'MEMBER', b:'COPY', card:'M:N', partA:'partial', partB:'partial', flex:['a','b'], attrs:['LoanDate','DueDate','ReturnDate'], keyAttr:'LoanDate', keyAttrRequired:true}
+  ],
+  assumptions:[
+    'MEMBER-LIBRARY_CARD is 1:1 with total participation on both sides, so the FK can go on either side; I put MemberID (UNIQUE) in LIBRARY_CARD.',
+    'BORROWS: the same member can borrow the same copy again later, so LoanDate is part of the PK: (MemberID, ISBN, CopyNo, LoanDate).',
+    'ReturnDate is NULL while the copy is still out.',
+    'COPY rows are deleted when their BOOK is deleted (ON DELETE CASCADE).'
+  ]
+},
+{ id:'hospital', unit:7, role:'exam', level:8, title:'Hospital',
+  story:'A hospital database stores departments, doctors and patients. A department has a department ID, a name and a location. A doctor has a doctor ID, a name (first and last), a salary, several phone numbers and one or more specialties. Every doctor works in exactly one department, and a department has many doctors. Every department is headed by exactly one doctor, and the hospital records since when (HeadSince); a doctor heads at most one department. A patient has a patient ID, a name (first and last), a date of birth and an address (street, city, ZIP). For each patient the hospital stores emergency contacts; an emergency contact has a contact name, a phone and a relationship to the patient, and is identified only by the patient together with the contact name. Doctors treat patients: a doctor treats many patients and a patient can be treated by many doctors; for each treatment the hospital records the treatment date and the diagnosis.',
+  entities:[
+    {name:'DEPARTMENT', aka:['DEPT'], attrs:[{name:'DeptID',key:true},'DeptName','Location']},
+    {name:'DOCTOR', aka:['DOC'], attrs:[{name:'DoctorID',key:true,aka:['DocID']},{name:'Name',parts:['FirstName','LastName']},'Salary',{name:'Phone',multi:true},{name:'Specialty',multi:true,aka:['Speciality','Specialization']}]},
+    {name:'PATIENT', attrs:[{name:'PatientID',key:true},{name:'Name',parts:['FirstName','LastName']},'DOB',{name:'Address',parts:['Street','City','ZIP']}]},
+    {name:'EMERGENCY_CONTACT', aka:['CONTACT','EMERGENCYCONTACT','EMG_CONTACT'], weak:true, owner:'PATIENT', attrs:[{name:'ContactName',partial:true,aka:['Name']},'Phone','Relationship']}
+  ],
+  rels:[
+    {name:'HEADS', aka:['HEADED_BY','MANAGES','HEAD_OF'], a:'DOCTOR', b:'DEPARTMENT', card:'1:1', partA:'partial', partB:'total', attrs:['HeadSince'], fkName:'HeadDoctorID'},
+    {name:'WORKS_IN', aka:['WORKS_FOR','BELONGS_TO','EMPLOYS'], a:'DOCTOR', b:'DEPARTMENT', card:'N:1', partA:'total', partB:'total', flex:['b']},
+    {name:'HAS_CONTACT', aka:['HAS','HAS_EMERGENCY_CONTACT','CONTACT_OF'], a:'PATIENT', b:'EMERGENCY_CONTACT', card:'1:N', partA:'partial', partB:'total', identifying:true, flex:['a']},
+    {name:'TREATS', aka:['TREATMENT','TREATED_BY','TREAT'], a:'DOCTOR', b:'PATIENT', card:'M:N', partA:'partial', partB:'partial', flex:['a','b'], attrs:['TreatDate','Diagnosis'], keyAttr:'TreatDate', keyAttrRequired:false}
+  ],
+  assumptions:[
+    'HEADS is 1:1 with DEPARTMENT total, so the FK goes into DEPARTMENT: HeadDoctorID FK->DOCTOR, UNIQUE, together with HeadSince.',
+    'A doctor may treat the same patient on several dates, so TreatDate is included in the PK of TREATS: (DoctorID, PatientID, TreatDate).',
+    'Emergency contacts are deleted together with their patient (ON DELETE CASCADE).'
+  ]
+},
+{ id:'bus', unit:7, role:'exam', level:9, title:'Bus company',
+  story:'A bus company stores depots, buses, drivers and routes. A depot has a depot ID, a name and an address (street, city, ZIP). A bus has a bus ID, a plate number, a model and a capacity. Every bus is kept at exactly one depot; a depot keeps many buses. Every depot is managed by exactly one driver, and the company records since when (ManagerSince); a driver manages at most one depot. A driver has a driver ID, a name (first and last), a license number, a date of birth, an age (calculated from the date of birth) and several phone numbers. Drivers drive buses: a driver can drive many buses and a bus is driven by many drivers. For every driving shift the company records the date and the shift (morning or evening); the same driver often drives the same bus again on another date. A route has a route number, a start point, an end point and a length in km. Each bus is assigned to at most one route, and a route can have many buses. Each route has stops; a stop is identified by the route plus a stop sequence number, and has a stop name.',
+  entities:[
+    {name:'DEPOT', attrs:[{name:'DepotID',key:true},'DepotName',{name:'Address',parts:['Street','City','ZIP']}]},
+    {name:'BUS', attrs:[{name:'BusID',key:true},{name:'PlateNo',aka:['Plate','PlateNumber']},'Model','Capacity']},
+    {name:'DRIVER', attrs:[{name:'DriverID',key:true},{name:'Name',parts:['FirstName','LastName']},{name:'LicenseNo',aka:['License','LicenceNo']},'DOB',{name:'Age',derived:true},{name:'Phone',multi:true}]},
+    {name:'ROUTE', attrs:[{name:'RouteNo',key:true,aka:['RouteID']},'StartPoint','EndPoint',{name:'Length',aka:['LengthKm','Distance','Km']}]},
+    {name:'STOP', aka:['BUS_STOP','ROUTE_STOP'], weak:true, owner:'ROUTE', attrs:[{name:'StopSeq',partial:true,aka:['StopNo','SeqNo','Sequence','StopSequence']},'StopName']}
+  ],
+  rels:[
+    {name:'KEEPS', aka:['KEPT_AT','HOUSES','BASED_AT','PARKED_AT','HAS'], a:'DEPOT', b:'BUS', card:'1:N', partA:'partial', partB:'total', flex:['a']},
+    {name:'MANAGES', aka:['MANAGED_BY','HEADS'], a:'DRIVER', b:'DEPOT', card:'1:1', partA:'partial', partB:'total', attrs:['ManagerSince'], fkName:'ManagerID'},
+    {name:'DRIVES', aka:['DRIVEN_BY','SHIFT','DRIVE'], a:'DRIVER', b:'BUS', card:'M:N', partA:'partial', partB:'partial', flex:['a','b'], attrs:[{name:'DriveDate',aka:['Date','ShiftDate','DrivingDate','WorkDate']},'Shift'], keyAttr:'DriveDate', keyAttrRequired:true},
+    {name:'ASSIGNED_TO', aka:['SERVES','RUNS_ON','OPERATES'], a:'ROUTE', b:'BUS', card:'1:N', partA:'partial', partB:'partial', flex:['a']},
+    {name:'HAS_STOP', aka:['HAS','STOPS_AT','STOP_OF'], a:'ROUTE', b:'STOP', card:'1:N', partA:'total', partB:'total', identifying:true, flex:['a']}
+  ],
+  assumptions:[
+    'Age is derived from DOB and is not stored.',
+    'DRIVES: the same driver drives the same bus on many dates, so DriveDate is part of the PK: (DriverID, BusID, DriveDate).',
+    'MANAGES is 1:1 with DEPOT total -> ManagerID FK->DRIVER UNIQUE in DEPOT.',
+    'RouteNo in BUS can be NULL (a bus may have no route).'
+  ]
+},
+{ id:'shop', unit:7, role:'exam', level:9, title:'Online shop',
+  story:'An online shop stores customers, orders, products and categories. A customer has a customer ID, a name (first and last), an email, a shipping address (street, city, ZIP) and several phone numbers. A customer places orders; every order is placed by exactly one customer, and a customer may have placed no orders yet. An order has an order ID, an order date and a total amount (calculated from its lines). An order contains one or more products and a product can appear in many orders; for each product in an order the shop records the quantity and the unit price at the time of purchase. A product has a product ID, a name, a current price and a set of tags. Every product belongs to exactly one category (category ID, category name). Payments are recorded per order: a payment is identified by the order plus a payment number (an order can be paid in installments) and has an amount, a method and a payment date.',
+  entities:[
+    {name:'CUSTOMER', aka:['CUST'], attrs:[{name:'CustomerID',key:true,aka:['CustID']},{name:'Name',parts:['FirstName','LastName']},'Email',{name:'Address',parts:['Street','City','ZIP'],aka:['ShippingAddress']},{name:'Phone',multi:true}]},
+    {name:'ORDER', aka:['ORDERS','CUSTOMER_ORDER','PURCHASE'], attrs:[{name:'OrderID',key:true},'OrderDate',{name:'TotalAmount',derived:true,aka:['Total','Amount']}]},
+    {name:'PRODUCT', attrs:[{name:'ProductID',key:true,aka:['ProdID']},'ProductName','Price',{name:'Tag',multi:true}]},
+    {name:'CATEGORY', attrs:[{name:'CategoryID',key:true,aka:['CatID']},'CategoryName']},
+    {name:'PAYMENT', weak:true, owner:'ORDER', attrs:[{name:'PaymentNo',partial:true,aka:['PayNo','InstallmentNo']},'Amount','Method',{name:'PaymentDate',aka:['PayDate','PaidDate']}]}
+  ],
+  rels:[
+    {name:'PLACES', aka:['PLACED_BY','MAKES','ORDERS'], a:'CUSTOMER', b:'ORDER', card:'1:N', partA:'partial', partB:'total'},
+    {name:'CONTAINS', aka:['ORDER_LINE','ORDERLINE','INCLUDES','ORDER_ITEM','ORDER_PRODUCT','LINE'], a:'ORDER', b:'PRODUCT', card:'M:N', partA:'total', partB:'partial', flex:['b'], attrs:[{name:'Quantity',aka:['Qty']},'UnitPrice']},
+    {name:'BELONGS_TO', aka:['IN_CATEGORY','HAS','CATEGORIZED'], a:'PRODUCT', b:'CATEGORY', card:'N:1', partA:'total', partB:'partial', flex:['b']},
+    {name:'HAS_PAYMENT', aka:['HAS','PAID_BY','PAYS','PAYMENT_OF'], a:'ORDER', b:'PAYMENT', card:'1:N', partA:'partial', partB:'total', identifying:true, flex:['a']}
+  ],
+  assumptions:[
+    'TotalAmount is derived from the order lines (sum of Quantity x UnitPrice) and is not stored.',
+    'A product appears at most once per order, so PK(OrderID, ProductID) for CONTAINS.',
+    'UnitPrice is stored in CONTAINS because the product price can change later.'
+  ]
+}
+];
+
+const UNITS = [
+ {n:1, title:'Entities, keys & 1:N relationships', worked:'company', ex:['league','carrental'],
+  learn:`<p><b>Entity</b> = a "thing" the business stores data about and that has its own identity - usually a noun in the story (member, book, doctor). Chen symbol: <b>rectangle</b>.</p>
+  <p><b>Attribute</b> = a property of an entity (name, salary). Symbol: <b>oval</b>. The <b>key attribute</b> uniquely identifies each entity (ID, ISBN, plate number) - its name is <u>underlined</u>.</p>
+  <p><b>Relationship</b> = how entities are connected - usually a verb (works in, borrows). Symbol: <b>diamond</b>.</p>
+  <p><b>Cardinality ratio</b> - ask two questions: "one A is linked to how many B?" and "one B is linked to how many A?". One + many = <b>1:N</b>.</p>
+  <p><b>Participation</b>: <b>total</b> (double line) when <i>every</i> entity must take part - words like "every", "must", "exactly one", "at least one". <b>Partial</b> (single line) when some may not - "may", "can", "some", "at most one".</p>
+  <div class="callout"><b>Mapping rule:</b> every strong entity becomes a table, its key becomes the PK. <b>1:N</b> -> copy the PK of the <b>1 side</b> as a FK into the table of the <b>N side</b> (relationship attributes go there too). Memory trick: <i>the many side remembers its one</i>.</div>`},
+ {n:2, title:'Composite (and derived) attributes', worked:'gym', ex:['petclinic','courses'],
+  learn:`<p>A <b>composite attribute</b> is made of smaller parts: Name = FirstName + LastName, Address = Street + City + ZIP. Story signal: "a name (first and last)", "an address (street, city, ZIP)". Chen: an oval with its parts as ovals hanging off it.</p>
+  <p>A <b>derived attribute</b> can be calculated from other data: Age from DOB, YearsOfService from HireDate, a total from order lines. Story signal: "calculated", "computed", "based on". Chen: <b>dashed oval</b>.</p>
+  <div class="callout"><b>Mapping rule:</b> composite -> store only its <b>simple parts</b> as columns (no "Name" column). Derived -> <b>not stored</b> at all (compute it in a query).</div>`},
+ {n:3, title:'Multivalued attributes', worked:'restaurant', ex:['agents','apartments'],
+  learn:`<p>A <b>multivalued attribute</b> can hold several values for one entity: phone numbers, emails, keywords, specialties, features. Story signal: "several", "one or more", "a set of", "a list of", plural nouns. Chen: <b>double oval</b>.</p>
+  <p>Why a new table? A table cell can hold only ONE value (first normal form). Putting "Phone1, Phone2, Phone3" columns is wrong too.</p>
+  <div class="callout"><b>Mapping rule:</b> new table <code>OWNER_ATTR(OwnerKey FK->OWNER, Value)</code>, <b>PK = both columns</b>. Example: <code>DOCTOR_PHONE(DoctorID PK FK->DOCTOR, Phone PK)</code>.</div>
+  <p class="small muted">Trap: PK = only OwnerKey would allow just one phone per owner - the whole point is lost.</p>`},
+ {n:4, title:'Weak entities', worked:'dependents', ex:['hotelrooms','sections'],
+  learn:`<p>A <b>weak entity</b> has no key of its own. It can only be identified <b>together with its owner</b> (identifying relationship) plus its <b>partial key</b>. Story signals: "identified by ... together with ...", "numbered within each ...", "has no ID of its own", "copy 1, copy 2 of each book".</p>
+  <p>Chen: weak entity = <b>double rectangle</b>; identifying relationship = <b>double diamond</b>; partial key = <b>dashed underline</b>; the weak entity always has <b>total</b> participation (double line).</p>
+  <div class="callout"><b>Mapping rule:</b> table with the <b>owner's PK as FK</b> + the partial key. <b>PK = owner key + partial key</b>. Add <b>ON DELETE CASCADE</b> (no owner -> no weak rows). The identifying relationship gets no table of its own.</div>`},
+ {n:5, title:'M:N relationships with attributes', worked:'enrollment', ex:['projects','videorental'],
+  learn:`<p><b>M:N</b>: one A has many B <i>and</i> one B has many A (students-courses, authors-books, doctors-patients).</p>
+  <p>A <b>relationship attribute</b> describes one specific <i>pair</i>, not either entity alone: Grade (this student in this course), Hours, LoanDate. In Chen it is an oval attached to the diamond.</p>
+  <div class="callout"><b>Mapping rule:</b> new table named after the relationship with <b>both PKs as FKs</b>; <b>PK = both keys</b>; the relationship attributes go in this table. If the <b>same pair can repeat</b> (same member borrows the same copy again), add the date to the PK and say so in your assumptions.</div>`},
+ {n:6, title:'1:1 relationships & total participation', worked:'managers', ex:['parking','principals'],
+  learn:`<p><b>1:1</b>: one A has at most one B and one B has at most one A (department-manager, member-card).</p>
+  <p>Participation matters most here. If every department must have a manager, DEPARTMENT is <b>total</b>; if most employees are not managers, EMPLOYEE is <b>partial</b>.</p>
+  <div class="callout"><b>Mapping rule:</b> put the FK on the side with <b>total participation</b> (every row has a value -> no NULLs) and mark it <b>UNIQUE</b> (without UNIQUE it would be 1:N). Relationship attributes go with the FK. If both sides are total (or both partial), either side works - state your choice as an assumption.</div>`},
+ {n:7, title:'Exam-style scenarios', worked:null, ex:['library','hospital','bus','shop'],
+  learn:`<p>Now everything together, exactly like the midterm. Work in this order:</p>
+  <ol class="steps"><li>Underline every noun with its own data -> entities. Is any of them "identified by X together with Y"? -> weak entity.</li>
+  <li>For each entity list attributes; mark key, composite (parts in brackets), multivalued ("several / set of"), derived ("calculated").</li>
+  <li>Find every verb between entities -> relationships. For each: cardinality (ask both directions), participation of each side ("every / exactly one" = total), and attributes that belong to the pair (dates!).</li>
+  <li>Draw the ERD. Then map: entities -> multivalued -> weak -> 1:1 -> 1:N -> M:N.</li>
+  <li>Write assumptions: M:N keys (can the pair repeat?), 1:1 FK side, NULL-able FKs.</li></ol>`}
+];
+
+/* =====================================================================
+   UTILITIES & STORAGE
+   ===================================================================== */
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let _uid = 0; const nid = () => 'x' + (++_uid).toString(36) + Math.random().toString(36).slice(2,6);
+const splitList = s => String(s||'').split(/[,;\n]/).map(x=>x.trim()).filter(Boolean);
+const words = s => String(s).replace(/_/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').toLowerCase();
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+
+const STORE_KEY = 'cai105-erd-trainer-v1';
+function blankStore(){ return {progress:{}, drafts:{}, weak:{}, log:[], exam:null, history:[]}; }
+function loadStore(){ try { return Object.assign(blankStore(), JSON.parse(localStorage.getItem(STORE_KEY)||'{}')); } catch(e){ return blankStore(); } }
+let S = loadStore();
+let saveTimer = null;
+function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch(e){} }
+function saveSoon(){ clearTimeout(saveTimer); saveTimer = setTimeout(save, 300); }
+
+/* ---- name normalisation: ignore case, spaces, underscores, plurals, common abbreviations ---- */
+const REPL = [['identifier','id'],['number','no'],['numb','no'],['num','no'],['nbr','no'],['telephone','phone'],['phoneno','phone'],
+  ['dateofbirth','dob'],['birthdate','dob'],['birthday','dob'],['zipcode','zip'],['postalcode','zip'],['postcode','zip'],
+  ['department','dept'],['employee','emp'],['firstname','fname'],['givenname','fname'],['lastname','lname'],['surname','lname'],
+  ['familyname','lname'],['quantity','qty'],['speciality','specialty'],['licence','license']];
+function norm(s){ let x = String(s||'').toLowerCase().replace(/[^a-z0-9]/g,''); for(const [a,b] of REPL) x = x.split(a).join(b); return x; }
+function normT(s){ const x = norm(s); return (x.length > 3 && x.endsWith('s') && !x.endsWith('ss')) ? x.slice(0, -1) : x; }
+function stripPre(x, prefixes){ for(const p of prefixes){ if(p && x.startsWith(p) && x.length > p.length) return x.slice(p.length); } return x; }
+function nameEq(cands, user, prefixes=[]){
+  const u = normT(user); if(!u) return false;
+  const cs = cands.filter(Boolean).map(normT);
+  if(cs.includes(u)) return true;
+  if(!prefixes.length) return false;
+  const us = stripPre(u, prefixes);
+  return cs.some(c => stripPre(c, prefixes) === us);
+}
+function cardKind(c){ const [x,y] = c.split(':'); const m = v => v !== '1'; if(m(x)&&m(y)) return 'M:N'; if(!m(x)&&!m(y)) return '1:1'; return '1:N'; }
+function flipCard(c){ const [x,y] = c.split(':'); return y + ':' + x; }
+function canonCard(c){ return String(c).replace(/M/g,'N'); }
+
+/* ---- prepare scenario objects (string shorthand -> objects, computed tags) ---- */
+function prep(sc){
+  if(sc._prep) return sc;
+  const A = a => typeof a === 'string' ? {name:a} : a;
+  sc.entities.forEach(e => { e.attrs = (e.attrs||[]).map(A); e.aka = e.aka||[]; e.attrs.forEach(a=>a.aka=a.aka||[]); });
+  sc.rels.forEach(r => { r.attrs = (r.attrs||[]).map(A); r.aka = r.aka||[]; r.flex = r.flex||[]; r.attrs.forEach(a=>a.aka=a.aka||[]); });
+  sc.assumptions = sc.assumptions || [];
+  const t = new Set(['keys','attrs','missing_entity','cardinality','participation','missing_rel','fk_missing','fk_in_erd']);
+  sc.entities.forEach(e => { if(e.weak) t.add('weak_key'); e.attrs.forEach(a => { if(a.parts) t.add('composite'); if(a.multi) t.add('multivalued'); if(a.derived) t.add('derived'); }); });
+  sc.rels.forEach(r => { const k = cardKind(r.card); if(r.identifying) return; if(k==='1:1') t.add('fk_1to1'); if(k==='1:N') t.add('fk_1n'); if(k==='M:N') t.add('mn_table'); if(r.attrs.length) t.add('relattr'); });
+  sc.tags = [...t];
+  sc._prep = true; return sc;
+}
+SCENARIOS.forEach(prep);
+const SC = id => SCENARIOS.find(s => s.id === id);
+
+/* =====================================================================
+   MISTAKE CATEGORIES (weak-point tracker)
+   ===================================================================== */
+const CATS = {
+  missing_entity:{label:'Missed an entity', rule:'Every noun with its own identifying data is an entity (rectangle) and becomes a table.'},
+  keys:{label:'Wrong or missing key / PK', rule:'The key attribute (underlined) uniquely identifies the entity and becomes the PK.'},
+  attrs:{label:'Missing or misplaced attribute / column', rule:'Read the story sentence by sentence and attach each property to the entity it describes.'},
+  composite:{label:'Composite attribute not split / not marked', rule:'Composite -> mark it with its parts in the ERD; in the schema store ONLY the simple parts.'},
+  multivalued:{label:'Multivalued attribute not split / not marked', rule:'Multivalued (double oval) -> new table (OwnerKey, Value), PK = both columns.'},
+  derived:{label:'Derived attribute stored / not marked', rule:'Derived (dashed oval) is computed from other data and is NOT stored.'},
+  weak_key:{label:'Weak entity: owner key / partial key / identifying rel.', rule:'Weak entity -> table with owner PK as FK + partial key; PK = both; ON DELETE CASCADE. ERD: double rectangle, double diamond, dashed underline.'},
+  fk_1to1:{label:'Wrong FK side in 1:1', rule:'1:1 -> FK on the side with TOTAL participation, marked UNIQUE.'},
+  fk_1n:{label:'Wrong FK side in 1:N', rule:'1:N -> PK of the 1 side goes as FK into the N side table.'},
+  fk_missing:{label:'FK not marked / wrong FK target', rule:'Every column that points to another table must be marked FK->TABLE.'},
+  mn_table:{label:'Missing M:N table or wrong M:N key', rule:'M:N -> new table with both PKs as FKs; PK = both (+ date if the pair can repeat).'},
+  cardinality:{label:'Wrong cardinality ratio', rule:'Ask both directions: one A -> how many B? one B -> how many A?'},
+  participation:{label:'Wrong participation (total / partial)', rule:'"every / must / exactly one / at least one" = total (double line); "may / can / some / at most" = partial.'},
+  relattr:{label:'Relationship attribute misplaced', rule:'A value that describes one specific pair (date, grade, hours) belongs to the relationship, and in the schema goes with the FK / M:N table.'},
+  missing_rel:{label:'Missed a relationship', rule:'Every verb that connects two entities is a relationship (diamond).'},
+  fk_in_erd:{label:'Foreign key written in the ERD', rule:'ERDs have no foreign keys - the relationship diamond already connects the entities. FKs appear only in the schema.'}
+};
+const T1CATS = ['missing_entity','keys','attrs','composite','multivalued','derived','weak_key','cardinality','participation','relattr','missing_rel','fk_in_erd','mn_table'];
+const T2CATS = ['missing_entity','keys','attrs','composite','multivalued','derived','weak_key','fk_1to1','fk_1n','fk_missing','mn_table','relattr'];
+
+function recordResult(sc, res, type){
+  const errCats = new Set();
+  res.items.filter(i => i.status==='err').forEach(i => (i.cat||[]).forEach(c => errCats.add(c)));
+  const relevant = type==='t1' ? T1CATS : T2CATS;
+  errCats.forEach(c => { const w = S.weak[c] ||= {miss:0, ok:0}; w.miss++; w.last = Date.now(); });
+  sc.tags.filter(t => relevant.includes(t) && !errCats.has(t)).forEach(c => { const w = S.weak[c] ||= {miss:0, ok:0}; w.ok++; });
+  res.items.filter(i => i.status==='err').slice(0,8).forEach(i => S.log.unshift({t:Date.now(), sc:sc.id, type, cat:(i.cat||[])[0], text:i.text}));
+  S.log = S.log.slice(0, 40);
+  save();
+}
+function setBest(id, type, pct){
+  const p = S.progress[id] ||= {};
+  const cur = p[type] || {best:0, tries:0};
+  cur.tries++; cur.best = Math.max(cur.best, pct); p[type] = cur; save();
+}
+
+/* =====================================================================
+   ERD -> RELATIONAL MAPPING (generates the Type 2 model answer)
+   ===================================================================== */
+function mapERD(sc, choice={}){
+  const E = n => sc.entities.find(e => e.name === n);
+  const tables = [], byEnt = {};
+  const expl = {entity:[], composite:[], derived:[], multivalued:[], weak:[], '1:1':[], '1:N':[], 'M:N':[]};
+  const flat = a => a.parts ? a.parts.slice() : [a.name];
+  const pkMemo = {};
+  const pk = n => {
+    if(pkMemo[n]) return pkMemo[n];
+    const e = E(n); if(!e) return [];
+    let c = [];
+    if(e.weak && E(e.owner)) c = pk(e.owner).slice();
+    e.attrs.filter(a => a.key || (e.weak && a.partial)).forEach(a => c.push(...flat(a)));
+    return pkMemo[n] = c;
+  };
+  const akaOf = (entName, col) => {
+    const e = E(entName); if(!e) return [];
+    const a = e.attrs.find(a => a.name === col); return a ? a.aka : [];
+  };
+  const order = [], seen = new Set();
+  const visit = e => { if(seen.has(e.name)) return; seen.add(e.name); if(e.weak && E(e.owner)) visit(E(e.owner)); order.push(e); };
+  sc.entities.forEach(visit);
+  const has = (t, n) => t.cols.some(c => norm(c.name) === norm(n));
+
+  for(const e of order){
+    const t = {name:e.name, kind:e.weak ? 'weak' : 'entity', ent:e.name, cols:[], cascade:false, aka:e.aka.slice()};
+    if(e.weak){
+      const o = e.owner;
+      pk(o).forEach(c => t.cols.push({name:c, pk:true, fk:o, origin:'ownerkey', aka:akaOf(o,c)}));
+      t.cascade = true;
+      const pks = e.attrs.filter(a => a.partial).map(a => a.name).join(', ');
+      expl.weak.push(`${e.name} is a weak entity owned by ${o}: its table gets the owner's key (${pk(o).join(', ')}) as FK plus its partial key ${pks}; PK = (${pk(e.name).join(', ')}); ON DELETE CASCADE so its rows are removed with the owner.`);
+    } else {
+      expl.entity.push(`${e.name} (strong entity) -> table ${e.name}, PK = ${pk(e.name).join(', ')}.`);
+    }
+    for(const a of e.attrs){
+      if(a.derived){ expl.derived.push(`${e.name}.${a.name} is derived -> not stored (it is computed when needed).`); continue; }
+      if(a.multi) continue;
+      if(a.parts) expl.composite.push(`${e.name}.${a.name} is composite -> stored as its simple parts ${a.parts.join(', ')} (no ${a.name} column).`);
+      flat(a).forEach(n => t.cols.push({name:n, pk:!!(a.key || (e.weak && a.partial)), origin:a.parts ? 'composite' : (a.partial ? 'partial' : (a.key ? 'key' : 'attr')), comp:a.parts ? a.name : null, aka:a.parts ? [] : a.aka}));
+    }
+    tables.push(t); byEnt[e.name] = t;
+  }
+  for(const e of order) for(const a of e.attrs) if(a.multi && !a.derived){
+    const name = e.name + '_' + a.name.toUpperCase();
+    const t = {name, kind:'multi', ent:e.name, attr:a.name, cols:[], cascade:true,
+      aka:[a.name, e.name + a.name, ...e.aka.map(x => x + '_' + a.name), ...a.aka, ...a.aka.map(x => e.name + '_' + x)]};
+    pk(e.name).forEach(c => t.cols.push({name:c, pk:true, fk:e.name, origin:'ownerkey', aka:akaOf(e.name,c)}));
+    flat(a).forEach(n => t.cols.push({name:n, pk:true, origin:'multi', aka:a.aka}));
+    tables.push(t);
+    expl.multivalued.push(`${e.name}.${a.name} is multivalued -> new table ${name}(${t.cols.map(c => c.name).join(', ')}); PK = both columns; ${pk(e.name).join(', ')} is a FK to ${e.name}.`);
+  }
+  for(const r of sc.rels){
+    const kind = cardKind(r.card);
+    if(r.identifying){
+      const weakName = (E(r.b) && E(r.b).weak) ? r.b : r.a;
+      const t = byEnt[weakName];
+      r.attrs.forEach(a => t && t.cols.push({name:a.name, origin:'relattr', rel:r.name, aka:a.aka}));
+      expl.weak.push(`${r.name} is the identifying relationship of ${weakName}: no extra table or FK - it is already represented by the owner key inside ${weakName}.`);
+      continue;
+    }
+    if(kind === 'M:N'){
+      const t = {name:r.name, kind:'mn', rel:r.name, cols:[], cascade:false, aka:[...r.aka, r.a + '_' + r.b, r.b + '_' + r.a]};
+      const add = ent => pk(ent).forEach(c => { const n = has(t, c) ? ent + '_' + c : c; t.cols.push({name:n, pk:true, fk:ent, origin:'mnkey', rel:r.name, aka:[c, ...akaOf(ent,c)]}); });
+      add(r.a); add(r.b);
+      r.attrs.forEach(a => flat(a).forEach(n => {
+        const isKey = !!r.keyAttr && norm(r.keyAttr) === norm(a.name);
+        t.cols.push({name:n, pk:isKey, keyOpt:isKey && !r.keyAttrRequired, origin:'relattr', rel:r.name, aka:a.aka});
+      }));
+      tables.push(t);
+      const keyCols = t.cols.filter(c => c.pk).map(c => c.name);
+      expl['M:N'].push(`${r.name} (${r.a} M:N ${r.b}) -> new table ${r.name} holding both keys as FKs${r.attrs.length ? '; its attributes ' + r.attrs.map(a => a.name).join(', ') + ' are stored here' : ''}; PK = (${keyCols.join(', ')})${r.keyAttr ? ` - ${r.keyAttr} is in the key because the same pair can occur more than once` : ''}.`);
+      continue;
+    }
+    let host, target, side;
+    if(kind === '1:1'){
+      side = choice[r.name];
+      if(!side){
+        if(r.partA === 'total' && r.partB !== 'total') side = 'a';
+        else if(r.partB === 'total' && r.partA !== 'total') side = 'b';
+        else side = r.fkIn || 'b';
+      }
+      host = side === 'a' ? r.a : r.b; target = side === 'a' ? r.b : r.a;
+    } else {
+      const aMany = r.card.split(':')[0] !== '1';
+      host = aMany ? r.a : r.b; target = aMany ? r.b : r.a;
+    }
+    const t = byEnt[host]; if(!t) continue;
+    const tk = pk(target);
+    const fkCols = [];
+    tk.forEach(c => {
+      let n = (r.fkName && tk.length === 1) ? r.fkName : c;
+      if(has(t, n)) n = r.name.charAt(0) + r.name.slice(1).toLowerCase().replace(/_./g, m => m[1].toUpperCase()) + c;
+      fkCols.push(n);
+      t.cols.push({name:n, fk:target, unique:kind === '1:1', origin:'relfk', rel:r.name, relKind:kind, aka:[c, ...akaOf(target,c)]});
+    });
+    r.attrs.forEach(a => flat(a).forEach(n => t.cols.push({name:has(t,n) ? r.name + '_' + n : n, origin:'relattr', rel:r.name, aka:a.aka})));
+    const ra = r.attrs.length ? ` Its attribute(s) ${r.attrs.map(a => a.name).join(', ')} go into ${host} too.` : '';
+    if(kind === '1:1'){
+      const both = r.partA === r.partB;
+      expl['1:1'].push(`${r.name} (${r.a} 1:1 ${r.b}) -> FK ${fkCols.join(', ')} -> ${target} placed in ${host} and marked UNIQUE` +
+        (both ? ` (both sides have ${r.partA} participation, so either side is acceptable - this is an assumption).` : ` because ${host} has total participation (every ${host} row has a value, no NULLs).`) + ra);
+    } else {
+      expl['1:N'].push(`${r.name} (${r.a} ${r.card} ${r.b}) -> the PK of the 1 side (${target}) goes as FK ${fkCols.join(', ')} into the N side table ${host}.` + ra);
+    }
+  }
+  return {tables, expl, choice};
+}
+function schemaVariants(sc){
+  const amb = sc.rels.filter(r => !r.identifying && cardKind(r.card) === '1:1' && r.partA === r.partB);
+  const out = [mapERD(sc)];
+  for(let m = 0; m < (1 << amb.length); m++){
+    const ch = {}; amb.forEach((r,i) => ch[r.name] = ((m >> i) & 1) ? 'a' : 'b');
+    out.push(mapERD(sc, ch));
+  }
+  return out;
+}
+function fmtTable(t){
+  return `${t.name}(${t.cols.map(c => c.name + (c.pk ? ' PK' : '') + (c.fk ? ' FK->' + c.fk : '') + (c.unique ? ' UNIQUE' : '')).join(', ')})${t.kind === 'weak' ? '  ON DELETE CASCADE' : ''}`;
+}
+function fmtSchema(model){ return model.tables.map(fmtTable).join('\n'); }
+
+/* =====================================================================
+   PLAIN-TEXT SCHEMA PARSER
+   Accepts: DOCTOR(DoctorID PK, FirstName, DeptID FK->DEPARTMENT)
+   also FK -> X, FK X, FK(X), FK references X, REFERENCES X, PK FK->X,
+   PK(a, b) / FOREIGN KEY(a) REFERENCES X inside the brackets, UNIQUE, ON DELETE CASCADE
+   ===================================================================== */
+const NOT_TABLES = /^(pk|fk|primary|foreign|key|references|ref|unique|cascade)$/i;
+function splitTop(body){ const out = []; let d = 0, cur = ''; for(const ch of body){ if(ch === '(') d++; if(ch === ')') d--; if(ch === ',' && d === 0){ out.push(cur); cur = ''; } else cur += ch; } out.push(cur); return out; }
+function parseSchema(text){
+  const s = String(text||''); const tables = []; let i = 0;
+  const re = /([A-Za-z_][A-Za-z0-9_]*)\s*\(/g;
+  while(i < s.length){
+    re.lastIndex = i; const m = re.exec(s); if(!m) break;
+    let j = m.index + m[0].length, depth = 1; const start = j;
+    while(j < s.length && depth > 0){ if(s[j] === '(') depth++; else if(s[j] === ')') depth--; j++; }
+    if(NOT_TABLES.test(m[1])){ i = j; continue; }
+    const body = s.slice(start, depth === 0 ? j - 1 : j);
+    const eol = s.indexOf('\n', j); const tail = s.slice(j, eol < 0 ? s.length : eol);
+    tables.push(parseTable(m[1], body, tail));
+    i = j;
+  }
+  return tables;
+}
+function fkTarget(str){
+  let m = str.match(/\b(?:fk|foreign\s*key)\b\s*(?:-+>|=+>|>|:|→)?\s*(?:references\s+|ref\s+|to\s+)?\(?\s*([A-Za-z_]\w*)/i);
+  if(m && !/^(references|ref|to)$/i.test(m[1])) return m[1];
+  m = str.match(/\breferences\s+([A-Za-z_]\w*)/i); if(m) return m[1];
+  if(/\b(fk|foreign\s*key)\b/i.test(str)) return '?';
+  return null;
+}
+function parseTable(name, body, tail){
+  const t = {name, cols:[], cascade:/cascade/i.test(body + ' ' + tail)};
+  const pkList = [], fkList = [];
+  let prev = null;
+  for(let raw of splitTop(body)){
+    raw = raw.trim(); if(!raw) continue;
+    let m;
+    if((m = raw.match(/^(?:primary\s*key|pk)\s*\((.*)\)\s*$/i))){ pkList.push(...splitList(m[1])); continue; }
+    if((m = raw.match(/^(?:foreign\s*key|fk)\s*\(([^)]*)\)\s*(.*)$/i))){ const tg = fkTarget('fk ' + m[2].replace(/^\s*(-+>|=>|>)/,'->')) || (m[2].match(/([A-Za-z_]\w*)/)||[])[1]; splitList(m[1]).forEach(c => fkList.push([c, tg])); continue; }
+    if(/^(on\s+delete|cascade)/i.test(raw)) continue;
+    const tok = raw.match(/^[*#_\s]*([A-Za-z_][A-Za-z0-9_]*)/); if(!tok) continue;
+    const marker = /^(pk|fk|unique|references|primary|foreign|not)$/i.test(tok[1]);
+    const target = marker && prev ? prev : {name:tok[1], pk:false, fk:null, unique:false};
+    const rest = marker ? raw : raw.slice(tok[0].length);
+    if(/^\s*[*#]/.test(raw) && !marker) target.pk = true;
+    if(/\b(pk|primary\s*key)\b/i.test(rest)) target.pk = true;
+    const fk = fkTarget(rest); if(fk) target.fk = fk;
+    if(/\bunique\b/i.test(rest)) target.unique = true;
+    if(!marker){ t.cols.push(target); prev = target; }
+  }
+  pkList.forEach(n => { const c = t.cols.find(c => normT(c.name) === normT(n)); if(c) c.pk = true; });
+  fkList.forEach(([n, tg]) => { const c = t.cols.find(c => normT(c.name) === normT(n)); if(c) c.fk = tg || '?'; });
+  return t;
+}
+
+/* =====================================================================
+   TYPE 2 CHECKER (schema vs model)
+   ===================================================================== */
+function checkSchema(sc, text){
+  const user = parseSchema(text);
+  let best = null;
+  for(const v of schemaVariants(sc)){
+    const r = compareSchema(sc, v, user);
+    if(!best || r.score > best.score) best = r;
+  }
+  best.parsed = user;
+  return best;
+}
+function compareSchema(sc, model, user){
+  const items = []; let ok = 0, total = 0;
+  const R = (status, text, hint, reveal, cat, scored=true) => {
+    items.push({status, text, hint, reveal, cat:cat ? [].concat(cat) : []});
+    if(scored && status !== 'warn'){ total++; if(status === 'ok') ok++; }
+  };
+  const silent = good => { total++; if(good) ok++; };
+  const E = n => sc.entities.find(e => e.name === n);
+  const entTable = n => model.tables.find(t => (t.kind === 'entity' || t.kind === 'weak') && t.ent === n);
+  const tableRefEq = (modelTarget, userTarget) => {
+    if(!userTarget || userTarget === '?') return false;
+    const e = E(modelTarget);
+    if(nameEq([modelTarget, ...(e ? e.aka : [])], userTarget)) return true;
+    if(e && e.weak){ const o = E(e.owner); if(o && nameEq([o.name, ...o.aka], userTarget)) return true; }
+    return false;
+  };
+  const prefixesOf = mt => {
+    const e = E(mt.ent || ''); const p = [normT(mt.name), ...(mt.aka||[]).map(normT)];
+    if(e) p.push(normT(e.name), ...e.aka.map(normT));
+    if(mt.rel){ const r = sc.rels.find(r => r.name === mt.rel); if(r) p.push(...[r.name, ...r.aka].map(normT)); }
+    return [...new Set(p)].sort((a,b) => b.length - a.length);
+  };
+  function matchCols(mt, ut){
+    const prefixes = prefixesOf(mt); const pairs = new Map(); const usedU = new Set();
+    const tryPass = fn => { for(const mc of mt.cols){ if(pairs.has(mc)) continue; const u = ut.cols.find(c => !usedU.has(c) && fn(mc, c)); if(u){ pairs.set(mc, u); usedU.add(u); } } };
+    tryPass((mc,c) => nameEq([mc.name], c.name));
+    tryPass((mc,c) => nameEq([mc.name, ...(mc.aka||[])], c.name));
+    tryPass((mc,c) => nameEq([mc.name, ...(mc.aka||[])], c.name, prefixes));
+    tryPass((mc,c) => mc.fk && c.fk && tableRefEq(mc.fk, c.fk));
+    return {pairs, extra:ut.cols.filter(c => !usedU.has(c)), prefixes};
+  }
+  // ---- table matching ----
+  const map = new Map(), usedT = new Set();
+  for(const mt of model.tables){
+    const u = user.find(ut => !usedT.has(ut) && nameEq([mt.name, ...(mt.aka||[])], ut.name));
+    if(u){ map.set(mt, u); usedT.add(u); }
+  }
+  for(const mt of model.tables){
+    if(map.has(mt)) continue;
+    let best = null, bs = 0;
+    for(const ut of user){ if(usedT.has(ut)) continue; const {pairs} = matchCols(mt, ut); const s = pairs.size / Math.max(mt.cols.length, ut.cols.length); if(s > bs){ bs = s; best = ut; } }
+    if(best && bs >= 0.6){ map.set(mt, best); usedT.add(best); }
+  }
+  const missingFK = [], extraFK = [];
+  const kindCat = {entity:'keys', weak:'weak_key', multi:'multivalued', mn:'mn_table'};
+  const pkHint = {
+    entity:'Use the key attribute (underlined in the ERD) as the PK.',
+    weak:'PK of a weak entity table = owner key + partial key.',
+    multi:'PK of a multivalued table = owner key + value (both columns).',
+    mn:'PK of an M:N table = both FKs (add the date if the same pair can repeat).'
+  };
+  for(const mt of model.tables){
+    const ut = map.get(mt);
+    if(!ut){
+      const info = {
+        entity:[`Missing table for entity ${mt.name}`, 'Every strong entity (rectangle) becomes its own table.', 'missing_entity'],
+        weak:[`Missing table for weak entity ${mt.name}`, 'A weak entity (double rectangle) also gets its own table, keyed by owner key + partial key.', 'weak_key'],
+        multi:[`Missing a table for the multivalued attribute ${mt.attr} of ${mt.ent}`, 'Each double oval needs its own table (OwnerKey, Value) - a cell can hold only one value.', 'multivalued'],
+        mn:[`Missing a table for the M:N relationship ${mt.rel}`, 'An M:N relationship cannot be stored with a single FK column - it needs its own table.', 'mn_table']
+      }[mt.kind];
+      R('err', info[0], info[1], fmtTable(mt), info[2]);
+      mt.cols.forEach(() => silent(false));
+      continue;
+    }
+    const renamed = normT(ut.name) !== normT(mt.name) ? ` (you called it ${ut.name})` : '';
+    R('ok', `Table ${mt.name}${renamed}`, '', '', null);
+    const {pairs, extra, prefixes} = matchCols(mt, ut);
+    // columns
+    for(const mc of mt.cols){
+      const uc = pairs.get(mc);
+      if(!uc){
+        const r = mc.rel ? sc.rels.find(x => x.name === mc.rel) : null;
+        let t, h, cat;
+        if(mc.origin === 'composite'){ t = `${mt.name}: a part of composite attribute ${mc.comp} is missing`; h = 'Composite attributes are stored as their simple parts - one column per part.'; cat = 'composite'; }
+        else if(mc.origin === 'ownerkey' && mt.kind === 'weak'){ t = `${mt.name}: the owner's key is missing`; h = "A weak entity can only be identified together with its owner - its table must contain the owner's PK (as PK and FK)."; cat = 'weak_key'; }
+        else if(mc.origin === 'ownerkey'){ t = `${mt.name}: the owner key column is missing`; h = 'A multivalued table = (OwnerKey, Value).'; cat = 'multivalued'; }
+        else if(mc.origin === 'multi'){ t = `${mt.name}: the value column is missing`; h = 'A multivalued table = (OwnerKey, Value).'; cat = 'multivalued'; }
+        else if(mc.origin === 'partial'){ t = `${mt.name}: the partial key is missing`; h = 'The partial key (dashed underline) is part of the weak table and of its PK.'; cat = 'weak_key'; }
+        else if(mc.origin === 'key'){ t = `${mt.name}: the key column is missing`; h = 'The underlined key attribute becomes the PK.'; cat = 'keys'; }
+        else if(mc.origin === 'relfk' && mc.relKind === '1:1'){ t = `${mt.name}: missing the foreign key for the 1:1 relationship ${mc.rel}`; h = 'In 1:1, put the FK in the table of the entity with TOTAL participation, and mark it UNIQUE.'; cat = 'fk_1to1'; missingFK.push({mt, mc}); }
+        else if(mc.origin === 'relfk'){ t = `${mt.name}: missing the foreign key for relationship ${mc.rel}`; h = 'In 1:N, the PK of the 1 side goes as FK into the N side table.'; cat = 'fk_1n'; missingFK.push({mt, mc}); }
+        else if(mc.origin === 'mnkey'){ t = `${mt.name}: the key of ${mc.fk} is missing`; h = 'An M:N table contains the PKs of BOTH entities as FKs.'; cat = 'mn_table'; }
+        else if(mc.origin === 'relattr'){ const k = r ? cardKind(r.card) : ''; t = `${mt.name}: relationship attribute ${mc.name} is missing here`; h = k === 'M:N' ? 'Attributes of an M:N relationship go into the M:N table.' : (r && r.identifying ? 'Attributes of an identifying relationship go into the weak entity table.' : 'Attributes of a 1:1 / 1:N relationship go into the same table as the FK.'); cat = 'relattr'; }
+        else { t = `${mt.name}: missing column ${mc.name}`; h = 'Check every oval of this entity in the ERD.'; cat = 'attrs'; }
+        R('err', t, h, `Add: ${mc.name}${mc.pk ? ' PK' : ''}${mc.fk ? ' FK->' + mc.fk : ''}${mc.unique ? ' UNIQUE' : ''}`, cat);
+        continue;
+      }
+      silent(true);
+      if(mc.fk){
+        if(!uc.fk) R('err', `${mt.name}.${uc.name} should be marked as a foreign key`, 'This column points to another table - write FK->TABLE after it.', `${uc.name} FK->${mc.fk}`, 'fk_missing');
+        else if(!tableRefEq(mc.fk, uc.fk)) R('err', `${mt.name}.${uc.name} references the wrong table (${uc.fk})`, 'Which entity does this key really come from?', `${uc.name} FK->${mc.fk}`, 'fk_missing');
+        else R('ok', `${mt.name}.${uc.name} FK->${uc.fk}`, '', '', null);
+        if(mc.unique && !uc.unique) R('warn', `${mt.name}.${uc.name}: mark it UNIQUE`, 'Without UNIQUE the FK would allow 1:N. UNIQUE is what makes it 1:1.', `${uc.name} FK->${mc.fk} UNIQUE`, 'fk_1to1');
+      } else if(uc.fk){
+        R('warn', `${mt.name}.${uc.name} is marked FK, but in the model it is a normal column`, 'Only columns that copy another table\'s key are FKs.', `${uc.name} (no FK)`, null);
+      }
+    }
+    // primary key
+    const modelPK = mt.cols.filter(c => c.pk);
+    let missPK = modelPK.filter(c => !(pairs.get(c) && pairs.get(c).pk));
+    const extraPKcols = ut.cols.filter(c => c.pk && ![...pairs.entries()].some(([m,u]) => u === c && m.pk));
+    const optMiss = missPK.filter(c => c.keyOpt);
+    missPK = missPK.filter(c => !c.keyOpt);
+    const softExtra = extraPKcols.filter(c => { const m = [...pairs.entries()].find(([,u]) => u === c); return mt.kind === 'mn' && m && m[0].origin === 'relattr' && /date|time|day/i.test(m[0].name); });
+    const hardExtra = extraPKcols.filter(c => !softExtra.includes(c));
+    const pkText = `PK = (${modelPK.map(c => c.name).join(', ')})`;
+    if(!ut.cols.some(c => c.pk)) R('err', `${mt.name}: no primary key marked`, pkHint[mt.kind], pkText, kindCat[mt.kind]);
+    else if(missPK.length || hardExtra.length){
+      const mtx = [missPK.length ? 'missing ' + missPK.map(c => c.name).join(', ') : '', hardExtra.length ? 'should not include ' + hardExtra.map(c => c.name).join(', ') : ''].filter(Boolean).join('; ');
+      R('err', `${mt.name}: primary key is not right (${mtx})`, pkHint[mt.kind], pkText, kindCat[mt.kind]);
+    } else R('ok', `${mt.name}: primary key correct`, '', '', null);
+    if(optMiss.length) R('warn', `${mt.name}: think about adding ${optMiss.map(c => c.name).join(', ')} to the PK`, 'Can the same pair occur more than once? If yes, the date must be in the key. Whatever you choose, state it in your assumptions.', pkText, 'mn_table');
+    if(softExtra.length) R('warn', `${mt.name}: ${softExtra.map(c => c.name).join(', ')} in the PK is only needed if the same pair can repeat`, 'Fine if you stated that assumption in (c).', pkText, null);
+    if(mt.kind === 'weak' && !ut.cascade) R('warn', `${mt.name}: add ON DELETE CASCADE`, 'Weak entity rows cannot exist without their owner.', fmtTable(mt), 'weak_key');
+    // extra columns
+    const e = E(mt.ent || '');
+    for(const uc of extra){
+      const ea = e ? e.attrs : [];
+      const comp = ea.find(a => a.parts && nameEq([a.name, ...a.aka], uc.name, prefixes));
+      const multi = ea.find(a => a.multi && nameEq([a.name, ...a.aka], uc.name, prefixes));
+      const der = ea.find(a => a.derived && nameEq([a.name, ...a.aka], uc.name, prefixes));
+      const relA = sc.rels.find(r => r.attrs.some(a => nameEq([a.name, ...a.aka], uc.name)));
+      if(comp) R('err', `${mt.name}.${uc.name}: composite attribute stored as one column`, 'Split a composite into its simple parts.', `Replace ${uc.name} by ${comp.parts.join(', ')}`, 'composite');
+      else if(multi) R('err', `${mt.name}.${uc.name}: multivalued attribute kept inside the entity table`, 'A column holds one value only - move it to its own table (OwnerKey, Value).', `Remove ${uc.name}; create ${mt.ent}_${multi.name.toUpperCase()}`, 'multivalued');
+      else if(der) R('err', `${mt.name}.${uc.name}: derived attribute is stored`, 'Derived attributes (dashed ovals) are computed, not stored.', `Remove ${uc.name}`, 'derived');
+      else if(uc.fk) extraFK.push({mt, ut, uc});
+      else if(relA){ const host = model.tables.find(t => t.cols.some(c => c.origin === 'relattr' && c.rel === relA.name)); R('err', `${mt.name}.${uc.name}: relationship attribute is in the wrong table`, 'A relationship attribute goes with the FK (1:1, 1:N) or into the M:N table.', `${uc.name} belongs in ${host ? host.name : relA.name}`, 'relattr'); }
+      else R('warn', `${mt.name}.${uc.name}: extra column (not in the model answer)`, 'Fine only if the ERD really has it.', '', null);
+    }
+  }
+  // FK on the wrong side?
+  for(const x of extraFK){
+    const tgtModel = model.tables.find(t => map.get(t) && tableRefEq(t.ent || t.name, x.uc.fk) && (t.kind === 'entity' || t.kind === 'weak'));
+    const mf = missingFK.find(m => tgtModel && m.mt === tgtModel && m.mc.fk === x.mt.ent);
+    const mnRel = sc.rels.find(r => cardKind(r.card) === 'M:N' && tgtModel && ((r.a === x.mt.ent && r.b === tgtModel.ent) || (r.b === x.mt.ent && r.a === tgtModel.ent)));
+    if(mf){
+      const k = mf.mc.relKind;
+      R('err', `${x.mt.name}.${x.uc.name}: the FK for ${mf.mc.rel} is on the wrong side`, k === '1:1' ? 'In 1:1, the FK goes on the side with TOTAL participation (no NULLs), marked UNIQUE.' : 'In 1:N, the FK goes on the N side. One row on the 1 side would need many values.', `Move it: ${mf.mt.name}.${mf.mc.name} FK->${mf.mc.fk}${mf.mc.unique ? ' UNIQUE' : ''}`, k === '1:1' ? 'fk_1to1' : 'fk_1n');
+    } else if(mnRel && !map.get(model.tables.find(t => t.rel === mnRel.name))){
+      R('err', `${x.mt.name}.${x.uc.name}: an M:N relationship cannot be a single FK`, 'Each side has many partners, so one FK column is not enough - make a separate table.', fmtTable(model.tables.find(t => t.rel === mnRel.name)), 'mn_table');
+    } else R('warn', `${x.mt.name}.${x.uc.name}: extra foreign key (not in the model answer)`, 'Check that this relationship really needs a FK in this table.', '', null);
+  }
+  for(const ut of user){
+    if(usedT.has(ut)) continue;
+    const r = sc.rels.find(r => nameEq([r.name, ...r.aka], ut.name));
+    if(r && r.identifying) R('err', `Extra table ${ut.name}`, 'An identifying relationship gets no table - the owner key inside the weak table already represents it.', 'Remove this table', 'weak_key');
+    else if(r && cardKind(r.card) !== 'M:N') R('err', `Extra table ${ut.name}`, `${r.name} is ${cardKind(r.card)} - it is mapped with a FK column, not with its own table.`, 'Remove this table; use a FK instead', cardKind(r.card) === '1:1' ? 'fk_1to1' : 'fk_1n');
+    else R('warn', `Extra table ${ut.name} (not in the model answer)`, 'Is it really needed? Derived attributes and identifying relationships do not get tables.', '', null);
+  }
+  if(!user.length) R('err', 'No tables found', 'Write one table per line, e.g. DOCTOR(DoctorID PK, FirstName, DeptID FK->DEPARTMENT)', '', null);
+  const score = total ? ok / total : 0;
+  // merge duplicate messages (e.g. two missing parts of the same composite)
+  const merged = [];
+  for(const it of items){
+    const prev = merged.find(m => m.status === it.status && m.text === it.text);
+    if(prev && it.status !== 'ok'){ if(it.reveal && !prev.reveal.includes(it.reveal.replace(/^Add: /,''))) prev.reveal += ', ' + it.reveal.replace(/^Add: /,''); }
+    else merged.push({...it});
+  }
+  return {items:merged, ok, total, score, pct:Math.round(score * 100), model};
+}
+
+/* =====================================================================
+   TYPE 1 CHECKER (structured ERD answer vs model)
+   ===================================================================== */
+function newAns(){ return {entities:[], rels:[]}; }
+function newEnt(){ return {id:nid(), name:'', weak:false, owner:'', attrs:[newAttr()]}; }
+function newAttr(){ return {id:nid(), name:'', key:false, partial:false, multi:false, derived:false, composite:false, parts:''}; }
+function newRel(){ return {id:nid(), name:'', a:'', b:'', card:'1:N', partA:'partial', partB:'partial', identifying:false, attrs:''}; }
+
+function describeAttr(a){
+  const f = [];
+  if(a.key) f.push('key'); if(a.partial) f.push('partial key'); if(a.multi) f.push('multivalued'); if(a.derived) f.push('derived');
+  if(a.parts) f.push('composite: ' + a.parts.join(', '));
+  return a.name + (f.length ? ' (' + f.join('; ') + ')' : '');
+}
+function describeRel(r){
+  return `${r.name}${r.identifying ? ' [identifying]' : ''}: ${r.a} ${r.card} ${r.b}; ${r.a} ${r.partA}, ${r.b} ${r.partB}${r.flex.length ? ' (participation of ' + r.flex.map(s => s === 'a' ? r.a : r.b).join(', ') + ' is debatable - not graded)' : ''}${r.attrs.length ? '; attributes: ' + r.attrs.map(a => a.name).join(', ') : ''}`;
+}
+function checkERD(sc, ans){
+  const items = []; const tally = {a:{ok:0,total:0}, b:{ok:0,total:0}};
+  const R = (status, part, text, hint, reveal, cat, target, scored=true) => {
+    items.push({status, part, text, hint, reveal, cat:cat ? [].concat(cat) : [], target});
+    if(scored && status !== 'warn'){ tally[part].total++; if(status === 'ok') tally[part].ok++; }
+  };
+  const E = n => sc.entities.find(e => e.name === n);
+  const ue = ans.entities.filter(e => e.name.trim());
+  const emap = new Map(), rev = new Map();
+  const ua = e => e.attrs.filter(a => a.name.trim());
+  for(const me of sc.entities){ const u = ue.find(x => !rev.has(x) && nameEq([me.name, ...me.aka], x.name)); if(u){ emap.set(me, u); rev.set(u, me); } }
+  for(const me of sc.entities){
+    if(emap.has(me)) continue;
+    let best = null, bs = 0;
+    for(const u of ue){
+      if(rev.has(u)) continue;
+      const names = me.attrs.flatMap(a => [a.name, ...a.aka, ...(a.parts||[])]);
+      const hit = ua(u).filter(a => nameEq(names, a.name)).length;
+      const s = hit / Math.max(1, Math.max(ua(u).length, me.attrs.length));
+      if(s > bs){ bs = s; best = u; }
+    }
+    if(best && bs >= 0.5){ emap.set(me, best); rev.set(best, me); }
+  }
+  const flagged = new Set();
+  for(const me of sc.entities){
+    const u = emap.get(me);
+    if(!u){
+      const clues = me.attrs.filter(a => !a.key && !a.partial).slice(0,3).map(a => words(a.name)).join(', ');
+      R('err', 'a', me.weak ? 'A weak entity is missing' : 'An entity is missing', `Look for a thing in the story that has: ${clues || words(me.attrs[0].name)}.`, `${me.name}${me.weak ? ' (WEAK, owner ' + me.owner + ')' : ''}: ${me.attrs.map(describeAttr).join(', ')}`, me.weak ? 'weak_key' : 'missing_entity', null);
+      me.attrs.forEach(() => { tally.a.total++; });
+      continue;
+    }
+    const renamed = normT(u.name) !== normT(me.name) ? ` (model name: ${me.name})` : '';
+    // weak / strong
+    if(me.weak && !u.weak) R('err', 'a', `${u.name}: entity type is not right`, `Can a ${words(me.name)} be identified by its own attributes alone, or only together with another entity?`, `${me.name} is a WEAK entity (double rectangle), owner ${me.owner}.`, 'weak_key', u.id);
+    else if(!me.weak && u.weak) R('err', 'a', `${u.name} is marked weak, but it is not`, 'A weak entity has no key of its own. This one does.', `${me.name} is a strong entity with key ${me.attrs.filter(a => a.key).map(a => a.name).join(', ')}.`, 'weak_key', u.id);
+    else if(me.weak){
+      const ownU = emap.get(E(me.owner));
+      if(!ownU || u.owner !== ownU.id) R('err', 'a', `${u.name}: wrong or missing owner`, 'Which entity is needed to identify it?', `Owner of ${me.name} is ${me.owner}.`, 'weak_key', u.id);
+      else R('ok', 'a', `Weak entity ${u.name}${renamed}, owner ${ownU.name}`, '', '', null, u.id);
+    } else R('ok', 'a', `Entity ${u.name}${renamed}`, '', '', null, u.id);
+    // attributes
+    const prefixes = [normT(me.name), ...me.aka.map(normT)];
+    const uattrs = ua(u); const used = new Set();
+    for(const ma of me.attrs){
+      let a = uattrs.find(x => !used.has(x) && nameEq([ma.name, ...ma.aka], x.name, prefixes));
+      if(!a && ma.parts){
+        const found = uattrs.filter(x => !used.has(x) && nameEq(ma.parts, x.name, prefixes));
+        if(found.length >= Math.ceil(ma.parts.length / 2)){
+          found.forEach(x => used.add(x));
+          R('err', 'a', `${u.name}: ${found.map(x => x.name).join(', ')} should be grouped`, 'These values belong together as parts of ONE attribute. Which Chen attribute type has sub-parts?', `Make ${ma.name} a COMPOSITE attribute with parts ${ma.parts.join(', ')}.`, 'composite', found[0].id);
+          continue;
+        }
+        const nameLike = uattrs.find(x => !used.has(x) && x.composite && splitList(x.parts).some(p => nameEq(ma.parts, p)));
+        if(nameLike) a = nameLike;
+      }
+      if(!a){
+        let other = null;
+        for(const u2 of ue){ if(u2 === u) continue; const m2 = rev.get(u2); const x = ua(u2).find(x => nameEq([ma.name, ...ma.aka], x.name, prefixes) && !(m2 && m2.attrs.some(y => nameEq([y.name, ...y.aka], x.name)))); if(x){ other = {u2, x}; break; } }
+        if(other){ flagged.add(other.x); R('err', 'a', `${other.u2.name}.${other.x.name} is on the wrong entity`, `Which thing does "${words(ma.name)}" describe?`, `${ma.name} belongs to ${me.name}.`, ma.key ? 'keys' : 'attrs', other.x.id); }
+        else {
+          const cat = ma.key ? 'keys' : ma.partial ? 'weak_key' : ma.multi ? 'multivalued' : ma.derived ? 'derived' : ma.parts ? 'composite' : 'attrs';
+          const h = ma.key ? `How is each ${words(me.name)} uniquely identified?` : ma.partial ? 'The weak entity needs its partial key (the number/name used inside its owner).' : `Reread what the story says about each ${words(me.name)} - one property is not listed yet.`;
+          R('err', 'a', `${u.name}: an attribute is missing`, h, `Add ${describeAttr(ma)}`, cat, u.id);
+        }
+        continue;
+      }
+      used.add(a);
+      const probs = [];
+      if(ma.partial && !a.partial) probs.push(['partial key', 'weak_key', 'In a weak entity the identifier only works together with the owner -> partial key (dashed underline), not a full key.', `${ma.name} is the PARTIAL key.`]);
+      if(!ma.partial && a.partial) probs.push(['partial key', 'weak_key', 'Only weak entities have partial keys.', `${ma.name} is not a partial key.`]);
+      if(ma.key && !a.key) probs.push(['key', 'keys', `Which attribute uniquely identifies each ${words(me.name)}?`, `${ma.name} is the KEY (underlined).`]);
+      if(!ma.key && a.key && !ma.partial) probs.push(['key', 'keys', 'Is this value really unique for every entity?', `${ma.name} is not a key.`]);
+      if(ma.multi && !a.multi) probs.push(['multivalued', 'multivalued', `Can one ${words(me.name)} have several ${words(ma.name)} values?`, `${ma.name} is MULTIVALUED (double oval).`]);
+      if(!ma.multi && a.multi) probs.push(['multivalued', 'multivalued', 'The story gives only one value here.', `${ma.name} is single-valued.`]);
+      if(ma.derived && !a.derived) probs.push(['derived', 'derived', 'Can this value be calculated from other data?', `${ma.name} is DERIVED (dashed oval).`]);
+      if(!ma.derived && a.derived) probs.push(['derived', 'derived', 'The story does not say this is calculated.', `${ma.name} is stored, not derived.`]);
+      if(ma.parts && !a.composite) probs.push(['composite', 'composite', 'Does the story list sub-parts for this attribute?', `${ma.name} is COMPOSITE: ${ma.parts.join(', ')}.`]);
+      if(!ma.parts && a.composite) probs.push(['composite', 'composite', 'The story lists no sub-parts here.', `${ma.name} is a simple attribute.`]);
+      if(ma.parts && a.composite){
+        const up = splitList(a.parts);
+        const miss = ma.parts.filter(p => !up.some(x => nameEq([p], x)));
+        if(miss.length) probs.push(['composite parts', 'composite', 'Check the parts listed in brackets in the story.', `Parts of ${ma.name}: ${ma.parts.join(', ')}.`]);
+      }
+      if(probs.length) R('err', 'a', `${u.name}.${a.name}: check the marking (${probs.map(p => p[0]).join(', ')})`, probs.map(p => p[2]).join(' '), probs.map(p => p[3]).join(' '), [...new Set(probs.map(p => p[1]))], a.id);
+      else R('ok', 'a', `${u.name}.${a.name}`, '', '', null, a.id);
+    }
+    for(const a of uattrs){
+      if(used.has(a) || flagged.has(a)) continue;
+      const relA = sc.rels.find(r => (r.a === me.name || r.b === me.name) && r.attrs.some(x => nameEq([x.name, ...x.aka], a.name, prefixes)));
+      const fkLike = sc.entities.find(o => o !== me && o.attrs.some(x => (x.key || x.partial) && nameEq([x.name, ...x.aka], a.name)));
+      const entLike = sc.entities.find(o => o !== me && nameEq([o.name, ...o.aka], a.name));
+      if(relA) R('err', 'a', `${u.name}.${a.name}: this describes the relationship, not the entity`, `Does "${words(a.name)}" belong to the ${words(me.name)} alone, or to one specific connection (one loan, one treatment...)?`, `${a.name} is an attribute of relationship ${relA.name}.`, 'relattr', a.id);
+      else if(fkLike) R('err', 'a', `${u.name}.${a.name}: looks like a foreign key`, 'An ER diagram has no foreign keys - the relationship diamond already connects the entities.', `Remove ${a.name}; connect ${me.name} and ${fkLike.name} with a relationship.`, 'fk_in_erd', a.id);
+      else if(entLike) R('err', 'a', `${u.name}.${a.name}: this should be its own entity`, 'It has its own data (ID, name...) in the story.', `${entLike.name} is an entity connected by a relationship.`, 'missing_entity', a.id);
+      else R('warn', 'a', `${u.name}.${a.name}: not in the model answer`, 'Extra attributes are OK only if the story mentions them.', '', null, a.id);
+    }
+  }
+  for(const u of ue){
+    if(rev.has(u)) continue;
+    const mv = sc.entities.flatMap(e => e.attrs.filter(a => a.multi).map(a => ({e, a}))).find(x => nameEq([x.a.name, ...x.a.aka], u.name));
+    const rl = sc.rels.find(r => nameEq([r.name, ...r.aka], u.name));
+    const cp = sc.entities.flatMap(e => e.attrs.filter(a => a.parts).map(a => ({e, a}))).find(x => nameEq([x.a.name, ...x.a.aka], u.name));
+    if(mv) R('err', 'a', `${u.name} should not be an entity`, 'Is this a thing with its own identity, or just several values of one attribute?', `${mv.a.name} is a MULTIVALUED attribute of ${mv.e.name}.`, 'multivalued', u.id);
+    else if(rl) R('warn', 'a', `${u.name} is modeled as an entity`, 'This is an action/connection between entities - in the model it is a relationship (diamond) with its attributes on the diamond.', describeRel(rl), cardKind(rl.card) === 'M:N' ? 'mn_table' : 'missing_rel', u.id);
+    else if(cp) R('err', 'a', `${u.name} should not be an entity`, 'Is this a thing with its own identity, or one attribute made of parts?', `${cp.a.name} is a COMPOSITE attribute of ${cp.e.name}.`, 'composite', u.id);
+    else R('warn', 'a', `Extra entity ${u.name} (not in the model answer)`, 'Is it really a separate thing with its own data in the story?', '', null, u.id);
+  }
+  // relationships
+  const ur = ans.rels.filter(r => r.a && r.b);
+  const usedR = new Set();
+  for(const mr of sc.rels){
+    const A = emap.get(E(mr.a)), B = emap.get(E(mr.b));
+    const kind = cardKind(mr.card);
+    const missCat = mr.identifying ? 'weak_key' : kind === 'M:N' ? 'mn_table' : 'missing_rel';
+    if(!A || !B){
+      R('err', 'b', 'A relationship is missing', `First add the missing entity, then connect it.`, describeRel(mr), missCat, null);
+      continue;
+    }
+    const cands = ur.filter(r => !usedR.has(r) && ((r.a === A.id && r.b === B.id) || (r.a === B.id && r.b === A.id)));
+    const orient = r => (r.a === B.id && A !== B) ? {card:flipCard(r.card), pA:r.partB, pB:r.partA} : {card:r.card, pA:r.partA, pB:r.partB};
+    let c = cands.find(r => r.name.trim() && nameEq([mr.name, ...mr.aka], r.name)) || cands.find(r => !!r.identifying === !!mr.identifying && canonCard(orient(r).card) === canonCard(mr.card)) || cands.find(r => canonCard(orient(r).card) === canonCard(mr.card)) || cands[0];
+    if(!c){
+      const h = mr.identifying ? `A weak entity must be connected to its owner by an identifying relationship (double diamond).` : kind === 'M:N' ? `How are ${A.name} and ${B.name} connected? Can one have many of the other in BOTH directions?` : `Reread how ${A.name} and ${B.name} are connected.`;
+      R('err', 'b', `Missing a relationship between ${A.name} and ${B.name}`, h, describeRel(mr), missCat, null);
+      continue;
+    }
+    usedR.add(c);
+    const o = orient(c);
+    const lab = `${c.name.trim() || 'Relationship'} (${A.name} - ${B.name})`;
+    R('ok', 'b', `${lab} found`, '', '', null, c.id);
+    if(canonCard(o.card) !== canonCard(mr.card)) R('err', 'b', `${lab}: cardinality is wrong`, `Ask twice: one ${words(mr.a)} is linked to how many ${words(mr.b)}? One ${words(mr.b)} is linked to how many ${words(mr.a)}?`, `${mr.a} ${mr.card} ${mr.b}`, 'cardinality', c.id);
+    else R('ok', 'b', `${lab}: cardinality ${mr.card}`, '', '', null, c.id);
+    const wrong = [];
+    if(!mr.flex.includes('a') && o.pA !== mr.partA) wrong.push([A.name, mr.a, mr.partA]);
+    if(!mr.flex.includes('b') && o.pB !== mr.partB) wrong.push([B.name, mr.b, mr.partB]);
+    if(wrong.length) R('err', 'b', `${lab}: participation of ${wrong.map(w => w[0]).join(' and ')} is wrong`, 'Total (double line) = EVERY entity must take part ("every", "exactly one", "at least one", weak entities). Partial = some may not.', wrong.map(w => `${w[1]} ${w[2]}`).join('; '), 'participation', c.id);
+    else R('ok', 'b', `${lab}: participation`, '', '', null, c.id);
+    if(!!mr.identifying !== !!c.identifying) R('err', 'b', `${lab}: ${mr.identifying ? 'should be' : 'should not be'} identifying`, mr.identifying ? 'This relationship connects a weak entity to its owner -> double diamond.' : 'Only the relationship between a weak entity and its owner is identifying.', mr.identifying ? `${mr.name} is the identifying relationship (double diamond).` : `${mr.name} is a normal relationship.`, 'weak_key', c.id);
+    const uAttrs = splitList(c.attrs);
+    const missA = mr.attrs.filter(a => !uAttrs.some(x => nameEq([a.name, ...a.aka], x, [normT(mr.name)])));
+    const extraA = uAttrs.filter(x => !mr.attrs.some(a => nameEq([a.name, ...a.aka], x, [normT(mr.name)])));
+    if(mr.attrs.length){
+      if(missA.length) R('err', 'b', `${lab}: ${missA.length} relationship attribute(s) missing`, 'Some values describe the connection itself (dates of an event, a grade, hours). Put them on the diamond.', `Attributes of ${mr.name}: ${mr.attrs.map(a => a.name).join(', ')}`, 'relattr', c.id);
+      else R('ok', 'b', `${lab}: relationship attributes`, '', '', null, c.id);
+    }
+    if(extraA.length) R('warn', 'b', `${lab}: extra attribute(s) ${extraA.join(', ')}`, 'Does the story really attach this to the relationship?', mr.attrs.length ? `Model: ${mr.attrs.map(a => a.name).join(', ')}` : 'Model: no attributes', null, c.id);
+  }
+  ur.filter(r => !usedR.has(r)).forEach(r => {
+    const n1 = (ue.find(e => e.id === r.a) || {}).name, n2 = (ue.find(e => e.id === r.b) || {}).name;
+    R('warn', 'b', `Extra relationship ${r.name || ''} (${n1} - ${n2}) not in the model answer`, 'Check the story: is this connection really described?', '', null, r.id);
+  });
+  if(!ue.length) R('err', 'a', 'No entities entered yet', 'Start by adding the main nouns of the story as entities.', '', null, null);
+  const ok = tally.a.ok + tally.b.ok, total = tally.a.total + tally.b.total;
+  const score = total ? ok / total : 0;
+  return {items, tally, ok, total, score, pct:Math.round(score * 100)};
+}
+
+/* convert the model ERD to an answer object (used by "load model into form" and tests) */
+function modelToAns(sc){
+  const ids = {};
+  const ents = sc.entities.map(e => { const id = nid(); ids[e.name] = id; return {id, name:e.name, weak:!!e.weak, owner:'', attrs:e.attrs.map(a => ({id:nid(), name:a.name, key:!!a.key, partial:!!a.partial, multi:!!a.multi, derived:!!a.derived, composite:!!a.parts, parts:(a.parts||[]).join(', ')}))}; });
+  sc.entities.forEach((e,i) => { if(e.weak) ents[i].owner = ids[e.owner]; });
+  const rels = sc.rels.map(r => ({id:nid(), name:r.name, a:ids[r.a], b:ids[r.b], card:r.card, partA:r.partA, partB:r.partB, identifying:!!r.identifying, attrs:r.attrs.map(a => a.name).join(', ')}));
+  return {entities:ents, rels};
+}
+/* convert a student answer to ERD data for drawing */
+function ansToERD(ans){
+  const seen = {};
+  const nm = (id) => { const e = ans.entities.find(x => x.id === id); return e && e.name.trim() ? e._dn : null; };
+  const entities = ans.entities.filter(e => e.name.trim()).map(e => {
+    let n = e.name.trim(); if(seen[n]) n += ' (' + (++seen[n]) + ')'; else seen[n] = 1; e._dn = n;
+    return {name:n, weak:!!e.weak, attrs:e.attrs.filter(a => a.name.trim()).map(a => ({name:a.name.trim(), key:a.key, partial:a.partial, multi:a.multi, derived:a.derived, parts:a.composite ? splitList(a.parts) : null}))};
+  });
+  const rels = ans.rels.filter(r => nm(r.a) && nm(r.b)).map(r => ({name:r.name.trim() || '?', a:nm(r.a), b:nm(r.b), card:r.card, partA:r.partA, partB:r.partB, identifying:r.identifying, attrs:splitList(r.attrs).map(n => ({name:n}))}));
+  return {entities, rels};
+}
+
+/* =====================================================================
+   CHEN ERD RENDERER (SVG, automatic layout, draggable)
+   ===================================================================== */
+const mctx = document.createElement('canvas').getContext('2d');
+function tw(text, bold){ mctx.font = (bold ? '600 ' : '') + '13px system-ui, -apple-system, Segoe UI, Roboto, sans-serif'; return mctx.measureText(String(text)).width; }
+function buildGraph(erd){
+  const nodes = [], edges = [], rels = [];
+  const addAttrs = (attrs, ownerId) => (attrs||[]).forEach(a => {
+    const id = ownerId + '|' + a.name;
+    const w = tw(a.name);
+    nodes.push({id, type:'attr', label:a.name, tw:w, w:Math.max(w + 30, 62), h:30, key:a.key, partial:a.partial, multi:a.multi, derived:a.derived, owner:ownerId});
+    edges.push({s:ownerId, t:id, kind:'attr'});
+    (a.parts||[]).forEach(p => { const pid = id + '|' + p; const pw = tw(p); nodes.push({id:pid, type:'attr', label:p, tw:pw, w:Math.max(pw + 28, 56), h:28, owner:id}); edges.push({s:id, t:pid, kind:'attr'}); });
+  });
+  erd.entities.forEach(e => { const w = tw(e.name, true); nodes.push({id:'E:' + e.name, type:e.weak ? 'weak' : 'entity', label:e.name, tw:w, w:w + 34, h:42}); addAttrs(e.attrs, 'E:' + e.name); });
+  erd.rels.forEach((r, i) => {
+    const id = 'R' + i + ':' + r.name; const w = tw(r.name);
+    nodes.push({id, type:r.identifying ? 'idrel' : 'rel', label:r.name, tw:w, w:Math.max(w * 1.45 + 26, 96), h:56});
+    const [ca, cb] = String(r.card || '1:1').split(':');
+    edges.push({s:id, t:'E:' + r.a, kind:'rel', card:ca, total:r.partA === 'total'});
+    edges.push({s:id, t:'E:' + r.b, kind:'rel', card:cb, total:r.partB === 'total'});
+    rels.push({id, ea:'E:' + r.a, eb:'E:' + r.b});
+    addAttrs(r.attrs, id);
+  });
+  return {nodes, edges, rels};
+}
+function layout(g){
+  const N = g.nodes, byId = Object.fromEntries(N.map(n => [n.id, n]));
+  const ents = N.filter(n => n.type === 'entity' || n.type === 'weak');
+  const adj = {}; ents.forEach(e => adj[e.id] = new Set());
+  g.rels.forEach(r => { if(adj[r.ea] && adj[r.eb] && r.ea !== r.eb){ adj[r.ea].add(r.eb); adj[r.eb].add(r.ea); } });
+  const order = [], seen = new Set();
+  const starts = [...ents].sort((a,b) => adj[b.id].size - adj[a.id].size);
+  for(const s of starts){ if(seen.has(s.id)) continue; const q = [s.id]; seen.add(s.id); while(q.length){ const c = q.shift(); order.push(byId[c]); [...adj[c]].forEach(x => { if(!seen.has(x)){ seen.add(x); q.push(x); } }); } }
+  const n = order.length;
+  const hub = n >= 4 && adj[order[0].id].size >= 3 ? order[0] : null;
+  const ring = hub ? order.slice(1) : order;
+  const R = Math.max(230, ring.length * 85);
+  if(hub){ hub.x = 0; hub.y = 0; }
+  ring.forEach((e,i) => { const ang = Math.PI + i * 2 * Math.PI / Math.max(1, ring.length); e.x = R * Math.cos(ang); e.y = R * Math.sin(ang) * 0.8; });
+  if(n === 1){ order[0].x = 0; order[0].y = 0; }
+  const pairCount = {};
+  g.rels.forEach(r => {
+    const a = byId[r.ea], b = byId[r.eb], rn = byId[r.id];
+    if(!a || !b){ rn.x = 0; rn.y = 0; return; }
+    const k = [r.ea, r.eb].sort().join('~'); const idx = pairCount[k] = (pairCount[k] || 0) + 1;
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    let px = -(b.y - a.y), py = b.x - a.x; const pl = Math.hypot(px, py) || 1; px /= pl; py /= pl;
+    const off = a === b ? 120 : (idx - 1) * 110 * (idx % 2 ? 1 : -1);
+    rn.x = mx + px * off + (a === b ? 0 : 0); rn.y = my + py * off - (a === b ? 120 : 0);
+  });
+  // attributes radially around their owner
+  const kids = {}; N.forEach(nd => { if(nd.owner) (kids[nd.owner] ||= []).push(nd); });
+  const place = (owner, baseAng, dist) => {
+    const ks = kids[owner.id] || []; const k = ks.length; if(!k) return;
+    const spread = Math.min(Math.PI * 1.7, 0.62 * (k - 1));
+    ks.forEach((c, i) => { const ang = baseAng + (k === 1 ? 0 : -spread / 2 + spread * i / (k - 1)); c.x = owner.x + Math.cos(ang) * (dist + c.w / 3); c.y = owner.y + Math.sin(ang) * (dist * 0.85); place(c, ang, 62); });
+  };
+  N.filter(nd => !nd.owner).forEach(o => { const d = Math.hypot(o.x, o.y); const ang = d < 1 ? -Math.PI / 2 : Math.atan2(o.y, o.x); place(o, ang, o.type === 'attr' ? 60 : 96); });
+  // force refinement
+  const mass = nd => nd.type === 'attr' ? 1 : (nd.type === 'rel' || nd.type === 'idrel') ? 2.5 : 4;
+  const IT = 260;
+  for(let it = 0; it < IT; it++){
+    const cool = 1 - it / (IT + 40);
+    for(let i = 0; i < N.length; i++) for(let j = i + 1; j < N.length; j++){
+      const a = N[i], b = N[j];
+      let dx = b.x - a.x, dy = b.y - a.y;
+      if(Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01){ dx = 0.5 + (i % 3); dy = 0.5 + (j % 3); }
+      const d = Math.hypot(dx, dy);
+      const ox = (a.w + b.w) / 2 + 18 - Math.abs(dx), oy = (a.h + b.h) / 2 + 16 - Math.abs(dy);
+      let f = 0;
+      if(ox > 0 && oy > 0) f += Math.min(ox, oy) * 0.5;
+      const big = a.type !== 'attr' && b.type !== 'attr';
+      f += Math.min(25, (big ? 60000 : 2500) / (d * d));
+      const ux = dx / d, uy = dy / d, ma = mass(a), mb = mass(b), tot = ma + mb;
+      a.x -= ux * f * mb / tot; a.y -= uy * f * mb / tot; b.x += ux * f * ma / tot; b.y += uy * f * ma / tot;
+    }
+    for(const e of g.edges){
+      const a = byId[e.s], b = byId[e.t]; if(!a || !b || a === b) continue;
+      const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+      const L = e.kind === 'rel' ? 60 + (a.w + b.w) / 2 : 18 + (a.w + b.w) / 4 + (a.h + b.h) / 4;
+      const f = (d - L) * 0.1 * cool;
+      const ma = mass(a), mb = mass(b), tot = ma + mb;
+      a.x += dx / d * f * mb / tot; a.y += dy / d * f * mb / tot; b.x -= dx / d * f * ma / tot; b.y -= dy / d * f * ma / tot;
+    }
+  }
+  for(let k = 0; k < 60; k++) pushOffLines(g, byId, 0.6);
+  resolveOverlap(N, 120);
+  for(let k = 0; k < 30; k++) pushOffLines(g, byId, 0.6);
+}
+/* keep attribute ovals off the entity-relationship lines */
+function pushOffLines(g, byId, k){
+  const relEdges = g.edges.filter(e => e.kind === 'rel').map(e => [byId[e.s], byId[e.t]]).filter(([a,b]) => a && b && a !== b);
+  for(const n of g.nodes){
+    if(n.type !== 'attr') continue;
+    for(const [a, b] of relEdges){
+      const vx = b.x - a.x, vy = b.y - a.y, L2 = vx * vx + vy * vy || 1;
+      const t = Math.max(0, Math.min(1, ((n.x - a.x) * vx + (n.y - a.y) * vy) / L2));
+      const px = a.x + vx * t, py = a.y + vy * t;
+      let dx = n.x - px, dy = n.y - py; let d = Math.hypot(dx, dy);
+      const need = n.h / 2 + n.w / 4 + 10;
+      if(d < need){
+        if(d < 0.5){ dx = -vy; dy = vx; d = Math.hypot(dx, dy) || 1; }
+        const f = (need - d) * k;
+        n.x += dx / d * f; n.y += dy / d * f;
+        if(n.owner && byId[n.owner] && byId[n.owner].type === 'attr') continue;
+        g.nodes.filter(c => c.owner === n.id).forEach(c => { c.x += dx / d * f; c.y += dy / d * f; });
+      }
+    }
+  }
+}
+function resolveOverlap(N, iters){
+  for(let k = 0; k < iters; k++){
+    let moved = false;
+    for(let i = 0; i < N.length; i++) for(let j = i + 1; j < N.length; j++){
+      const a = N[i], b = N[j];
+      const ox = (a.w + b.w) / 2 + 8 - Math.abs(b.x - a.x), oy = (a.h + b.h) / 2 + 6 - Math.abs(b.y - a.y);
+      if(ox > 0 && oy > 0){
+        moved = true;
+        if(ox < oy){ const s = (b.x >= a.x ? 1 : -1) * ox / 2; a.x -= s; b.x += s; }
+        else { const s = (b.y >= a.y ? 1 : -1) * oy / 2; a.y -= s; b.y += s; }
+      }
+    }
+    if(!moved) break;
+  }
+}
+function drawNode(n){
+  const {x, y, w, h} = n; let s = '';
+  const lbl = esc(n.label);
+  if(n.type === 'entity' || n.type === 'weak'){
+    s += `<rect class="sh ent" x="${x - w/2}" y="${y - h/2}" width="${w}" height="${h}" rx="2"/>`;
+    if(n.type === 'weak') s += `<rect class="sh in" x="${x - w/2 + 4}" y="${y - h/2 + 4}" width="${w - 8}" height="${h - 8}" rx="1"/>`;
+    s += `<text class="tx b" x="${x}" y="${y}">${lbl}</text>`;
+  } else if(n.type === 'rel' || n.type === 'idrel'){
+    const pts = (dw, dh) => `${x},${y - dh/2} ${x + dw/2},${y} ${x},${y + dh/2} ${x - dw/2},${y}`;
+    s += `<polygon class="sh rel" points="${pts(w, h)}"/>`;
+    if(n.type === 'idrel') s += `<polygon class="sh in" points="${pts(w - 16, h - 11)}"/>`;
+    s += `<text class="tx" x="${x}" y="${y}">${lbl}</text>`;
+  } else {
+    s += `<ellipse class="sh att${n.derived ? ' dash' : ''}" cx="${x}" cy="${y}" rx="${w/2}" ry="${h/2}"/>`;
+    if(n.multi) s += `<ellipse class="sh in${n.derived ? ' dash' : ''}" cx="${x}" cy="${y}" rx="${w/2 - 4}" ry="${h/2 - 4}"/>`;
+    s += `<text class="tx" x="${x}" y="${y}">${lbl}</text>`;
+    if(n.key || n.partial) s += `<line class="ul${n.partial ? ' d' : ''}" x1="${x - n.tw/2}" y1="${y + 9}" x2="${x + n.tw/2}" y2="${y + 9}"/>`;
+  }
+  return `<g class="nd" data-id="${esc(n.id)}">${s}</g>`;
+}
+function drawEdges(g, byId){
+  let s = '';
+  for(const e of g.edges){
+    const a = byId[e.s], b = byId[e.t]; if(!a || !b) continue;
+    if(e.total) s += `<line class="ln2" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/><line class="gap" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+    else s += `<line class="ln" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+  }
+  for(const e of g.edges){
+    if(e.kind !== 'rel' || !e.card) continue;
+    const a = byId[e.s], b = byId[e.t]; if(!a || !b) continue;
+    const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+    const t = Math.min(0.45, (a.w / 2 + 14) / d);
+    const px = -dy / d * 11, py = dx / d * 11;
+    s += `<text class="card" x="${a.x + dx * t + px}" y="${a.y + dy * t + py}">${esc(e.card)}</text>`;
+  }
+  return s;
+}
+const DIAG = {};
+function mountDiagram(root, key, getERD){
+  root.innerHTML = `<div class="dtools noprint"><button class="btn sm" data-z="out" title="Zoom out">−</button><button class="btn sm" data-z="fit">Fit</button><button class="btn sm" data-z="in" title="Zoom in">+</button><button class="btn sm" data-z="re">Re-layout</button><span class="small muted">Drag shapes to rearrange.</span></div><div class="dwrap"><svg class="erd" xmlns="http://www.w3.org/2000/svg"></svg></div>`;
+  const svg = root.querySelector('svg');
+  const st = DIAG[key] ||= {pos:{}, zoom:0};
+  let g = null, byId = {}, vb = null;
+  function computeVB(){
+    if(!g.nodes.length){ vb = {x:0, y:0, w:400, h:120}; return; }
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    g.nodes.forEach(n => { x0 = Math.min(x0, n.x - n.w/2); y0 = Math.min(y0, n.y - n.h/2); x1 = Math.max(x1, n.x + n.w/2); y1 = Math.max(y1, n.y + n.h/2); });
+    vb = {x:x0 - 24, y:y0 - 24, w:x1 - x0 + 48, h:y1 - y0 + 48};
+  }
+  function applyZoom(){
+    svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+    if(!st.zoom){ svg.style.width = '100%'; svg.style.height = 'auto'; svg.style.minWidth = Math.min(vb.w, 560) + 'px'; }
+    else { svg.style.width = (vb.w * st.zoom) + 'px'; svg.style.height = (vb.h * st.zoom) + 'px'; svg.style.minWidth = ''; }
+  }
+  function paint(){
+    if(!g.nodes.length){ svg.innerHTML = `<text class="empty" x="200" y="60">Nothing to draw yet - add entities first.</text>`; return; }
+    svg.innerHTML = `<g>${drawEdges(g, byId)}</g><g>${g.nodes.map(drawNode).join('')}</g>`;
+  }
+  function draw(relayout){
+    if(relayout) st.pos = {};
+    g = buildGraph(getERD());
+    layout(g);
+    byId = Object.fromEntries(g.nodes.map(n => [n.id, n]));
+    g.nodes.forEach(n => { const p = st.pos[n.id]; if(p){ n.x = p.x; n.y = p.y; } });
+    computeVB(); applyZoom(); paint();
+  }
+  // dragging
+  let drag = null, raf = 0;
+  const toSvg = ev => { const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); };
+  const descendants = id => g.nodes.filter(n => { let o = n.owner; while(o){ if(o === id) return true; o = (byId[o] || {}).owner; } return false; });
+  svg.addEventListener('pointerdown', ev => {
+    const el = ev.target.closest('[data-id]'); if(!el || !g) return;
+    const n = byId[el.getAttribute('data-id')]; if(!n) return;
+    ev.preventDefault();
+    const p = toSvg(ev);
+    drag = {n, dx:p.x - n.x, dy:p.y - n.y, group:[n, ...descendants(n.id)].map(m => ({m, ox:m.x - n.x, oy:m.y - n.y}))};
+    svg.style.cursor = 'grabbing';
+  });
+  const move = ev => {
+    if(!drag) return;
+    const p = toSvg(ev);
+    const nx = p.x - drag.dx, ny = p.y - drag.dy;
+    drag.group.forEach(({m, ox, oy}) => { m.x = nx + ox; m.y = ny + oy; st.pos[m.id] = {x:m.x, y:m.y}; });
+    if(!raf) raf = requestAnimationFrame(() => { raf = 0; paint(); });
+  };
+  const up = () => { if(!drag) return; drag = null; svg.style.cursor = ''; computeVB(); applyZoom(); paint(); };
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up);
+  root.querySelector('.dtools').addEventListener('click', ev => {
+    const z = ev.target.getAttribute('data-z'); if(!z) return;
+    if(z === 're'){ draw(true); return; }
+    const fitZ = () => { const cw = root.querySelector('.dwrap').clientWidth || vb.w; return Math.min(vb.w, Math.max(cw, Math.min(vb.w, 560))) / vb.w; };
+    if(z === 'fit') st.zoom = 0;
+    if(z === 'in') st.zoom = (st.zoom || fitZ()) * 1.25;
+    if(z === 'out') st.zoom = Math.max(0.2, (st.zoom || fitZ()) / 1.25);
+    applyZoom();
+  });
+  draw(false);
+  return {draw};
+}
+
+/* =====================================================================
+   TYPE 1 ANSWER FORM
+   ===================================================================== */
+function mountT1Form(root, ans, onChange){
+  let marks = {};
+  root.innerHTML = `<div class="sec"><h3>(a) Entities &amp; attributes</h3>
+    <p class="small muted">One card per entity. Tick the boxes to mark each attribute. Composite: list the parts separated by commas. Weak entity: tick "weak", choose its owner and mark the partial key.</p>
+    <div class="ents"></div><button class="btn" data-act="addEnt">+ Add entity</button></div>
+    <div class="sec"><h3>(b) Relationships</h3>
+    <p class="small muted">Read cardinality as "Entity A : Entity B" (e.g. A=PUBLISHER, 1:N, B=BOOK = one publisher, many books). No foreign keys in an ERD.</p>
+    <div class="rels"></div><button class="btn" data-act="addRel">+ Add relationship</button></div>`;
+  const entsEl = root.querySelector('.ents'), relsEl = root.querySelector('.rels');
+  const entOpts = (sel, excl) => `<option value="">- choose -</option>` + ans.entities.filter(e => e.id !== excl).map(e => `<option value="${e.id}"${e.id === sel ? ' selected' : ''}>${esc(e.name || '(unnamed)')}</option>`).join('');
+  const chk = (o, f, label) => `<label class="chip"><input type="checkbox" data-f="${f}"${o[f] ? ' checked' : ''}> ${label}</label>`;
+  const attrHTML = (e, a) => `<div class="attr ${marks[a.id] || ''}" data-attr="${a.id}">
+      <input class="in" data-f="name" value="${esc(a.name)}" placeholder="attribute name" aria-label="Attribute name">
+      <div class="flags">${chk(a,'key','key')}${e.weak ? chk(a,'partial','partial key') : ''}${chk(a,'composite','composite')}${chk(a,'multi','multivalued')}${chk(a,'derived','derived')}</div>
+      ${a.composite ? `<input class="in parts" data-f="parts" value="${esc(a.parts)}" placeholder="parts, comma-separated: FirstName, LastName" aria-label="Composite parts">` : ''}
+      <button class="icon" data-act="delAttr" title="Remove attribute" aria-label="Remove attribute">✕</button></div>`;
+  const entHTML = e => `<div class="card ent ${marks[e.id] || ''}" data-ent="${e.id}">
+      <div class="row"><input class="in" data-f="name" value="${esc(e.name)}" placeholder="ENTITY NAME (e.g. MEMBER)" aria-label="Entity name">
+      ${chk(e,'weak','weak entity')}<button class="icon" data-act="delEnt" title="Remove entity" aria-label="Remove entity">✕</button></div>
+      ${e.weak ? `<div class="row small" style="margin-top:6px">Owner (identifying) entity: <select data-f="owner">${entOpts(e.owner, e.id)}</select></div>` : ''}
+      <div class="attrs">${e.attrs.map(a => attrHTML(e, a)).join('')}</div>
+      <button class="btn sm ghost" data-act="addAttr">+ attribute</button></div>`;
+  const readAs = r => {
+    const A = (ans.entities.find(e => e.id === r.a) || {}).name, B = (ans.entities.find(e => e.id === r.b) || {}).name;
+    if(!A || !B) return 'Choose both entities.';
+    const [x, y] = r.card.split(':'); const q = v => v === '1' ? 'one' : 'many';
+    return `Reads as: one ${esc(A)} - ${q(y)} ${esc(B)}; one ${esc(B)} - ${q(x)} ${esc(A)}. ${r.partA === 'total' ? 'Every' : 'Not every'} ${esc(A)} takes part; ${r.partB === 'total' ? 'every' : 'not every'} ${esc(B)} takes part.`;
+  };
+  const sel = (r, f, opts) => `<select data-f="${f}">${opts.map(o => `<option${r[f] === o ? ' selected' : ''}>${o}</option>`).join('')}</select>`;
+  const relHTML = r => `<div class="card rel ${marks[r.id] || ''}" data-rel="${r.id}">
+      <div class="row"><input class="in" data-f="name" value="${esc(r.name)}" placeholder="RELATIONSHIP (verb, e.g. BORROWS)" aria-label="Relationship name">
+      ${chk(r,'identifying','identifying')}<button class="icon" data-act="delRel" title="Remove relationship" aria-label="Remove relationship">✕</button></div>
+      <div class="relgrid">
+        <label>Entity A<select data-f="a">${entOpts(r.a)}</select></label>
+        <label class="cardsel">Cardinality A:B${sel(r,'card',['1:1','1:N','N:1','M:N'])}</label>
+        <label>Entity B<select data-f="b">${entOpts(r.b)}</select></label>
+        <label>A participation${sel(r,'partA',['partial','total'])}</label>
+        <span class="spacer"></span>
+        <label>B participation${sel(r,'partB',['partial','total'])}</label>
+      </div>
+      <div class="small readas">${readAs(r)}</div>
+      <input class="in" style="width:100%" data-f="attrs" value="${esc(r.attrs)}" placeholder="relationship attributes, comma-separated (e.g. LoanDate, DueDate)" aria-label="Relationship attributes"></div>`;
+  function renderEnts(){ entsEl.innerHTML = ans.entities.map(entHTML).join('') || '<p class="small muted">No entities yet.</p>'; }
+  function renderRels(){ relsEl.innerHTML = ans.rels.map(relHTML).join('') || '<p class="small muted">No relationships yet.</p>'; }
+  function render(){ renderEnts(); renderRels(); }
+  const locate = t => {
+    const ent = ans.entities.find(e => e.id === (t.closest('[data-ent]') || {}).dataset?.ent);
+    const attr = ent && ent.attrs.find(a => a.id === (t.closest('[data-attr]') || {}).dataset?.attr);
+    const rel = ans.rels.find(r => r.id === (t.closest('[data-rel]') || {}).dataset?.rel);
+    return {ent, attr, rel, obj:attr || rel || ent};
+  };
+  root.addEventListener('input', ev => {
+    const t = ev.target, f = t.dataset.f; if(!f || t.type === 'checkbox' || t.tagName === 'SELECT') return;
+    const {obj, rel} = locate(t); if(!obj) return;
+    obj[f] = t.value; onChange();
+  });
+  root.addEventListener('change', ev => {
+    const t = ev.target, f = t.dataset.f; if(!f) return;
+    const {obj, ent, attr, rel} = locate(t); if(!obj) return;
+    if(t.type === 'checkbox'){
+      obj[f] = t.checked;
+      if(attr && f === 'partial' && t.checked) attr.key = false;
+      if(attr && f === 'key' && t.checked) attr.partial = false;
+      if(ent && !attr && f === 'weak' && !t.checked){ ent.owner = ''; ent.attrs.forEach(a => a.partial = false); }
+      onChange(); render(); return;
+    }
+    if(t.tagName === 'SELECT'){ obj[f] = t.value; onChange(); if(rel) renderRels(); return; }
+    if(f === 'name' && ent && !attr) renderRels();
+  });
+  root.addEventListener('click', ev => {
+    const b = ev.target.closest('[data-act]'); if(!b) return;
+    const act = b.dataset.act; const {ent, attr, rel} = locate(b);
+    if(act === 'addEnt'){ const e = newEnt(); ans.entities.push(e); render(); const inp = entsEl.querySelector(`[data-ent="${e.id}"] input`); inp && inp.focus(); }
+    if(act === 'addAttr' && ent){ const a = newAttr(); ent.attrs.push(a); renderEnts(); const inp = entsEl.querySelector(`[data-attr="${a.id}"] input`); inp && inp.focus(); }
+    if(act === 'delAttr' && ent && attr){ ent.attrs = ent.attrs.filter(a => a !== attr); renderEnts(); }
+    if(act === 'delEnt' && ent){
+      if(ent.name && !confirm(`Remove entity ${ent.name}?`)) return;
+      ans.entities = ans.entities.filter(e => e !== ent);
+      ans.entities.forEach(e => { if(e.owner === ent.id) e.owner = ''; });
+      ans.rels.forEach(r => { if(r.a === ent.id) r.a = ''; if(r.b === ent.id) r.b = ''; });
+      render();
+    }
+    if(act === 'addRel'){ const r = newRel(); ans.rels.push(r); renderRels(); const inp = relsEl.querySelector(`[data-rel="${r.id}"] input`); inp && inp.focus(); }
+    if(act === 'delRel' && rel){ ans.rels = ans.rels.filter(r => r !== rel); renderRels(); }
+    onChange();
+  });
+  render();
+  return {render, setMarks(m){ marks = m; render(); }, setAns(a){ ans = a; marks = {}; render(); }};
+}
+function marksFrom(res){
+  const m = {};
+  res.items.forEach(i => { if(!i.target) return; if(i.status === 'err') m[i.target] = 'bad'; else if(i.status === 'ok' && !m[i.target]) m[i.target] = 'good'; });
+  return m;
+}
+
+/* =====================================================================
+   SHARED RENDER HELPERS
+   ===================================================================== */
+function feedbackHTML(res, {reveal, hints, groups}){
+  const icon = {ok:'✓', err:'✗', warn:'!'};
+  const errs = res.items.filter(i => i.status === 'err'), warns = res.items.filter(i => i.status === 'warn'), oks = res.items.filter(i => i.status === 'ok');
+  const one = i => `<div class="item ${i.status}"><div class="ic">${icon[i.status]}</div><div><div>${esc(i.text)}</div>
+     ${hints && i.hint && i.status !== 'ok' ? `<div class="hint">Hint: ${esc(i.hint)}</div>` : ''}
+     ${reveal && i.reveal && i.status !== 'ok' ? `<div class="ans">Answer: ${esc(i.reveal)}</div>` : ''}</div></div>`;
+  const section = (list, title) => list.length ? `${title ? `<h3>${title}</h3>` : ''}${list.map(one).join('')}` : '';
+  let body = '';
+  if(groups){
+    for(const [k, title] of groups){
+      const L = errs.concat(warns).filter(i => i.part === k);
+      body += section(L, title);
+    }
+  } else body = section(errs.concat(warns), '');
+  if(!errs.length && !warns.length) body += `<p>Everything matches the model answer. Well done!</p>`;
+  return `<div class="card fb"><div class="row" style="justify-content:space-between"><div><div class="lbl">Score</div><div class="score">${res.pct}%</div></div>
+    <div class="small muted">${res.ok} of ${res.total} checks correct · ${errs.length} error(s) · ${warns.length} note(s)</div></div>
+    <div class="scorebar"><div style="width:${res.pct}%"></div></div>
+    ${body}
+    ${oks.length ? `<details><summary>What you got right (${oks.length})</summary>${oks.map(one).join('')}</details>` : ''}
+    ${!reveal && errs.length ? `<p class="small muted">Fix the red items and check again. The solution appears after 2 wrong tries or when you ask for it.</p>` : ''}</div>`;
+}
+function modelERDText(sc){
+  return `<div class="card"><h3>(a) Entities &amp; attributes</h3><ul>${sc.entities.map(e => `<li><b>${esc(e.name)}</b>${e.weak ? ` <span class="badge acc">weak, owner ${esc(e.owner)}</span>` : ''}: ${e.attrs.map(a => esc(describeAttr(a))).join(', ')}</li>`).join('')}</ul>
+    <h3>(b) Relationships</h3><ul>${sc.rels.map(r => `<li>${esc(describeRel(r))}</li>`).join('')}</ul></div>`;
+}
+function modelSchemaHTML(sc){
+  const m = mapERD(sc);
+  const ex = m.expl;
+  const block = (k, title) => ex[k].length ? `<h4 style="margin:.6em 0 .2em">${title}</h4><ul>${ex[k].map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
+  return `<div class="card"><h3>(a) Relational schema</h3><pre class="schema">${esc(fmtSchema(m))}</pre>
+    <h3>(b) How it was mapped</h3>
+    ${block('entity','Strong entities')}${block('composite','Composite attributes')}${block('derived','Derived attributes')}${block('multivalued','Multivalued attributes')}${block('weak','Weak entity')}${block('1:1','1:1 relationships')}${block('1:N','1:N relationships')}${block('M:N','M:N relationships')}
+    <h3>(c) Assumptions</h3><ul>${(sc.assumptions.length ? sc.assumptions : ['Keys in the story are unique.']).map(a => `<li>${esc(a)}</li>`).join('')}</ul></div>`;
+}
+function neededCover(sc){
+  const t = new Set(sc.tags); const out = [];
+  if(t.has('composite')) out.push({k:'composite', label:'Composite attributes', re:/composite|split|simple part|sub-?part/i});
+  if(t.has('multivalued')) out.push({k:'multivalued', label:'Multivalued attributes', re:/multi-?valued|separate table|own table|new table/i});
+  if(t.has('derived')) out.push({k:'derived', label:'Derived attributes', re:/derived|not stored|computed|calculated/i});
+  if(t.has('weak_key')) out.push({k:'weak', label:'Weak entity', re:/weak|partial key|owner|cascade/i});
+  if(t.has('fk_1to1')) out.push({k:'1:1', label:'1:1 relationships', re:/1\s*:\s*1|one[\s-]to[\s-]one/i});
+  if(t.has('fk_1n')) out.push({k:'1:N', label:'1:N relationships', re:/1\s*:\s*(n|m|many)|n\s*:\s*1|one[\s-]to[\s-]many|many[\s-]to[\s-]one/i});
+  if(t.has('mn_table')) out.push({k:'M:N', label:'M:N relationships', re:/m\s*:\s*n|n\s*:\s*m|many[\s-]to[\s-]many|junction|bridge|associative/i});
+  return out;
+}
+function coverResult(sc, expl, assume){
+  const need = neededCover(sc);
+  const got = need.map(n => ({...n, ok:n.re.test(expl || '')}));
+  const aOk = (assume || '').trim().length >= 15;
+  return {got, aOk, explScore:need.length ? got.filter(x => x.ok).length / need.length : 1};
+}
+function coverHTML(c){
+  return `<div class="card"><h3>(b) / (c) coverage check</h3><p class="small muted">Your explanation should mention how you mapped each concept that appears in this ERD:</p>
+  <ul class="cover">${c.got.map(g => `<li class="${g.ok ? 'ok' : 'miss'}">${g.ok ? '✓' : '✗'} ${g.label}</li>`).join('')}
+  <li class="${c.aOk ? 'ok' : 'miss'}">${c.aOk ? '✓' : '✗'} Assumptions stated (e.g. key of each M:N table, 1:1 FK side)</li></ul>
+  <p class="small muted">Compare your wording with the model explanation below.</p></div>`;
+}
+
+/* =====================================================================
+   VIEWS
+   ===================================================================== */
+const app = $('#app');
+let cleanup = [];
+function onLeave(fn){ cleanup.push(fn); }
+function route(){
+  cleanup.forEach(f => { try{ f(); } catch(e){} }); cleanup = [];
+  const parts = location.hash.replace(/^#\/?/, '').split('/');
+  const page = parts[0] || 'home';
+  document.querySelectorAll('nav a').forEach(a => a.classList.toggle('on', a.dataset.nav === (page === 'unit' || page === 'ex' ? 'home' : page)));
+  if(page === 'unit') viewUnit(+parts[1] || 1);
+  else if(page === 'ex') viewExercise(parts[1], parts[2] || 't1', parts[3]);
+  else if(page === 'exam') viewExam();
+  else if(page === 'weak') viewWeak();
+  else if(page === 'sheet') viewSheet();
+  else viewHome();
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+
+function progDots(id){
+  const p = S.progress[id] || {};
+  const d = (t, l) => { const b = p[t] ? p[t].best : null; return `<span class="dot ${b === 100 ? 'done' : ''}">${l} ${b == null ? '-' : b + '%'}</span>`; };
+  return `<div class="prog">${d('t1','ERD')}${d('t2','Schema')}</div>`;
+}
+function viewHome(){
+  const top = Object.entries(S.weak).filter(([,w]) => w.miss > 0).sort((a,b) => (b[1].miss - b[1].ok * 0.5) - (a[1].miss - a[1].ok * 0.5)).slice(0,3);
+  app.innerHTML = `<h1>Database Systems midterm trainer</h1>
+  <p class="muted">Two question types, exactly like the CAI 105 midterm: <b>Type 1</b> story -> Chen ERD, and <b>Type 2</b> ERD -> relational schema. Each unit teaches one concept: short explanation, a fully worked example, a similar exercise, then one twist.</p>
+  <div class="grid">
+    <a class="card" href="#/exam" style="text-decoration:none;color:inherit"><div class="lbl">Exam mode</div><h3 style="margin:.2em 0">90-minute mock exam</h3><p class="small muted">Random Type 1 + Type 2, no hints, score and breakdown at the end.${S.exam && !S.exam.result ? ' <b>An exam is in progress.</b>' : ''}</p></a>
+    <a class="card" href="#/weak" style="text-decoration:none;color:inherit"><div class="lbl">Weak spots</div><h3 style="margin:.2em 0">Review my mistakes</h3><p class="small muted">${top.length ? 'Top: ' + top.map(([c]) => esc(CATS[c].label)).join(' · ') : 'Your mistakes will be tracked here by category.'}</p></a>
+    <a class="card" href="#/sheet" style="text-decoration:none;color:inherit"><div class="lbl">Review sheet</div><h3 style="margin:.2em 0">Rules, symbols, traps</h3><p class="small muted">All mapping rules and Chen symbols on one printable page.</p></a>
+  </div>
+  <h2>Learning path</h2>
+  ${UNITS.map(u => `<div class="card unitcard"><div class="row" style="justify-content:space-between"><div><div class="lbl">Unit ${u.n}</div><h3>${esc(u.title)}</h3></div><a class="btn ${u.n === 1 ? 'primary' : ''}" href="#/unit/${u.n}">${u.worked ? 'Learn' : 'Practice'}</a></div>
+    <div class="small muted">${u.worked ? 'Worked example: ' + esc(SC(u.worked).title) + ' · ' : ''}Exercises: ${u.ex.map(id => esc(SC(id).title)).join(', ')}</div>
+    <div class="prog">${u.ex.map(id => { const p = S.progress[id] || {}; const b = Math.max(p.t1 ? p.t1.best : 0, 0), c = p.t2 ? p.t2.best : 0; return `<span class="dot ${b === 100 && c === 100 ? 'done' : ''}">${esc(SC(id).title)}: ${p.t1 ? b + '%' : '-'} / ${p.t2 ? c + '%' : '-'}</span>`; }).join('')}</div></div>`).join('')}
+  <p class="small muted">Progress is saved in this browser (localStorage). Works offline.</p>`;
+}
+function viewUnit(n){
+  const u = UNITS.find(x => x.n === n) || UNITS[0];
+  const w = u.worked ? SC(u.worked) : null;
+  app.innerHTML = `<p class="small"><a href="#/">Learn</a> / Unit ${u.n}</p>
+  <h1>Unit ${u.n}: ${esc(u.title)}</h1>
+  <div class="card"><div class="lbl">The idea</div>${u.learn}</div>
+  ${w ? `<h2>Worked example: ${esc(w.title)}</h2>
+    <div class="card story"><div class="lbl">Story</div><p>${esc(w.story)}</p></div>
+    <div class="card"><div class="lbl">Step by step</div><ol class="steps">${(w.steps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>
+    ${modelERDText(w)}
+    <div class="card"><h3>(c) The ERD</h3><div id="wdiag"></div></div>
+    ${modelSchemaHTML(w)}
+    <p class="small">Want to try it yourself first? <a href="#/ex/${w.id}/t1">Do the worked example as an exercise</a>.</p>` : ''}
+  <h2>${w ? 'Now you' : 'Exercises'}</h2>
+  <div class="grid">${u.ex.map((id, i) => { const s = SC(id); return `<div class="card"><div class="lbl">${u.worked ? (i === 0 ? '1. Similar exercise' : '2. Twist') : 'Exam-style ' + (i + 1)}</div><h3 style="margin:.2em 0">${esc(s.title)}</h3>
+     ${s.twist ? `<p class="small">${esc(s.twist)}</p>` : ''}${progDots(id)}
+     <div class="actions" style="margin:8px 0 0"><a class="btn primary sm" href="#/ex/${id}/t1">Type 1: story -> ERD</a><a class="btn sm" href="#/ex/${id}/t2">Type 2: ERD -> schema</a></div></div>`; }).join('')}</div>
+  <div class="actions">${n > 1 ? `<a class="btn" href="#/unit/${n - 1}">← Unit ${n - 1}</a>` : ''}${n < UNITS.length ? `<a class="btn" href="#/unit/${n + 1}">Unit ${n + 1} →</a>` : ''}</div>`;
+  if(w) mountDiagram($('#wdiag'), 'model:' + w.id, () => w);
+}
+const attempts = {};
+function viewExercise(id, type, from){
+  const sc = SC(id); if(!sc){ location.hash = '#/'; return; }
+  const u = UNITS.find(x => x.n === sc.unit);
+  app.innerHTML = `<p class="small"><a href="#/">Learn</a> / <a href="#/unit/${u.n}">Unit ${u.n}</a> / ${esc(sc.title)}</p>
+   <h1>${esc(sc.title)} <span class="badge acc">level ${sc.level}</span></h1>
+   ${sc.twist ? `<div class="twist">${esc(sc.twist)}</div>` : ''}
+   <div class="tabs"><a href="#/ex/${id}/t1" class="${type === 't1' ? 'on' : ''}">Type 1: Story -> ERD</a><a href="#/ex/${id}/t2" class="${type === 't2' ? 'on' : ''}">Type 2: ERD -> Schema</a></div>
+   <div id="exbody"></div>`;
+  if(type === 't2') viewT2($('#exbody'), sc); else viewT1($('#exbody'), sc);
+}
+function nextLinks(sc){
+  const u = UNITS.find(x => x.n === sc.unit); const i = u.ex.indexOf(sc.id);
+  const nx = u.ex[i + 1];
+  return `<div class="actions">${nx ? `<a class="btn" href="#/ex/${nx}/t1">Next exercise: ${esc(SC(nx).title)} →</a>` : (u.n < UNITS.length ? `<a class="btn" href="#/unit/${u.n + 1}">Next unit →</a>` : '')}</div>`;
+}
+function viewT1(host, sc){
+  const d = S.drafts[sc.id] ||= {}; if(!d.t1) d.t1 = newAns();
+  const ans = d.t1; const key = sc.id + ':t1';
+  host.innerHTML = `<div class="card story"><div class="lbl">Scenario</div><p>${esc(sc.story)}</p></div>
+    <div id="t1form"></div>
+    <div class="sec"><h3>(c) Your ERD</h3><p class="small muted">Drawn automatically from your answer in Chen notation.</p><button class="btn" id="draw">Draw / refresh my ERD</button><div id="mydiag" style="margin-top:8px"></div></div>
+    <div class="actions sticky"><button class="btn primary" id="check">Check answer</button><button class="btn" id="sol">Show solution</button><button class="btn ghost danger" id="reset">Reset</button></div>
+    <div id="fb"></div><div id="solbox"></div>`;
+  const form = mountT1Form($('#t1form', host), ans, saveSoon);
+  const diag = mountDiagram($('#mydiag', host), 'my:' + sc.id, () => ansToERD(ans));
+  let revealed = false;
+  const showSolution = () => {
+    revealed = true;
+    $('#solbox', host).innerHTML = `<h2>Model answer</h2>${modelERDText(sc)}<div class="card"><h3>(c) Model ERD</h3><div id="soldiag"></div></div>
+      ${sc.assumptions.length ? `<div class="card"><h3>Assumptions</h3><ul>${sc.assumptions.map(a => `<li>${esc(a)}</li>`).join('')}</ul></div>` : ''}${nextLinks(sc)}`;
+    mountDiagram($('#soldiag', host), 'model:' + sc.id, () => sc);
+  };
+  $('#draw', host).onclick = () => diag.draw(false);
+  $('#check', host).onclick = () => {
+    const res = checkERD(sc, ans);
+    const errs = res.items.filter(i => i.status === 'err').length;
+    if(errs) attempts[key] = (attempts[key] || 0) + 1;
+    form.setMarks(marksFrom(res)); diag.draw(false);
+    recordResult(sc, res, 't1'); setBest(sc.id, 't1', res.pct);
+    const autoReveal = errs && attempts[key] >= 2;
+    if(autoReveal && !revealed) showSolution();
+    $('#fb', host).innerHTML = feedbackHTML(res, {reveal:revealed, hints:true, groups:[['a','(a) Entities & attributes'],['b','(b) Relationships']]}) + (!errs ? nextLinks(sc) : '');
+    $('#fb', host).scrollIntoView({behavior:'smooth', block:'start'});
+  };
+  $('#sol', host).onclick = () => { showSolution(); $('#solbox', host).scrollIntoView({behavior:'smooth'}); };
+  $('#reset', host).onclick = () => {
+    if(!confirm('Clear your answer for this exercise?')) return;
+    d.t1 = newAns(); save(); attempts[key] = 0; viewT1(host, sc);
+  };
+}
+const SCHEMA_HELP = `One table per line. Mark keys with PK and foreign keys with FK->TABLE. Examples:
+DOCTOR(DoctorID PK, FirstName, LastName, Salary, DeptID FK->DEPARTMENT)
+DOCTOR_PHONE(DoctorID PK FK->DOCTOR, Phone PK)
+EMERGENCY_CONTACT(PatientID PK FK->PATIENT, ContactName PK, Phone) ON DELETE CASCADE
+Also accepted: "FK DEPARTMENT", "REFERENCES DEPARTMENT", "UNIQUE", "PK(DoctorID, PatientID)".`;
+function viewT2(host, sc){
+  const d = S.drafts[sc.id] ||= {}; if(!d.t2) d.t2 = {schema:'', expl:'', assume:''};
+  const a = d.t2; const key = sc.id + ':t2';
+  host.innerHTML = `<div class="card"><div class="lbl">Given ERD (Chen notation)</div><div id="erd2"></div>
+    <details><summary>Show the story behind this ERD</summary><p class="small">${esc(sc.story)}</p></details></div>
+    <div class="card"><h3>(a) Relational schema</h3><pre class="schema small">${esc(SCHEMA_HELP)}</pre>
+      <textarea id="schema" spellcheck="false" placeholder="MEMBER(MemberID PK, FirstName, LastName, ...)">${esc(a.schema)}</textarea>
+      <h3>(b) Explain your mapping</h3><p class="small muted">How did you map composite, multivalued, weak entity, 1:1, 1:N and M:N?</p>
+      <textarea class="prose" id="expl" placeholder="Composite Name was split into FirstName, LastName. The multivalued Phone became a new table ...">${esc(a.expl)}</textarea>
+      <h3>(c) Assumptions</h3>
+      <textarea class="prose" id="assume" placeholder="e.g. the same member can borrow the same copy again, so LoanDate is part of the key ...">${esc(a.assume)}</textarea></div>
+    <div class="actions sticky"><button class="btn primary" id="check">Check schema</button><button class="btn" id="sol">Show solution</button><button class="btn ghost danger" id="reset">Reset</button></div>
+    <div id="fb"></div><div id="solbox"></div>`;
+  mountDiagram($('#erd2', host), 'model:' + sc.id, () => sc);
+  ['schema','expl','assume'].forEach(k => $('#' + k, host).addEventListener('input', ev => { a[k] = ev.target.value; saveSoon(); }));
+  let revealed = false;
+  const showSolution = () => { revealed = true; $('#solbox', host).innerHTML = `<h2>Model answer</h2>${modelSchemaHTML(sc)}${nextLinks(sc)}`; };
+  $('#check', host).onclick = () => {
+    const res = checkSchema(sc, a.schema);
+    const errs = res.items.filter(i => i.status === 'err').length;
+    if(errs) attempts[key] = (attempts[key] || 0) + 1;
+    recordResult(sc, res, 't2'); setBest(sc.id, 't2', res.pct);
+    if(errs && attempts[key] >= 2 && !revealed) showSolution();
+    const cov = coverResult(sc, a.expl, a.assume);
+    const parsed = res.parsed.length ? `<details><summary>How your schema was read (${res.parsed.length} tables)</summary><pre class="schema">${esc(res.parsed.map(t => `${t.name}(${t.cols.map(c => c.name + (c.pk ? ' PK' : '') + (c.fk ? ' FK->' + c.fk : '') + (c.unique ? ' UNIQUE' : '')).join(', ')})${t.cascade ? ' ON DELETE CASCADE' : ''}`).join('\n'))}</pre></details>` : '';
+    $('#fb', host).innerHTML = feedbackHTML(res, {reveal:revealed, hints:true}) + parsed + coverHTML(cov) + (!errs ? nextLinks(sc) : '');
+    if(!errs && !revealed) showSolution();
+    $('#fb', host).scrollIntoView({behavior:'smooth', block:'start'});
+  };
+  $('#sol', host).onclick = () => { showSolution(); $('#solbox', host).scrollIntoView({behavior:'smooth'}); };
+  $('#reset', host).onclick = () => { if(!confirm('Clear your answer for this exercise?')) return; d.t2 = {schema:'', expl:'', assume:''}; save(); attempts[key] = 0; viewT2(host, sc); };
+}
+
+/* ---------------- Exam mode ---------------- */
+const EXAM_MS = 90 * 60 * 1000;
+function fmtTime(ms){ ms = Math.max(0, ms); const m = Math.floor(ms / 60000), s = Math.floor(ms % 60000 / 1000); return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+function startExam(){
+  const pool = SCENARIOS.filter(s => s.role === 'exam');
+  const [x, y] = shuffle(pool);
+  S.exam = {t1:x.id, t2:y.id, start:Date.now(), ans1:newAns(), ans2:{schema:'', expl:'', assume:''}, result:null};
+  save();
+}
+function gradeExam(){
+  const ex = S.exam; const s1 = SC(ex.t1), s2 = SC(ex.t2);
+  const r1 = checkERD(s1, ex.ans1);
+  const r2 = checkSchema(s2, ex.ans2.schema);
+  const cov = coverResult(s2, ex.ans2.expl, ex.ans2.assume);
+  const part = (t) => t.total ? t.ok / t.total : 0;
+  const b = {
+    t1a:Math.round(part(r1.tally.a) * 25 * 10) / 10,
+    t1b:Math.round(part(r1.tally.b) * 25 * 10) / 10,
+    t2a:Math.round(r2.score * 35 * 10) / 10,
+    t2b:Math.round(cov.explScore * 10 * 10) / 10,
+    t2c:cov.aOk ? 5 : ((ex.ans2.assume || '').trim() ? 2 : 0)
+  };
+  const total = Math.round((b.t1a + b.t1b + b.t2a + b.t2b + b.t2c) * 10) / 10;
+  recordResult(s1, r1, 't1'); recordResult(s2, r2, 't2');
+  ex.result = {b, total, at:Date.now(), used:Math.min(EXAM_MS, Date.now() - ex.start)};
+  S.history.unshift({at:Date.now(), t1:ex.t1, t2:ex.t2, total, b});
+  S.history = S.history.slice(0, 20);
+  save();
+  return {r1, r2, cov};
+}
+function updateTimerBadge(){
+  const el = $('#timerBadge');
+  if(S.exam && !S.exam.result){
+    const left = EXAM_MS - (Date.now() - S.exam.start);
+    el.style.display = 'inline-block'; el.textContent = '⏱ ' + fmtTime(left);
+    const big = $('#examTimer'); if(big) big.textContent = fmtTime(left);
+    if(left <= 0){
+      gradeExam();
+      if(location.hash.startsWith('#/exam')) route(); else alert('Time is up - your exam was submitted. Open Exam to see the result.');
+    }
+  } else el.style.display = 'none';
+}
+setInterval(updateTimerBadge, 1000);
+function viewExam(){
+  const ex = S.exam;
+  if(!ex){
+    app.innerHTML = `<h1>Exam mode</h1>
+    <div class="card"><p>A random <b>Type 1</b> (story -> ERD) and a different random <b>Type 2</b> (ERD -> schema) question from the exam-style scenarios. You have <b>90 minutes</b>. No hints and no checking until you submit.</p>
+    <table class="t"><tr><th>Part</th><th>Points</th></tr>
+      <tr><td>Type 1 (a) entities &amp; attributes</td><td>25</td></tr><tr><td>Type 1 (b) relationships (diagram (c) is drawn from your answer)</td><td>25</td></tr>
+      <tr><td>Type 2 (a) relational schema</td><td>35</td></tr><tr><td>Type 2 (b) mapping explanation</td><td>10</td></tr><tr><td>Type 2 (c) assumptions</td><td>5</td></tr></table>
+    <div class="actions"><button class="btn primary" id="go">Start the 90-minute exam</button></div></div>
+    ${S.history.length ? `<h2>Previous exams</h2><table class="t"><tr><th>Date</th><th>Type 1</th><th>Type 2</th><th>Score</th></tr>${S.history.map(h => `<tr><td>${new Date(h.at).toLocaleString()}</td><td>${esc(SC(h.t1).title)}</td><td>${esc(SC(h.t2).title)}</td><td><b>${h.total}</b>/100</td></tr>`).join('')}</table>` : ''}`;
+    $('#go').onclick = () => { startExam(); viewExam(); updateTimerBadge(); };
+    return;
+  }
+  const s1 = SC(ex.t1), s2 = SC(ex.t2);
+  if(ex.result){
+    const r1 = checkERD(s1, ex.ans1), r2 = checkSchema(s2, ex.ans2.schema), cov = coverResult(s2, ex.ans2.expl, ex.ans2.assume);
+    const b = ex.result.b;
+    app.innerHTML = `<h1>Exam result</h1>
+     <div class="card"><div class="lbl">Total</div><div class="score">${ex.result.total} / 100</div><div class="scorebar"><div style="width:${ex.result.total}%"></div></div>
+     <p class="small muted">Time used: ${fmtTime(ex.result.used)}</p>
+     <table class="t"><tr><th>Part</th><th>Score</th></tr>
+      <tr><td>Q1 Type 1 - ${esc(s1.title)}: (a) entities &amp; attributes</td><td>${b.t1a} / 25</td></tr>
+      <tr><td>Q1 Type 1: (b) relationships</td><td>${b.t1b} / 25</td></tr>
+      <tr><td>Q2 Type 2 - ${esc(s2.title)}: (a) schema</td><td>${b.t2a} / 35</td></tr>
+      <tr><td>Q2 Type 2: (b) explanation coverage</td><td>${b.t2b} / 10</td></tr>
+      <tr><td>Q2 Type 2: (c) assumptions</td><td>${b.t2c} / 5</td></tr></table>
+     <div class="actions"><button class="btn primary" id="again">New exam</button><a class="btn" href="#/weak">Review weak spots</a></div></div>
+     <h2>Question 1 (Type 1): ${esc(s1.title)}</h2>
+     ${feedbackHTML(r1, {reveal:true, hints:true, groups:[['a','(a) Entities & attributes'],['b','(b) Relationships']]})}
+     <div class="card"><h3>Your ERD</h3><div id="exmy"></div></div>
+     <details class="card"><summary>Model answer for Q1</summary>${modelERDText(s1)}<div id="exmod1"></div></details>
+     <h2>Question 2 (Type 2): ${esc(s2.title)}</h2>
+     ${feedbackHTML(r2, {reveal:true, hints:true})}${coverHTML(cov)}
+     <details class="card"><summary>Model answer for Q2</summary>${modelSchemaHTML(s2)}</details>`;
+    mountDiagram($('#exmy'), 'exmy', () => ansToERD(ex.ans1));
+    mountDiagram($('#exmod1'), 'model:' + s1.id, () => s1);
+    $('#again').onclick = () => { S.exam = null; save(); viewExam(); };
+    return;
+  }
+  app.innerHTML = `<div class="row" style="justify-content:space-between"><h1>Mock exam</h1><div class="timerbig" id="examTimer">${fmtTime(EXAM_MS - (Date.now() - ex.start))}</div></div>
+   <p class="small muted">Answers are saved automatically. Hints are off. Submit when you are done (or it submits itself at 00:00).</p>
+   <div class="tabs"><a href="#q1" class="on" id="tq1">Question 1 · Type 1</a><a href="#q2" id="tq2">Question 2 · Type 2</a></div>
+   <section id="q1"><h2>Question 1 (50 pts): ${esc(s1.title)}</h2>
+     <div class="card story"><p>${esc(s1.story)}</p><p class="small muted">(a) List entities and attributes, marking key, composite, multivalued, derived attributes and the weak entity with its partial key and owner. (b) List all relationships with cardinality, participation and attributes. (c) Draw the ERD.</p></div>
+     <div id="exform"></div>
+     <div class="sec"><h3>(c) ERD</h3><button class="btn" id="exdraw">Draw / refresh my ERD</button><div id="exdiag" style="margin-top:8px"></div></div></section>
+   <section id="q2"><h2>Question 2 (50 pts): ${esc(s2.title)}</h2>
+     <div class="card"><div id="exerd"></div></div>
+     <div class="card"><h3>(a) Relational schema (mark PKs and all FKs)</h3><pre class="schema small">${esc(SCHEMA_HELP)}</pre><textarea id="exschema" spellcheck="false">${esc(ex.ans2.schema)}</textarea>
+     <h3>(b) Explain how you mapped composite, multivalued, weak entity, 1:1, 1:N, M:N</h3><textarea class="prose" id="exexpl">${esc(ex.ans2.expl)}</textarea>
+     <h3>(c) Assumptions</h3><textarea class="prose" id="exassume">${esc(ex.ans2.assume)}</textarea></div></section>
+   <div class="actions sticky"><button class="btn primary" id="submit">Submit exam</button><button class="btn ghost danger" id="abandon">Abandon</button></div>`;
+  mountT1Form($('#exform'), ex.ans1, saveSoon);
+  const dg = mountDiagram($('#exdiag'), 'exam:' + ex.start, () => ansToERD(ex.ans1));
+  $('#exdraw').onclick = () => dg.draw(false);
+  mountDiagram($('#exerd'), 'model:' + s2.id, () => s2);
+  [['exschema','schema'],['exexpl','expl'],['exassume','assume']].forEach(([id, k]) => $('#' + id).addEventListener('input', ev => { ex.ans2[k] = ev.target.value; saveSoon(); }));
+  ['q1','q2'].forEach(q => $('#t' + q).onclick = ev => { ev.preventDefault(); document.getElementById(q).scrollIntoView({behavior:'smooth'}); });
+  $('#submit').onclick = () => { if(!confirm('Submit the exam now?')) return; save(); gradeExam(); updateTimerBadge(); viewExam(); window.scrollTo(0,0); };
+  $('#abandon').onclick = () => { if(!confirm('Abandon this exam? Your answers will be lost.')) return; S.exam = null; save(); updateTimerBadge(); viewExam(); };
+}
+
+/* ---------------- Weak spots ---------------- */
+function pickFor(cat, type){
+  const pool = SCENARIOS.filter(s => s.role !== 'worked' && s.tags.includes(cat));
+  if(!pool.length) return null;
+  const best = s => ((S.progress[s.id] || {})[type] || {best:-1}).best;
+  return pool.map(s => ({s, k:best(s) + Math.random() * 30})).sort((a,b) => a.k - b.k)[0].s;
+}
+function viewWeak(){
+  const rows = Object.entries(S.weak).filter(([c,w]) => CATS[c] && w.miss > 0).sort((a,b) => (b[1].miss - b[1].ok * 0.5) - (a[1].miss - a[1].ok * 0.5));
+  const max = Math.max(1, ...rows.map(([,w]) => w.miss));
+  app.innerHTML = `<h1>Weak spots</h1>
+  <p class="muted">Every time you check an answer, mistakes are counted by category. Categories you get right again count as "clean runs". Practise the top ones.</p>
+  ${rows.length ? `<div class="actions"><button class="btn primary" id="mixed">Review my weak spots (mixed)</button></div>` : '<div class="card"><p>No mistakes recorded yet. Do some exercises first!</p><a class="btn primary" href="#/unit/1">Start Unit 1</a></div>'}
+  ${rows.map(([c, w]) => `<div class="card"><div class="row" style="justify-content:space-between"><b>${esc(CATS[c].label)}</b><span class="small muted">${w.miss} mistake(s) · ${w.ok} clean run(s)</span></div>
+    <div class="wbar"><div style="width:${Math.round(w.miss / max * 100)}%"></div></div>
+    <p class="small">${esc(CATS[c].rule)}</p>
+    <div class="actions" style="margin:6px 0 0">${T1CATS.includes(c) ? `<button class="btn sm" data-p="${c}" data-t="t1">Practise (Type 1)</button>` : ''}${T2CATS.includes(c) ? `<button class="btn sm" data-p="${c}" data-t="t2">Practise (Type 2)</button>` : ''}</div></div>`).join('')}
+  ${S.log.length ? `<h2>Recent mistakes</h2><div class="card fb">${S.log.slice(0,15).map(l => `<div class="item err"><div class="ic">✗</div><div><div>${esc(l.text)}</div><div class="hint">${esc(SC(l.sc) ? SC(l.sc).title : l.sc)} · ${l.type === 't1' ? 'Type 1' : 'Type 2'} · ${esc((CATS[l.cat] || {}).label || '')}</div></div></div>`).join('')}</div>` : ''}
+  ${rows.length || S.log.length ? `<div class="actions"><button class="btn ghost danger" id="clear">Reset tracker</button></div>` : ''}`;
+  app.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { const s = pickFor(b.dataset.p, b.dataset.t); if(s){ S.drafts[s.id] = {}; save(); location.hash = `#/ex/${s.id}/${b.dataset.t}`; } });
+  const mixed = $('#mixed');
+  if(mixed) mixed.onclick = () => {
+    const top = rows.slice(0, 3).map(([c]) => c);
+    const pool = SCENARIOS.filter(s => s.role !== 'worked').map(s => ({s, k:top.filter(c => s.tags.includes(c)).length + Math.random() * 0.9})).sort((a,b) => b.k - a.k);
+    const s = pool[0].s; const t = top.some(c => T2CATS.includes(c) && !T1CATS.includes(c)) ? 't2' : 't1';
+    S.drafts[s.id] = {}; save(); location.hash = `#/ex/${s.id}/${t}`;
+  };
+  const clr = $('#clear'); if(clr) clr.onclick = () => { if(confirm('Reset all tracked mistakes?')){ S.weak = {}; S.log = []; save(); viewWeak(); } };
+}
+
+/* ---------------- Review sheet ---------------- */
+function symbolSVG(nodes, edges=[]){
+  const g = {nodes:nodes.map(n => ({...n, tw:tw(n.label, n.type === 'entity' || n.type === 'weak')})), edges};
+  g.nodes.forEach(n => { if(!n.w) n.w = n.type === 'attr' ? Math.max(n.tw + 30, 62) : n.type === 'rel' || n.type === 'idrel' ? Math.max(n.tw * 1.45 + 26, 96) : n.tw + 34; if(!n.h) n.h = n.type === 'attr' ? 30 : n.type === 'rel' || n.type === 'idrel' ? 56 : 42; });
+  const byId = Object.fromEntries(g.nodes.map(n => [n.id, n]));
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  g.nodes.forEach(n => { x0 = Math.min(x0, n.x - n.w/2); y0 = Math.min(y0, n.y - n.h/2); x1 = Math.max(x1, n.x + n.w/2); y1 = Math.max(y1, n.y + n.h/2); });
+  return `<svg class="erd" viewBox="${x0 - 8} ${y0 - 8} ${x1 - x0 + 16} ${y1 - y0 + 16}">${drawEdges(g, byId)}${g.nodes.map(drawNode).join('')}</svg>`;
+}
+function viewSheet(){
+  const sym = (title, desc, svg) => `<div class="sym"><b>${title}</b><div>${svg}</div><div class="small muted">${desc}</div></div>`;
+  app.innerHTML = `<div class="row noprint" style="justify-content:space-between"><h1>Review sheet</h1><button class="btn" onclick="window.print()">Print</button></div>
+  <h1 style="display:none" class="printonly">CAI 105 - ERD &amp; mapping review sheet</h1>
+  <h2>Chen notation symbols</h2>
+  <div class="symgrid">
+   ${sym('Entity', 'Rectangle. A thing with its own identity.', symbolSVG([{id:'a', type:'entity', label:'MEMBER', x:0, y:0}]))}
+   ${sym('Weak entity', 'Double rectangle. No key of its own.', symbolSVG([{id:'a', type:'weak', label:'COPY', x:0, y:0}]))}
+   ${sym('Relationship', 'Diamond. A verb connecting entities.', symbolSVG([{id:'a', type:'rel', label:'BORROWS', x:0, y:0}]))}
+   ${sym('Identifying relationship', 'Double diamond. Links a weak entity to its owner.', symbolSVG([{id:'a', type:'idrel', label:'HAS_COPY', x:0, y:0}]))}
+   ${sym('Attribute', 'Oval.', symbolSVG([{id:'a', type:'attr', label:'Title', x:0, y:0}]))}
+   ${sym('Key attribute', 'Underlined name.', symbolSVG([{id:'a', type:'attr', label:'ISBN', key:true, x:0, y:0}]))}
+   ${sym('Partial key', 'Dashed underline (weak entity only).', symbolSVG([{id:'a', type:'attr', label:'CopyNo', partial:true, x:0, y:0}]))}
+   ${sym('Multivalued attribute', 'Double oval. Several values.', symbolSVG([{id:'a', type:'attr', label:'Phone', multi:true, x:0, y:0}]))}
+   ${sym('Derived attribute', 'Dashed oval. Computed, not stored.', symbolSVG([{id:'a', type:'attr', label:'Age', derived:true, x:0, y:0}]))}
+   ${sym('Composite attribute', 'Oval with its parts as ovals.', symbolSVG([{id:'n', type:'attr', label:'Name', x:0, y:0},{id:'f', type:'attr', label:'FirstName', x:-62, y:48},{id:'l', type:'attr', label:'LastName', x:62, y:48}], [{s:'n', t:'f'},{s:'n', t:'l'}]))}
+   ${sym('Total participation', 'Double line: EVERY entity takes part.', symbolSVG([{id:'e', type:'entity', label:'BOOK', x:-80, y:0},{id:'r', type:'rel', label:'PUBLISHES', x:80, y:0}], [{s:'r', t:'e', kind:'rel', card:'N', total:true}]))}
+   ${sym('Partial participation', 'Single line: some may not take part.', symbolSVG([{id:'e', type:'entity', label:'PUBLISHER', x:-90, y:0},{id:'r', type:'rel', label:'PUBLISHES', x:80, y:0}], [{s:'r', t:'e', kind:'rel', card:'1'}]))}
+  </div>
+  <p class="small muted">Cardinality labels (1, N, M) are written on the line next to each entity: PUBLISHER 1 - PUBLISHES - N BOOK means one publisher, many books.</p>
+  <h2>Mapping rules (ERD -> relational schema)</h2>
+  <table class="t">
+   <tr><th>ERD element</th><th>Becomes</th><th>Key</th></tr>
+   <tr><td>Strong entity</td><td>Table with all simple attributes</td><td>PK = key attribute</td></tr>
+   <tr><td>Composite attribute</td><td>Only its simple parts as columns (no "Name" column)</td><td>-</td></tr>
+   <tr><td>Derived attribute</td><td>Not stored</td><td>-</td></tr>
+   <tr><td>Multivalued attribute</td><td>New table <code>OWNER_ATTR(OwnerKey FK, Value)</code></td><td>PK = both columns</td></tr>
+   <tr><td>Weak entity</td><td>Table with owner PK as FK + partial key + other attributes; <b>ON DELETE CASCADE</b></td><td>PK = owner key + partial key</td></tr>
+   <tr><td>Identifying relationship</td><td>Nothing extra (already covered by the weak table)</td><td>-</td></tr>
+   <tr><td>1:N relationship</td><td>FK = PK of the <b>1 side</b>, placed in the <b>N side</b> table; relationship attributes go there too</td><td>-</td></tr>
+   <tr><td>1:1 relationship</td><td>FK on the side with <b>total participation</b>, marked <b>UNIQUE</b>; relationship attributes go with it</td><td>-</td></tr>
+   <tr><td>M:N relationship</td><td>New table with both PKs as FKs + relationship attributes</td><td>PK = both keys (+ date if the same pair can repeat)</td></tr>
+  </table>
+  <h2>Type 1 checklist (story -> ERD)</h2>
+  <ol class="steps"><li>Nouns with own data -> entities. "Identified by X together with Y" / "numbered within" -> weak entity (owner + partial key).</li>
+   <li>Attributes: key (ID), composite ("name (first, last)"), multivalued ("several", "set of", "one or more"), derived ("calculated", age).</li>
+   <li>Verbs -> relationships. Cardinality: ask both directions. Participation: "every / exactly one / at least one" = total.</li>
+   <li>Dates, grades, hours of one specific pair -> relationship attributes.</li>
+   <li>No foreign keys in the ERD.</li></ol>
+  <h2>Type 2 checklist (ERD -> schema)</h2>
+  <ol class="steps"><li>One table per strong entity; split composites; drop derived.</li><li>One table per multivalued attribute.</li>
+   <li>Weak entity table: owner key + partial key = PK, ON DELETE CASCADE.</li><li>1:1 -> FK UNIQUE on the total side. 1:N -> FK on the N side. M:N -> new table.</li>
+   <li>Mark every PK and every FK (FK->TABLE). Write (b) explanation per concept and (c) assumptions (M:N keys, 1:1 side, NULLs).</li></ol>
+  <h2>Common traps</h2>
+  <ol class="steps">
+   <li>Storing a derived attribute (Age, YearsOfService, TotalAmount) as a column.</li>
+   <li>Keeping a composite "Name" or "Address" column instead of its parts.</li>
+   <li>Keeping a multivalued Phone inside the entity table (or Phone1, Phone2 columns).</li>
+   <li>Multivalued table with PK = only the owner key (allows only one value).</li>
+   <li>Weak table PK = only the partial key - forgetting the owner key.</li>
+   <li>Forgetting ON DELETE CASCADE for the weak entity.</li>
+   <li>1:N with the FK on the 1 side (would need many values in one cell).</li>
+   <li>M:N mapped with a FK in one entity table instead of a new table.</li>
+   <li>M:N key without the date when the same pair can repeat (borrowing the same copy again, treating the same patient again).</li>
+   <li>1:1 FK on the partial side -> mostly NULLs; and forgetting UNIQUE (turns it into 1:N).</li>
+   <li>Putting relationship attributes (LoanDate, Grade, HeadSince) on an entity.</li>
+   <li>Writing foreign keys as attributes in the ERD.</li>
+   <li>Weak entity drawn without the double diamond, or with a single (partial) line.</li>
+   <li>Confusing participation (total / partial) with cardinality (1 / N).</li>
+  </ol>
+  <h2>Schema notation used in this app</h2>
+  <pre class="schema">${esc(SCHEMA_HELP)}</pre>`;
+}
+
+route();
+updateTimerBadge();
+</script>
+</body>
+</html>
