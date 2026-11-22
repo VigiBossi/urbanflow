@@ -24,7 +24,7 @@
     const m = CAI.findModule(mid); if (!m) return CAI.ui.notFound(main);
     S.setLast(`#/exam/review/${mid}`, `${m.title} · review sheet`);
     main.innerHTML = `${examTabs(m, 'review')}<div class="card review-sheet">${m.review}</div>
-      <div class="row"><button class="btn" onclick="window.print()">🖨 Print</button><span class="spacer"></span><a class="btn primary" href="#/exam/blanks/${mid}">Test yourself →</a></div>`;
+      <div class="row"><span class="spacer"></span><a class="btn primary" href="#/exam/blanks/${mid}">Test yourself →</a></div>`;
   };
 
   /* ---------- fill in the blanks ---------- */
@@ -114,9 +114,17 @@
       }
       draw();
 
+      let submitArmed = false;
       function submit(timeUp) {
         const unanswered = answers.filter((a) => a == null).length;
-        if (!timeUp && unanswered && !confirm(`${unanswered} question${unanswered > 1 ? 's are' : ' is'} unanswered. Submit anyway?`)) return;
+        if (!timeUp && unanswered && !submitArmed) {
+          submitArmed = true;
+          const btn = $('#qz-submit', main);
+          btn.textContent = `${unanswered} unanswered — click to submit anyway`;
+          btn.classList.add('primary');
+          CAI.util.toast(`${unanswered} question${unanswered > 1 ? 's are' : ' is'} still unanswered`);
+          return;
+        }
         CAI.stopTimers();
         document.removeEventListener('keydown', keyHandler);
         const score = qs.filter((q, i) => answers[i] === q.a).length;

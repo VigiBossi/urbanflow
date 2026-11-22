@@ -82,20 +82,36 @@
             <label class="btn small">⬆ Import progress<input type="file" id="imp" accept="application/json" hidden></label>
             <button class="btn small danger" id="reset">Reset all progress</button>
           </div>
+          <div id="exp-box" hidden style="margin-top:10px"><textarea id="exp-text" class="input-wide mono" rows="5" readonly aria-label="Progress backup"></textarea>
+            <div class="row" style="margin-top:6px"><button class="btn small" id="exp-copy">Copy</button><span class="small muted">Paste this into a file named cai109-progress.json to keep a backup.</span></div></div>
           <p class="small muted" style="margin-top:8px">Progress is saved automatically in this browser (localStorage). Export it to move it to another computer.</p>
         </div></details>`;
 
     $('#set-bump', main).onchange = (e) => S.setSetting('speedBump', e.target.checked);
     $('#exp', main).onclick = () => {
-      const blob = new Blob([S.exportJSON()], { type: 'application/json' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'cai109-progress.json'; a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      const box = $('#exp-box', main);
+      box.hidden = false;
+      const ta = $('#exp-text', main);
+      ta.value = S.exportJSON();
+      ta.select();
+    };
+    $('#exp-copy', main).onclick = () => {
+      const ta = $('#exp-text', main);
+      const done = () => CAI.util.toast('Copied — paste it into a .json file to keep it', 'ok');
+      const fallback = () => { ta.select(); CAI.util.toast('Press Ctrl+C to copy the selected text'); };
+      try { navigator.clipboard.writeText(ta.value).then(done, fallback); } catch (e) { fallback(); }
     };
     $('#imp', main).onchange = (e) => {
       const f = e.target.files[0]; if (!f) return;
-      f.text().then((t) => { try { S.importJSON(t); CAI.util.toast('Progress imported', 'ok'); CAI.app.render(); } catch (err) { alert('That file could not be read.'); } });
+      f.text().then((t) => { try { S.importJSON(t); CAI.util.toast('Progress imported', 'ok'); CAI.app.render(); } catch (err) { CAI.util.toast('That file is not a valid progress backup.'); } });
     };
-    $('#reset', main).onclick = () => { if (confirm('Delete ALL progress, mistakes and quiz scores? This cannot be undone.')) { S.reset(); CAI.app.render(); } };
+    let armed = null;
+    $('#reset', main).onclick = (e) => {
+      const b = e.currentTarget;
+      if (armed) { clearTimeout(armed); S.reset(); CAI.app.render(); CAI.util.toast('All progress deleted'); return; }
+      b.textContent = 'Click again to delete everything';
+      armed = setTimeout(() => { armed = null; b.textContent = 'Reset all progress'; }, 4000);
+    };
   };
 
   CAI.ui.modules = function (main) {
