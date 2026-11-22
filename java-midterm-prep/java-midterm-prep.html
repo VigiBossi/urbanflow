@@ -1,0 +1,2905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Java Midterm Prep</title>
+<meta name="description" content="Offline practice app for an Introduction to Programming (Java) midterm: quiz, output, find-the-bug, coding tasks, mock exam and cheat sheets.">
+<script>/* apply saved theme before first paint */try{var s=JSON.parse(localStorage.getItem('jmp.settings')||'{}');document.documentElement.dataset.theme=s.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}catch(e){}</script>
+<style>
+:root {
+  --bg: #f5f6fa; --surface: #ffffff; --surface-2: #eef0f6; --border: #dde1ea;
+  --text: #1b1f2a; --muted: #5d6475; --accent: #2f5fe0; --accent-2: #e8eeff; --accent-text: #ffffff;
+  --good: #16803c; --good-bg: #e3f6ea; --bad: #c62a2a; --bad-bg: #fde8e8; --warn: #a35d00; --warn-bg: #fff2dc;
+  --code-bg: #f7f8fb; --code-text: #24292f;
+  --tk-k: #a626a4; --tk-t: #0f6fb1; --tk-s: #2c7a20; --tk-n: #b35a00; --tk-c: #8a8f98; --tk-cl: #b0451c; --tk-f: #3a4fd6; --tk-l: #0f6fb1;
+  --shadow: 0 1px 2px rgba(20,30,60,.06), 0 4px 14px rgba(20,30,60,.06);
+  --radius: 12px;
+  --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+html[data-theme="dark"] {
+  --bg: #0f1218; --surface: #171b24; --surface-2: #1f2430; --border: #2b3240;
+  --text: #e6e9ef; --muted: #9aa3b5; --accent: #6d93ff; --accent-2: #1e2a4a; --accent-text: #0b1020;
+  --good: #4fd17f; --good-bg: #12301f; --bad: #ff7a7a; --bad-bg: #3a1618; --warn: #ffb44d; --warn-bg: #3a2a10;
+  --code-bg: #12151d; --code-text: #d7dce5;
+  --tk-k: #d58cf0; --tk-t: #6cb6ff; --tk-s: #98d98e; --tk-n: #f2a65a; --tk-c: #6b7385; --tk-cl: #f09070; --tk-f: #8ea2ff; --tk-l: #6cb6ff;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+}
+* { box-sizing: border-box; }
+/* no programming ligatures: <= must look like <= (the font shorthand would reset these, hence !important) */
+* { font-variant-ligatures: none !important; font-feature-settings: "liga" 0, "calt" 0, "dlig" 0 !important; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--accent); }
+code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: .1em .35em; border-radius: 5px; }
+kbd { font-family: var(--mono); font-size: .8em; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; padding: 0 .4em; background: var(--surface); color: var(--muted); }
+
+/* top bar */
+.topbar { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+.topbar-in { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 12px; padding: 10px 16px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; color: var(--text); white-space: nowrap; }
+.logo { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: var(--accent); color: var(--accent-text); font-family: var(--mono); font-size: 13px; font-weight: 800; }
+nav.tabs { display: flex; gap: 2px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+nav.tabs::-webkit-scrollbar { display: none; }
+nav.tabs a { text-decoration: none; color: var(--muted); padding: 7px 11px; border-radius: 8px; white-space: nowrap; font-size: 14.5px; font-weight: 500; }
+nav.tabs a:hover { background: var(--surface-2); color: var(--text); }
+nav.tabs a.active { background: var(--accent-2); color: var(--accent); }
+.icon-btn { border: 1px solid var(--border); background: var(--surface); border-radius: 9px; width: 36px; height: 36px; display: grid; place-items: center; cursor: pointer; flex: none; }
+.icon-btn:hover { background: var(--surface-2); }
+
+main { max-width: 1100px; margin: 0 auto; padding: 22px 16px 80px; }
+h1 { font-size: 1.7rem; line-height: 1.2; margin: 0 0 6px; }
+h2 { font-size: 1.25rem; margin: 26px 0 12px; }
+h3 { font-size: 1.05rem; margin: 0 0 6px; }
+.muted { color: var(--muted); }
+.small { font-size: .88rem; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; }
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.spacer { flex: 1; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); background: var(--surface); padding: 9px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 15px; text-decoration: none; color: var(--text); }
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.07); }
+.btn.good { background: var(--good); border-color: var(--good); color: #fff; }
+.btn.ghost { background: transparent; border-color: transparent; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn .kb { font-family: var(--mono); font-size: 11px; opacity: .75; border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; }
+
+.hero { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: stretch; }
+.hero .card.main { background: linear-gradient(135deg, var(--accent) 0%, #6a4ee0 100%); color: #fff; border: none; }
+.hero .card.main .muted { color: rgba(255,255,255,.85); }
+.hero .card.main .btn { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.35); color: #fff; }
+.hero .card.main .btn.primary { background: #fff; color: #2338a8; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; }
+.stat b { display: block; font-size: 1.35rem; }
+.stat span { font-size: .8rem; color: var(--muted); }
+
+.mode-card { cursor: pointer; text-decoration: none; color: inherit; display: block; transition: transform .12s, border-color .12s; }
+.mode-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.mode-card .mi { font-size: 22px; width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center; background: var(--accent-2); color: var(--accent); margin-bottom: 10px; font-family: var(--mono); font-weight: 800; font-size: 15px; }
+
+.topic-card { display: flex; flex-direction: column; gap: 8px; }
+.topic-card .ti { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-2); border-radius: 7px; padding: 2px 7px; }
+.bar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.bar > i { display: block; height: 100%; border-radius: 99px; background: var(--good); }
+.bar.mid > i { background: var(--warn); }
+.bar.low > i { background: var(--bad); }
+.badge { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.badge.weak { background: var(--bad-bg); color: var(--bad); }
+.badge.good { background: var(--good-bg); color: var(--good); }
+.badge.new { background: var(--accent-2); color: var(--accent); }
+.badge.d1 { background: var(--good-bg); color: var(--good); }
+.badge.d2 { background: var(--warn-bg); color: var(--warn); }
+.badge.d3 { background: var(--bad-bg); color: var(--bad); }
+.topic-card.is-weak { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad) inset, var(--shadow); }
+
+/* filters */
+.filters { display: flex; flex-direction: column; gap: 12px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--border); background: var(--surface); border-radius: 99px; padding: 5px 12px; cursor: pointer; font-size: 14px; }
+.chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.chip.weak:not(.on) { border-color: var(--bad); color: var(--bad); }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.seg button { border: none; background: var(--surface); padding: 6px 13px; cursor: pointer; font-size: 14px; border-right: 1px solid var(--border); }
+.seg button:last-child { border-right: none; }
+.seg button.on { background: var(--accent); color: var(--accent-text); }
+.label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; }
+
+/* question */
+.qwrap { max-width: 820px; margin: 0 auto; }
+.qhead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.progress-line { height: 5px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin-bottom: 14px; }
+.progress-line i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+.qtext { font-size: 1.1rem; font-weight: 600; margin: 4px 0 12px; white-space: pre-wrap; }
+pre.code { background: var(--code-bg); color: var(--code-text); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; overflow-x: auto; font: 14px/1.55 var(--mono); margin: 10px 0; tab-size: 4; }
+pre.code.numbered { padding-left: 0; }
+pre.code .ln { display: inline-block; width: 2.6em; text-align: right; padding-right: 12px; color: var(--tk-c); user-select: none; }
+.stdin { border-left: 3px solid var(--warn); background: var(--warn-bg); padding: 8px 12px; border-radius: 8px; margin: 10px 0; font-size: .92rem; }
+.stdin pre { margin: 4px 0 0; font: 13.5px/1.5 var(--mono); white-space: pre-wrap; }
+.tk-k { color: var(--tk-k); font-weight: 600; } .tk-t { color: var(--tk-t); font-weight: 600; } .tk-s { color: var(--tk-s); } .tk-n { color: var(--tk-n); }
+.tk-c { color: var(--tk-c); font-style: italic; } .tk-cl { color: var(--tk-cl); } .tk-f { color: var(--tk-f); } .tk-l { color: var(--tk-l); font-weight: 600; }
+
+.opts { display: grid; gap: 9px; margin-top: 12px; }
+.opt { display: flex; gap: 12px; align-items: flex-start; text-align: left; border: 1.5px solid var(--border); background: var(--surface); border-radius: 11px; padding: 11px 14px; cursor: pointer; width: 100%; transition: border-color .1s, background .1s; }
+.opt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-2); }
+.opt .key { flex: none; width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; font: 700 12.5px var(--mono); background: var(--surface-2); color: var(--muted); }
+.opt .ob { flex: 1; min-width: 0; padding-top: 1px; overflow-wrap: anywhere; }
+.opt .ob pre { margin: 0; font: 14px/1.5 var(--mono); white-space: pre-wrap; }
+.opt.selected { border-color: var(--accent); background: var(--accent-2); }
+.opt.selected .key { background: var(--accent); color: var(--accent-text); }
+.opt.correct { border-color: var(--good); background: var(--good-bg); }
+.opt.correct .key { background: var(--good); color: #fff; }
+.opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.opt.wrong .key { background: var(--bad); color: #fff; }
+.opt.dim { opacity: .6; }
+.opt:disabled { cursor: default; color: inherit; }
+
+.feedback { margin-top: 14px; border-radius: 11px; padding: 12px 14px; border: 1px solid; }
+.feedback.good { background: var(--good-bg); border-color: var(--good); }
+.feedback.bad { background: var(--bad-bg); border-color: var(--bad); }
+.feedback .fh { font-weight: 800; margin-bottom: 4px; }
+.feedback.good .fh { color: var(--good); } .feedback.bad .fh { color: var(--bad); }
+
+.nav-row { display: flex; gap: 10px; align-items: center; margin-top: 16px; flex-wrap: wrap; }
+
+textarea.answer { width: 100%; min-height: 110px; font: 14.5px/1.5 var(--mono); padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--code-bg); resize: vertical; }
+textarea.answer:focus, input:focus, .editor:focus-within { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-2); }
+.diff { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.diff pre { margin: 0; background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font: 13.5px/1.55 var(--mono); white-space: pre-wrap; overflow-x: auto; min-height: 2.4em; }
+.diff .bad-line { background: var(--bad-bg); color: var(--bad); display: block; }
+.diff .good-line { display: block; }
+
+/* bug mode */
+.bug-code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 6px 0; margin: 10px 0; overflow-x: auto; font: 14px/1.55 var(--mono); }
+.bug-line { display: flex; cursor: pointer; padding: 1px 12px 1px 0; border-left: 3px solid transparent; white-space: pre; min-width: max-content; }
+.bug-line:hover { background: var(--accent-2); }
+.bug-line .ln { width: 2.8em; flex: none; text-align: right; padding-right: 12px; color: var(--tk-c); user-select: none; }
+.bug-line.sel { background: var(--accent-2); border-left-color: var(--accent); }
+.bug-line.cursor { outline: 1px dashed var(--accent); outline-offset: -1px; }
+.bug-line.ans { background: var(--good-bg); border-left-color: var(--good); }
+.bug-line.wrongsel { background: var(--bad-bg); border-left-color: var(--bad); }
+.bug-line.blank { cursor: default; }
+
+/* editor */
+.editor { display: flex; border: 1.5px solid var(--border); border-radius: 10px; background: var(--code-bg); overflow: hidden; height: 380px; resize: vertical; min-height: 200px; }
+.editor .gutter { flex: none; padding: 12px 8px 12px 0; text-align: right; color: var(--tk-c); font: 14px/1.55 var(--mono); user-select: none; overflow: hidden; min-width: 3em; border-right: 1px solid var(--border); background: var(--surface-2); }
+.editor .ed { position: relative; flex: 1; min-width: 0; }
+.editor pre, .editor textarea { position: absolute; inset: 0; margin: 0; padding: 12px; font: 14px/1.55 var(--mono); tab-size: 4; white-space: pre; overflow: auto; border: 0; letter-spacing: 0; word-spacing: 0; }
+.editor pre { pointer-events: none; color: var(--code-text); overflow: hidden; }
+.editor textarea { background: transparent; color: transparent; caret-color: var(--text); resize: none; outline: none; -webkit-text-fill-color: transparent; }
+.editor textarea::selection { background: rgba(80,120,255,.3); }
+
+/* exam */
+.exam-bar { position: sticky; top: 57px; z-index: 10; background: var(--bg); padding: 8px 0 10px; }
+.timer { font: 700 1.15rem var(--mono); padding: 6px 12px; border-radius: 9px; background: var(--surface); border: 1px solid var(--border); }
+.timer.low { color: var(--bad); border-color: var(--bad); }
+.palette { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.palette button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 13.5px; }
+.palette button.done { background: var(--accent-2); border-color: var(--accent); color: var(--accent); }
+.palette button.cur { outline: 2px solid var(--accent); outline-offset: 1px; }
+.palette button.r-good { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.palette button.r-bad { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+
+.big-score { font-size: 3rem; font-weight: 800; line-height: 1; }
+table.t { width: 100%; border-collapse: collapse; font-size: .93rem; }
+table.t th, table.t td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+table.t th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.table-wrap { overflow-x: auto; }
+.cheat table.t td:first-child, .cheat table.t td code { font-family: var(--mono); font-size: .88rem; }
+.cheat-sec { margin-top: 18px; }
+.cheat-sec ul { padding-left: 20px; margin: 6px 0; }
+.cheat-sec li { margin: 3px 0; }
+.recent { display: inline-flex; gap: 3px; }
+.recent i { width: 8px; height: 14px; border-radius: 2px; background: var(--good); display: inline-block; }
+.recent i.x { background: var(--bad); }
+.review-item { margin-top: 14px; }
+
+.modal-bg { position: fixed; inset: 0; background: rgba(5,8,15,.55); display: grid; place-items: center; z-index: 100; padding: 16px; }
+.modal { max-width: 560px; width: 100%; max-height: 85vh; overflow: auto; }
+.kbd-list { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; font-size: .94rem; }
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 9px 16px; border-radius: 10px; z-index: 200; font-size: 14px; box-shadow: var(--shadow); }
+.empty { text-align: center; padding: 40px 16px; }
+.task-list .card { cursor: pointer; }
+.task-list .card:hover { border-color: var(--accent); }
+.split { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.output-box { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font: 13.5px/1.5 var(--mono); white-space: pre-wrap; margin: 6px 0; }
+input[type=date], select { border: 1px solid var(--border); background: var(--surface); padding: 6px 9px; border-radius: 8px; }
+
+@media (max-width: 760px) {
+  .hero { grid-template-columns: 1fr; }
+  .diff { grid-template-columns: 1fr; }
+  h1 { font-size: 1.4rem; }
+  .brand span.full { display: none; }
+  main { padding-top: 16px; }
+  .card { padding: 14px; }
+  .exam-bar { top: 55px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="#home"><span class="logo">J</span><span class="full">Java Midterm Prep</span></a>
+  <nav class="tabs" aria-label="Sections">
+    <a href="#home">Home</a><a href="#quiz">Quiz</a><a href="#output">Output</a><a href="#bug">Find the bug</a><a href="#code">Write code</a><a href="#mock">Mock exam</a><a href="#cheat">Cheat sheets</a><a href="#progress">Progress</a>
+  </nav>
+  <button class="icon-btn" id="helpBtn" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">⌨</button>
+  <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">☾</button>
+</div></header>
+<main></main>
+<noscript><p style="padding:20px">This app needs JavaScript.</p></noscript>
+<script>
+/*DATA-START*/
+// J`...` keeps Java code exactly as written (backslashes included) and trims the surrounding blank lines.
+function J(s, ...v) {
+  const raw = String.raw(s, ...v).replace(/^\n/, '').replace(/\s+$/, '');
+  const lines = raw.split('\n');
+  const ind = Math.min(...lines.filter(l => l.trim()).map(l => l.match(/^ */)[0].length));
+  return lines.map(l => l.slice(ind)).join('\n');
+}
+
+const TOPICS = [
+  { id: 'struct', name: 'Program structure', icon: '{ }' },
+  { id: 'types', name: 'Data types', icon: 'int' },
+  { id: 'vars', name: 'Variables & constants', icon: 'x=' },
+  { id: 'ops', name: 'Operators', icon: '+%' },
+  { id: 'cast', name: 'Casting & conversion', icon: '(int)' },
+  { id: 'scanner', name: 'Input with Scanner', icon: 'in' },
+  { id: 'cond', name: 'Conditionals', icon: 'if' },
+  { id: 'loops', name: 'Loops', icon: 'for' },
+  { id: 'strings', name: 'String methods', icon: '"s"' },
+  { id: 'methods', name: 'Methods', icon: 'f()' }
+];
+
+/* Quiz questions.
+   o[0] is ALWAYS the correct option (options are shuffled at runtime).
+   tf:1 = true/false question with answer a.
+   c = Java code (fragments are placed inside main), in = keyboard input.
+   v = how the build check verified the code: 'out' (prints o[0]), 'ce' (compile error),
+       'rt' (runtime exception), 'ok' (compiles and runs); vx = exact expected output. */
+const QUIZ = [
+// ---------- 1. Program structure ----------
+{t:'struct',d:1,q:'Which is the correct header of the `main` method that Java looks for when it starts a program?',oc:1,o:['public static void main(String[] args)','public void main(String[] args)','static public int main(String args)','public static main(String[] args)'],e:'The JVM looks for a method that is `public` (callable from outside), `static` (no object needed), returns `void`, is named `main` and takes a `String[]`.'},
+{t:'struct',d:1,tf:1,a:true,q:'Java is case-sensitive: `System.out.println` and `system.out.println` are NOT the same thing.',e:'`System` is a class name with a capital S. Writing `system` causes a compile error (package system does not exist).'},
+{t:'struct',d:1,q:'Which character ends most Java statements?',o:['`;` (semicolon)','`.` (period)','`:` (colon)','`}` (closing brace)'],e:'Every simple statement ends with a semicolon. Braces close blocks; they do not end statements.'},
+{t:'struct',d:1,q:'How do you write a single-line comment in Java?',o:['`// comment`','`# comment`','`<!-- comment -->`','`-- comment`'],e:'`//` comments out the rest of the line. `#` is Python, `<!-- -->` is HTML and `--` is SQL.'},
+{t:'struct',d:1,q:'How do you write a comment that spans several lines?',o:['`/* ... */`','`// ... //`','`{* ... *}`','`<* ... *>`'],e:'`/*` starts a block comment and `*/` ends it. (`/** ... */` is a Javadoc comment, which is also valid.)'},
+{t:'struct',d:1,q:'A file contains `public class Hello { ... }`. What must the file be called?',o:['`Hello.java`','`hello.java`','`Hello.class`','`Main.java`'],e:'A public class must be saved in a file with exactly the same name (case-sensitive) plus `.java`. Compiling it produces `Hello.class`.'},
+{t:'struct',d:1,q:'Which command compiles the source file `Hello.java`?',o:['`javac Hello.java`','`java Hello`','`run Hello.java`','`compile Hello`'],e:'`javac` is the compiler; it creates `Hello.class`. Then `java Hello` runs the compiled class.'},
+{t:'struct',d:1,q:'What does the Java compiler (`javac`) produce?',o:['Bytecode in a `.class` file','A Windows `.exe` file','Another `.java` file','Machine code for one specific CPU only'],e:'Java compiles to platform-independent bytecode, which the Java Virtual Machine (JVM) runs. That is why Java is "write once, run anywhere".'},
+{t:'struct',d:1,q:'What is the difference between `print` and `println`?',o:['`println` moves to a new line after printing; `print` does not','`print` moves to a new line after printing; `println` does not','`println` can only print Strings','There is no difference'],e:'`System.out.println(x)` prints x followed by a line break. `System.out.print(x)` leaves the cursor on the same line.'},
+{t:'struct',d:2,q:'What is printed?',c:J`
+System.out.print("A");
+System.out.println("B");
+System.out.print("C");
+`,o:['AB\nC','A\nB\nC','ABC','A\nBC'],v:'out',e:'`print("A")` stays on the line, `println("B")` prints B and then a line break, so C ends up on the second line.'},
+{t:'struct',d:1,tf:1,a:true,q:'`System.out.println();` with no argument is valid and just prints an empty line.',c:J`
+System.out.println("Hi");
+System.out.println();
+System.out.println("Bye");
+`,vx:'Hi\n\nBye',e:'With no argument, `println()` prints only a line break, which produces a blank line.'},
+{t:'struct',d:2,q:'Which statement correctly prints:  He said "hi"',oc:1,o:[J`System.out.println("He said \"hi\"");`,J`System.out.println("He said "hi"");`,J`System.out.println('He said "hi"');`,J`System.out.println("He said \hi\");`],e:'Inside a String, a double quote must be escaped as `\\"`. Single quotes are only for a single `char`, never for Strings.'},
+{t:'struct',d:2,q:'What is printed?',c:J`
+System.out.println("Line1\nLine2");
+`,o:['Line1\nLine2','Line1\\nLine2','Line1Line2','Line1 Line2'],v:'out',e:'`\\n` inside a String is the newline escape sequence, so the text is split over two lines.'},
+{t:'struct',d:2,q:'Which statement does NOT compile?',oc:1,o:['System.out.println("Hi")','System.out.println("Hi");','System.out.print("Hi" + 5);','System.out.println(5 + 5);'],e:'The first one is missing its semicolon: error: \';\' expected.'},
+{t:'struct',d:1,q:'What do curly braces `{ }` do in Java?',o:['Mark the beginning and end of a block, such as a class or method body','End a statement','Start a comment','Hold the arguments of a method call'],e:'Braces group statements into a block: the class body, a method body, the body of an if or a loop. Parentheses `( )` hold method arguments.'},
+{t:'struct',d:1,tf:1,a:true,q:'Comments are ignored by the compiler, so they do not change what the program does.',e:'Comments exist only for human readers.'},
+{t:'struct',d:3,tf:1,a:true,q:'One `.java` file may contain several classes, but at most one top-level class in it can be `public`.',e:'And if there is a public class, the file must be named after it.'},
+{t:'struct',d:2,q:'In `public static void main(String[] args)`, what is `args`?',o:['An array of Strings holding the command-line arguments','The return value of the program','A Scanner that reads keyboard input','A keyword that cannot be renamed'],e:'`args` is just a parameter name (you may rename it). It receives the words typed after `java ClassName` on the command line.'},
+{t:'struct',d:3,q:'What is printed?',c:J`
+// System.out.println("A");
+System.out.println("B"); /* System.out.println("C"); */
+/*
+System.out.println("D");
+*/
+`,o:['B','A\nB\nC\nD','B\nC','B\nD'],v:'out',e:'Line 1 is a single-line comment, the C statement is inside `/* */`, and so is D. Only B runs.'},
+{t:'struct',d:2,q:'Which statement about how a Java program runs is correct?',o:['Source code (.java) is compiled to bytecode (.class), which the JVM runs','The JVM runs .java files directly, so compiling is never needed','`javac` runs the program and `java` compiles it','Bytecode only runs on the operating system where it was compiled'],e:'Write → compile with `javac` → run the bytecode with the JVM (`java`). The same .class file runs on any OS that has a JVM.'},
+
+// ---------- 2. Data types ----------
+{t:'types',d:1,q:'How many bits does an `int` use in Java?',o:['32 bits (4 bytes)','16 bits (2 bytes)','64 bits (8 bytes)','8 bits (1 byte)'],e:'byte = 8, short = 16, int = 32, long = 64 bits. In Java these sizes are the same on every platform.'},
+{t:'types',d:1,q:"Which primitive type stores a single character such as `'A'`?",o:['`char`','`String`','`byte`','`boolean`'],e:'`char` holds one 16-bit Unicode character. `String` is not a primitive; it is a class for sequences of characters.'},
+{t:'types',d:1,q:'Which is a valid `char` literal?',oc:1,o:["'A'",'"A"',"'AB'",'A'],e:"A char literal is exactly one character in single quotes. `\"A\"` is a String, `'AB'` has two characters, and `A` alone would be read as a variable name."},
+{t:'types',d:1,q:'Which values can a `boolean` variable hold?',o:['`true` and `false`','`0` and `1`','`"true"` and `"false"`','`TRUE` and `FALSE`'],e:'Java booleans are only `true` or `false` (lowercase). Unlike C, numbers are not booleans.'},
+{t:'types',d:2,q:'What is the largest value an `int` can hold?',o:['2147483647 (about 2.1 billion)','32767','9223372036854775807','4294967295'],e:'int range: −2,147,483,648 to 2,147,483,647 (−2³¹ to 2³¹−1). 32767 is the max of short; 9223372036854775807 is the max of long.'},
+{t:'types',d:2,q:'How many bits does a `long` use?',o:['64','32','128','16'],e:'long is 64 bits, range about ±9.22 × 10¹⁸. Use it when int is too small.'},
+{t:'types',d:2,q:'How do `float` and `double` compare?',o:['float is 32 bits (~7 digits), double is 64 bits (~15–16 digits)','float is 64 bits, double is 32 bits','Both are 32 bits; double is just a newer name','float stores whole numbers only'],e:'double has about twice the precision of float and is the default type for decimal literals like 3.14.'},
+{t:'types',d:2,q:'Which declaration does NOT compile?',oc:1,o:['float f = 3.14;','double d = 3.14;','float f = 3.14f;','long n = 100;'],e:'`3.14` is a double literal. Storing a double in a float could lose precision, so Java requires the `f` suffix (or a cast).'},
+{t:'types',d:2,q:'Which line correctly stores three billion?',oc:1,o:['long big = 3000000000L;','int big = 3000000000;','long big = 3000000000;','long big = "3000000000";'],e:'3000000000 is bigger than the int maximum, so without the `L` suffix the literal itself is a compile error ("integer number too large"), even when you assign it to a long.'},
+{t:'types',d:1,tf:1,a:false,q:'`String` is one of Java\'s primitive types.',e:'The 8 primitives are byte, short, int, long, float, double, char and boolean. String is a class (a reference type), which is why it starts with a capital letter.'},
+{t:'types',d:3,q:'What is printed?',c:J`
+int x = Integer.MAX_VALUE;
+x = x + 1;
+System.out.println(x);
+`,o:['-2147483648','2147483648','Compilation error','An ArithmeticException is thrown'],v:'out',e:'Integer overflow wraps around silently: one more than the maximum int becomes the minimum int. No error is reported.'},
+{t:'types',d:2,q:'What is printed?',c:J`
+char c = 'A';
+c++;
+System.out.println(c);
+`,o:['B','A','66','Compilation error'],v:'out',e:"`++` on a char moves to the next character: 'A' (65) becomes 'B' (66), and it is still printed as a char."},
+{t:'types',d:3,q:'What is printed?',c:J`
+char c = 'A';
+System.out.println(c + 1);
+`,o:['66','B','A1','Compilation error'],v:'out',e:'In `c + 1` the char is promoted to int (65), so the result 66 is an int and a number is printed. Compare with `c++`, which keeps the char type.'},
+{t:'types',d:1,q:'What is the type of the literal `42`? And of `3.5`?',o:['`int` and `double`','`long` and `float`','`int` and `float`','`short` and `double`'],e:'Whole-number literals are int by default (add L for long). Decimal literals are double by default (add f for float).'},
+{t:'types',d:1,q:'Which type is the most natural choice for a price such as 19.99?',o:['`double`','`int`','`char`','`boolean`'],e:'double stores decimal numbers. (Real banking software uses BigDecimal to avoid rounding errors, but double is fine for this course.)'},
+{t:'types',d:2,tf:1,a:false,q:'The line `boolean b = 1;` compiles in Java.',c:J`
+boolean b = 1;
+`,v:'ce',e:'Error: incompatible types: int cannot be converted to boolean. In Java, numbers and booleans never mix.'},
+{t:'types',d:3,q:'How large is a `char` in Java, and what is its range?',o:['16 bits, 0 to 65535 (unsigned)','8 bits, −128 to 127','8 bits, 0 to 255','32 bits, like int'],e:'Java chars are 16-bit Unicode code units. They are unsigned and can hold 0–65535.'},
+{t:'types',d:3,q:'What is printed?',c:J`
+double d = 0.1 + 0.2;
+System.out.println(d);
+`,o:['0.30000000000000004','0.3','0.30','Compilation error'],v:'out',e:'0.1 and 0.2 cannot be stored exactly in binary, so a tiny rounding error appears. Never compare doubles with == expecting exact results.'},
+{t:'types',d:1,q:'Which of these is NOT a primitive type?',o:['`String`','`int`','`char`','`boolean`'],e:'String is a class. Primitive type names are all lowercase: byte, short, int, long, float, double, char, boolean.'},
+{t:'types',d:2,q:'What is the range of a `byte`?',o:['−128 to 127','0 to 255','−256 to 255','−32768 to 32767'],e:'byte is 8 bits and signed: −2⁷ to 2⁷−1.'},
+
+// ---------- 3. Variables, constants, naming ----------
+{t:'vars',d:1,q:'Which is a valid variable name?',oc:1,o:['totalScore','2ndPlace','total-score','class'],e:'Names may contain letters, digits, `_` and `$`, but cannot start with a digit, cannot contain `-` or spaces, and cannot be a keyword like `class`.'},
+{t:'vars',d:1,q:'Which variable name is INVALID?',oc:1,o:['my var','_count','$price','value2'],e:'Spaces are not allowed in names. Underscore and dollar sign are legal (though `$` is rarely used).'},
+{t:'vars',d:1,q:'Which keyword makes a variable a constant (its value cannot change after it is set)?',o:['`final`','`const`','`static`','`constant`'],e:'`final int MAX = 10;` creates a constant. `const` is a reserved word in Java, but it is not used for anything.'},
+{t:'vars',d:2,q:'What happens with this code?',c:J`
+final int MAX = 10;
+MAX = 20;
+System.out.println(MAX);
+`,o:['Compilation error: cannot assign a value to final variable MAX','It prints 20','It prints 10','It compiles but throws an exception when run'],v:'ce',e:'A final variable can be assigned only once. The compiler rejects the second assignment.'},
+{t:'vars',d:1,tf:1,a:true,q:'`count` and `Count` are two different variable names in Java.',e:'Java names are case-sensitive.'},
+{t:'vars',d:1,q:'By convention, how should a constant be named?',oc:1,o:['MAX_SIZE','maxSize','MaxSize','max-size'],e:'Constants use UPPER_SNAKE_CASE. Variables and methods use camelCase; classes use PascalCase. `max-size` is not even legal.'},
+{t:'vars',d:1,q:'By convention, how should a normal variable be named?',oc:1,o:['studentCount','StudentCount','STUDENT_COUNT','student_Count_'],e:'Variables use lowerCamelCase: the first word lowercase, each following word capitalized.'},
+{t:'vars',d:2,q:'What happens with this code inside `main`?',c:J`
+int x;
+System.out.println(x);
+`,o:['Compilation error: variable x might not have been initialized','It prints 0','It prints null','It prints a random value'],v:'ce',e:'Local variables have no default value. Java refuses to compile code that reads a local variable before it has been assigned.'},
+{t:'vars',d:2,tf:1,a:true,q:'The statement `int a = 1, b = 2, c;` is legal: it declares three int variables and initializes two of them.',c:J`
+int a = 1, b = 2, c;
+c = a + b;
+System.out.println(c);
+`,vx:'3',e:'Several variables of the same type can be declared in one statement, separated by commas.'},
+{t:'vars',d:2,q:'What is printed?',c:J`
+int a = 5;
+int b = a;
+a = 10;
+System.out.println(b);
+`,o:['5','10','15','0'],v:'out',e:'`b = a` copies the value 5 into b. Changing a afterwards does not affect b.'},
+{t:'vars',d:2,q:'Which of these words is a reserved keyword and therefore cannot be used as a variable name?',oc:1,o:['int','main','String','value'],e:'`int` is a keyword. `main` and `String` are not keywords (they are a method name and a class name), so technically they are allowed as names, although that is bad style.'},
+{t:'vars',d:3,q:'This code tries to swap a and b. What is printed?',c:J`
+int a = 3, b = 7;
+a = b;
+b = a;
+System.out.println(a + " " + b);
+`,o:['7 7','7 3','3 7','3 3'],v:'out',e:'After `a = b`, the old value 3 is lost. Then `b = a` copies 7 back. A correct swap needs a temporary variable: `int t = a; a = b; b = t;`.'},
+{t:'vars',d:2,q:'What happens with this code?',c:J`
+for (int i = 0; i < 3; i++) {
+    System.out.print(i);
+}
+System.out.println(i);
+`,o:['Compilation error: cannot find symbol i','It prints 0123','It prints 0122','It prints 012 and then 0'],v:'ce',e:'A variable declared in the for header only exists inside the loop (its scope). After the loop, `i` is unknown.'},
+{t:'vars',d:2,tf:1,a:true,q:'A local `final` variable may be declared first and assigned later, as long as it is assigned exactly once.',c:J`
+final int X;
+X = 5;
+System.out.println(X);
+`,vx:'5',e:'Assigning it a second time would be a compile error.'},
+{t:'vars',d:3,q:'What happens with this code?',c:J`
+int x = 10;
+{
+    int x = 20;
+    System.out.println(x);
+}
+`,o:['Compilation error: variable x is already defined','It prints 20','It prints 10','It prints 30'],v:'ce',e:'Java does not allow a local variable to be declared again in an inner block while the outer one is still in scope.'},
+{t:'vars',d:1,q:'Which statement declares a variable AND initializes it?',oc:1,o:['int age = 18;','int age;','age = 18;','int = 18 age;'],e:'`int age;` only declares, `age = 18;` only assigns, and the last one is not valid syntax.'},
+{t:'vars',d:2,q:'Which name is legal in Java?',oc:1,o:['_$value1','1value','value#1','my-value'],e:'Names may use letters, digits, `_` and `$`, and must not start with a digit. `#` and `-` are not allowed.'},
+{t:'vars',d:3,q:'What is printed?',c:J`
+final double PI = 3.14159;
+int r = 2;
+System.out.println(PI * r * r);
+`,o:['12.56636','12','12.0','Compilation error: a final variable cannot be used in a calculation'],v:'out',e:'final only means PI cannot be reassigned; it can be used in calculations freely. double × int gives a double.'},
+
+// ---------- 4. Operators ----------
+{t:'ops',d:1,q:'What is printed?',c:J`
+System.out.println(7 / 2);
+`,o:['3','3.5','4','3.0'],v:'out',e:'Both operands are int, so this is integer division: the decimal part is cut off (not rounded).'},
+{t:'ops',d:1,q:'What is printed?',c:J`
+System.out.println(7 % 3);
+`,o:['1','2','2.33','0'],v:'out',e:'% gives the remainder: 7 = 2 × 3 + 1.'},
+{t:'ops',d:1,q:'What is printed?',c:J`
+System.out.println(7.0 / 2);
+`,o:['3.5','3','3.0','4'],v:'out',e:'If at least one operand is a double, the division is done with decimals.'},
+{t:'ops',d:2,q:'What is printed?',c:J`
+int i = 5;
+int j = i++;
+System.out.println(i + " " + j);
+`,o:['6 5','6 6','5 6','5 5'],v:'out',e:'Post-increment `i++` gives the OLD value (5) and then increases i to 6.'},
+{t:'ops',d:2,q:'What is printed?',c:J`
+int i = 5;
+int j = ++i;
+System.out.println(i + " " + j);
+`,o:['6 6','6 5','5 6','5 5'],v:'out',e:'Pre-increment `++i` increases i first and then gives the NEW value.'},
+{t:'ops',d:2,q:'What is printed?',c:J`
+int x = 10;
+x += 5;
+x *= 2;
+System.out.println(x);
+`,o:['30','25','20','15'],v:'out',e:'`x += 5` makes x 15, then `x *= 2` makes it 30.'},
+{t:'ops',d:1,q:'What is printed?',c:J`
+System.out.println(2 + 3 * 4);
+`,o:['14','20','24','9'],v:'out',e:'Multiplication has higher precedence than addition: 2 + 12.'},
+{t:'ops',d:2,q:'What is printed?',c:J`
+System.out.println((2 + 3) * 4 % 7);
+`,o:['6','20','2','5'],v:'out',e:'Parentheses first: 5. Then * and % have the same precedence and go left to right: 5 * 4 = 20, 20 % 7 = 6.'},
+{t:'ops',d:3,q:'What is printed?',c:J`
+System.out.println(-7 % 3);
+`,o:['-1','2','1','-2'],v:'out',e:'In Java the result of % takes the sign of the LEFT operand: −7 = (−2) × 3 + (−1).'},
+{t:'ops',d:1,q:'What is the difference between `=` and `==`?',o:['`=` assigns a value; `==` compares two values','`=` compares; `==` assigns','They are interchangeable','`==` is only used for Strings'],e:'`x = 5` stores 5 in x. `x == 5` is a boolean expression that is true when x equals 5.'},
+{t:'ops',d:2,q:'What is printed?',c:J`
+int a = 5, b = 10;
+System.out.println(a > 3 && b < 5);
+`,o:['false','true','5','Compilation error'],v:'out',e:'`a > 3` is true but `b < 5` is false; && needs both sides to be true.'},
+{t:'ops',d:3,q:'What is printed?',c:J`
+System.out.println(true || false && false);
+`,o:['true','false','Compilation error','null'],v:'out',e:'&& has higher precedence than ||, so this is `true || (false && false)` = `true || false` = true.'},
+{t:'ops',d:2,q:'What is printed?',c:J`
+int x = 0;
+boolean r = (x != 0) && (10 / x > 1);
+System.out.println(r);
+`,o:['false','true','ArithmeticException: / by zero','Compilation error'],v:'out',e:'&& short-circuits: the left side is false, so the right side (which would divide by zero) is never evaluated.'},
+{t:'ops',d:1,tf:1,a:false,q:'The expression `!(5 > 3)` evaluates to true.',c:J`
+System.out.println(!(5 > 3));
+`,vx:'false',e:'5 > 3 is true, and `!` negates it, giving false.'},
+{t:'ops',d:3,q:'What is printed?',c:J`
+int x = 5;
+x = x++ + ++x;
+System.out.println(x);
+`,o:['12','11','13','10'],v:'out',e:'Left to right: `x++` gives 5 (x becomes 6), then `++x` makes x 7 and gives 7. 5 + 7 = 12 is stored in x.'},
+{t:'ops',d:2,q:'What is printed?',c:J`
+int x = 17;
+System.out.println(x / 5 + x % 5);
+`,o:['5','3','2','5.4'],v:'out',e:'17 / 5 = 3 (integer division) and 17 % 5 = 2, so 3 + 2 = 5.'},
+{t:'ops',d:3,q:'What is printed?',c:J`
+double avg = (3 + 4) / 2;
+System.out.println(avg);
+`,o:['3.0','3.5','3','4.0'],v:'out',e:'The division happens between two ints first (7 / 2 = 3); only then is 3 converted to 3.0 for the double variable.'},
+{t:'ops',d:2,tf:1,a:true,q:'The `%` operator also works with double values: this prints 1.5.',c:J`
+System.out.println(5.5 % 2);
+`,vx:'1.5',e:'5.5 = 2 × 2 + 1.5. Java allows % on floating-point numbers too.'},
+{t:'ops',d:3,q:'What is printed?',c:J`
+int x = 10;
+x -= 3 - 1;
+System.out.println(x);
+`,o:['8','6','9','12'],v:'out',e:'The right side is evaluated first: 3 − 1 = 2, then x = 10 − 2 = 8.'},
+{t:'ops',d:1,q:'Which operator gives the remainder of a division?',o:['`%`','`/`','`//`','`mod`'],e:'`%` is the remainder (modulo) operator. `//` starts a comment in Java!'},
+{t:'ops',d:2,q:'Which expression checks whether the int `n` is even?',oc:1,o:['n % 2 == 0','n / 2 == 0','n % 2 == 1','n % 2 = 0'],e:'A number is even when the remainder after dividing by 2 is 0. (`= 0` would be an assignment, a compile error here.)'},
+
+// ---------- 5. Type casting & conversion ----------
+{t:'cast',d:1,q:'Which conversion happens automatically (implicit widening), without a cast?',o:['int → double','double → int','long → int','double → float'],e:'Widening (smaller type → bigger type) is automatic because no information is lost. Narrowing (e.g. double → int) requires an explicit cast.'},
+{t:'cast',d:1,q:'What is printed?',c:J`
+double d = 9.99;
+int n = (int) d;
+System.out.println(n);
+`,o:['9','10','9.99','Compilation error'],v:'out',e:'Casting a double to int truncates: the decimal part is simply dropped, no rounding.'},
+{t:'cast',d:2,q:'What is printed?',c:J`
+System.out.println((int) -3.7);
+`,o:['-3','-4','-3.7','3'],v:'out',e:'Truncation goes toward zero, so −3.7 becomes −3 (not −4).'},
+{t:'cast',d:2,q:'What is printed?',c:J`
+int a = 7, b = 2;
+double r = (double) a / b;
+System.out.println(r);
+`,o:['3.5','3.0','3','4.0'],v:'out',e:'The cast applies to `a` first (7.0), so the division is 7.0 / 2 = 3.5.'},
+{t:'cast',d:2,q:'What is printed?',c:J`
+int a = 7, b = 2;
+double r = (double) (a / b);
+System.out.println(r);
+`,o:['3.0','3.5','3','4.0'],v:'out',e:'The parentheses make `a / b` happen first as integer division (3); casting 3 to double gives 3.0. The cast comes too late!'},
+{t:'cast',d:2,q:'What is printed?',c:J`
+System.out.println((char) 66);
+`,o:['B','66','A','b'],v:'out',e:"Casting an int to char gives the character with that code: 65 is 'A', 66 is 'B'."},
+{t:'cast',d:2,q:'What is printed?',c:J`
+System.out.println((int) 'a');
+`,o:['97','65','1','a'],v:'out',e:"Lowercase 'a' has code 97 (uppercase 'A' is 65)."},
+{t:'cast',d:1,q:'What happens with this code?',c:J`
+int x = 3.5;
+System.out.println(x);
+`,o:['Compilation error: possible lossy conversion from double to int','It prints 3','It prints 4','It prints 3.5'],v:'ce',e:'Java never narrows automatically. You must write `(int) 3.5` to show you accept losing the decimal part.'},
+{t:'cast',d:2,q:'How do you convert the String `"42"` into an int?',oc:1,o:['Integer.parseInt("42")','(int) "42"','"42".toInt()','Int.parse("42")'],e:'A String cannot be cast to int. `Integer.parseInt` reads the text and returns the number. (Similarly, `Double.parseDouble` for doubles.)'},
+{t:'cast',d:2,q:'Given `int n = 42;`, which line correctly makes a String from it?',oc:1,o:['String s = String.valueOf(n);','String s = (String) n;','String s = n;','String s = n.toString();'],e:'`String.valueOf(n)` (or the shortcut `"" + n`) works. A primitive int has no methods, so `n.toString()` does not compile, and an int cannot be cast to String.'},
+{t:'cast',d:3,q:'What is printed?',c:J`
+int big = 130;
+byte b = (byte) big;
+System.out.println(b);
+`,o:['-126','130','127','Compilation error'],v:'out',e:'byte only goes up to 127. The cast keeps the low 8 bits, so 130 wraps around to 130 − 256 = −126.'},
+{t:'cast',d:3,q:'What is printed?',c:J`
+System.out.println(Math.round(2.5) + " " + (int) 2.5);
+`,o:['3 2','2 2','3 3','2.5 2'],v:'out',e:'`Math.round` rounds to the nearest whole number (a half rounds up), while the `(int)` cast just truncates.'},
+{t:'cast',d:1,tf:1,a:false,q:'Casting a double to an int rounds to the nearest whole number, so `(int) 7.9` is 8.',c:J`
+System.out.println((int) 7.9);
+`,vx:'7',e:'Casting truncates: `(int) 7.9` is 7. Use `Math.round` if you want rounding.'},
+{t:'cast',d:2,q:'What is printed?',c:J`
+double d = 10 / 4;
+System.out.println(d);
+`,o:['2.0','2.5','2','3.0'],v:'out',e:'10 / 4 is integer division (2). Then 2 is widened to 2.0 when stored in the double.'},
+{t:'cast',d:1,q:'What is printed?',c:J`
+int x = 5;
+double y = x;
+System.out.println(y);
+`,o:['5.0','5','Compilation error','5.00'],v:'out',e:'int → double is an automatic widening conversion. A double always prints with a decimal point.'},
+{t:'cast',d:3,q:'What is printed?',c:J`
+char c = 'a';
+c = (char) (c + 2);
+System.out.println(c);
+`,o:['c','99','a2','Compilation error'],v:'out',e:"c + 2 is the int 99; casting it back to char gives 'c'. Without the cast, `c = c + 2;` would not compile."},
+{t:'cast',d:3,q:'What is printed?',c:J`
+String s = "5";
+int n = Integer.parseInt(s) + 2;
+System.out.println(n + s);
+`,o:['75','12','7','57'],v:'out',e:'n is the number 7. Then `7 + "5"` is int + String, which is concatenation: "75".'},
+{t:'cast',d:1,q:'What is printed?',c:J`
+System.out.println(1 / 2.0);
+`,o:['0.5','0','0.0','1'],v:'out',e:'2.0 is a double, so 1 is promoted and the division is done with decimals.'},
+{t:'cast',d:3,q:'What happens when this runs?',c:J`
+int n = Integer.parseInt("3.5");
+System.out.println(n);
+`,o:['A NumberFormatException is thrown at runtime','It prints 3','It prints 4','Compilation error'],v:'rt',e:'It compiles (the argument is a String), but "3.5" is not a valid int, so parseInt throws NumberFormatException when the program runs.'},
+
+// ---------- 6. Scanner ----------
+{t:'scanner',d:1,q:'Which import statement is needed to use Scanner?',oc:1,o:['import java.util.Scanner;','import java.io.Scanner;','import Scanner;','include java.util.Scanner;'],e:'Scanner lives in the java.util package. (`import java.util.*;` also works.)'},
+{t:'scanner',d:1,q:'Which line creates a Scanner that reads from the keyboard?',oc:1,o:['Scanner sc = new Scanner(System.in);','Scanner sc = new Scanner(System.out);','Scanner sc = Scanner(System.in);','Scanner sc = new Scanner();'],e:'`System.in` is the standard input stream (the keyboard). You need `new` to create the object.'},
+{t:'scanner',d:1,q:'Which method reads an int?',oc:1,o:['sc.nextInt()','sc.readInt()','sc.getInt()','sc.nextInteger()'],e:'Scanner methods are named next + Type: nextInt, nextDouble, nextLong, nextBoolean... plus next() and nextLine() for Strings.'},
+{t:'scanner',d:1,q:'Which method reads a double?',oc:1,o:['sc.nextDouble()','sc.nextFloat64()','sc.readDouble()','sc.next(double)'],e:'nextDouble() reads the next token and converts it to a double.'},
+{t:'scanner',d:2,q:'What is the difference between `next()` and `nextLine()`?',o:['`next()` reads one word (up to whitespace); `nextLine()` reads the rest of the current line','`next()` reads a whole line; `nextLine()` reads one word','`nextLine()` skips the current line and reads the following one','There is no difference'],e:'`next()` returns one token. `nextLine()` returns everything up to the end of the line (spaces included) and consumes the line break.'},
+{t:'scanner',d:2,q:'The user types `Hello World` and presses Enter. What is printed?',c:J`
+Scanner sc = new Scanner(System.in);
+String s = sc.next();
+System.out.println(s);
+`,in:'Hello World\n',o:['Hello','Hello World','World','Nothing; it waits for more input'],v:'out',e:'next() stops at the first whitespace, so it returns only "Hello".'},
+{t:'scanner',d:3,q:'The user types `25`, presses Enter, then types `Alice` and presses Enter. What is printed?',c:J`
+Scanner sc = new Scanner(System.in);
+int age = sc.nextInt();
+String name = sc.nextLine();
+System.out.println("[" + name + "]");
+`,in:'25\nAlice\n',o:['[]','[Alice]','[25]','[ Alice]'],v:'out',e:'Classic trap! nextInt() reads 25 but leaves the Enter (line break) in the input. nextLine() then reads the rest of that line, which is empty. Fix: call an extra `sc.nextLine();` right after nextInt().'},
+{t:'scanner',d:2,q:'The program calls `sc.nextInt()` and the user types `abc`. What happens?',c:J`
+Scanner sc = new Scanner(System.in);
+int n = sc.nextInt();
+System.out.println(n);
+`,in:'abc\n',o:['An InputMismatchException is thrown','n becomes 0','n becomes -1','It prints abc'],v:'rt',e:'"abc" is not an int, so nextInt() throws java.util.InputMismatchException and the program crashes (unless you check first with hasNextInt()).'},
+{t:'scanner',d:2,tf:1,a:true,q:'The String returned by `nextLine()` does NOT contain the line-break character at the end.',e:'nextLine() consumes the line break but does not include it in the returned String.'},
+{t:'scanner',d:2,q:'Which method reads a boolean value such as `true`?',oc:1,o:['sc.nextBoolean()','sc.nextBool()','sc.readBoolean()','sc.next(boolean)'],e:'nextBoolean() accepts "true" or "false" (case-insensitive).'},
+{t:'scanner',d:2,q:'Scanner has no `nextChar()` method. How do you read a single character?',oc:1,o:['char c = sc.next().charAt(0);','char c = sc.nextChar();','char c = sc.readChar();','char c = (char) sc.nextLine();'],e:'Read a word with next() and take its first character with charAt(0).'},
+{t:'scanner',d:2,q:'The user types `3 4` and presses Enter. What is printed?',c:J`
+Scanner sc = new Scanner(System.in);
+int a = sc.nextInt();
+int b = sc.nextInt();
+System.out.println(a + b);
+`,in:'3 4\n',o:['7','34','3 4','An exception is thrown'],v:'out',e:'nextInt() splits the input on whitespace, so both numbers may be on the same line. a + b is int addition.'},
+{t:'scanner',d:1,tf:1,a:false,q:'Scanner is in the `java.lang` package, so it can be used without an import.',e:'Only java.lang classes (String, Math, System, Integer...) are imported automatically. Scanner needs `import java.util.Scanner;`.'},
+{t:'scanner',d:1,q:'In `new Scanner(System.in)`, what is `System.in`?',o:['The standard input stream, usually the keyboard','The screen','A file called "in"','The command-line arguments'],e:'System.in is standard input; System.out is standard output (the console).'},
+{t:'scanner',d:3,q:'The user types `10 20 30` and presses Enter. What is printed?',c:J`
+Scanner sc = new Scanner(System.in);
+int sum = 0;
+for (int i = 0; i < 3; i++) {
+    sum += sc.nextInt();
+}
+System.out.println(sum);
+`,in:'10 20 30\n',o:['60','102030','10','30'],v:'out',e:'Each call to nextInt() reads the next number from the same line: 10 + 20 + 30.'},
+{t:'scanner',d:1,q:'What is good practice when you have completely finished reading input?',oc:1,o:['sc.close();','sc.end();','sc = 0;','delete sc;'],e:'close() releases the input stream. (Do not close a System.in Scanner if you still need input later.)'},
+{t:'scanner',d:3,q:'The user types `Ana Maria` and presses Enter. What is printed?',c:J`
+Scanner sc = new Scanner(System.in);
+String full = sc.nextLine();
+System.out.println(full.length());
+`,in:'Ana Maria\n',o:['9','8','3','10'],v:'out',e:'nextLine() keeps the space and drops the line break, so "Ana Maria" has 3 + 1 + 5 = 9 characters.'},
+{t:'scanner',d:2,q:'Which method reads a `long` value?',oc:1,o:['sc.nextLong()','sc.nextInt64()','sc.readLong()','sc.nextBig()'],e:'Following the pattern next + Type.'},
+{t:'scanner',d:3,q:'The user types `Hi there` and presses Enter. What is printed?',c:J`
+Scanner sc = new Scanner(System.in);
+String w = sc.next();
+String rest = sc.nextLine();
+System.out.println("[" + w + "][" + rest + "]");
+`,in:'Hi there\n',o:['[Hi][ there]','[Hi][there]','[Hi there][]','[Hi][]'],v:'out',e:'next() takes "Hi" and stops before the space. nextLine() returns everything left on the line, including the leading space.'},
+
+// ---------- 7. Conditionals ----------
+{t:'cond',d:1,q:'What is printed?',c:J`
+int x = 7;
+if (x > 5) {
+    System.out.println("big");
+} else {
+    System.out.println("small");
+}
+`,o:['big','small','big\nsmall','Nothing'],v:'out',e:'7 > 5 is true, so only the if block runs.'},
+{t:'cond',d:2,q:'What is printed?',c:J`
+int s = 85;
+if (s >= 90) System.out.println("A");
+else if (s >= 80) System.out.println("B");
+else if (s >= 70) System.out.println("C");
+else System.out.println("F");
+`,o:['B','B\nC','A','C'],v:'out',e:'In an if / else-if chain only the FIRST true branch runs. 85 >= 90 is false, 85 >= 80 is true → B, and the rest is skipped.'},
+{t:'cond',d:2,q:'What is printed?',c:J`
+int s = 85;
+if (s >= 70) System.out.println("C");
+if (s >= 80) System.out.println("B");
+`,o:['C\nB','B','C','B\nC'],v:'out',e:'These are two separate if statements (no else), so both are checked, and both are true.'},
+{t:'cond',d:2,q:'What is printed?',c:J`
+int d = 2;
+switch (d) {
+    case 1: System.out.println("one");
+    case 2: System.out.println("two");
+    case 3: System.out.println("three");
+        break;
+    default: System.out.println("other");
+}
+`,o:['two\nthree','two','two\nthree\nother','one\ntwo\nthree'],v:'out',e:'Without break, execution "falls through" into the next case. It starts at case 2, continues into case 3 and stops at the break.'},
+{t:'cond',d:1,q:'What does the `default` label in a switch do?',o:['It runs when no case matches','It runs before every case','It runs after every case','It marks the first case'],e:'default is the "otherwise" branch of a switch. It is optional.'},
+{t:'cond',d:3,q:'What is printed?',c:J`
+int x = 3;
+if (x > 5)
+    if (x > 10)
+        System.out.println("A");
+    else
+        System.out.println("B");
+System.out.println("C");
+`,o:['C','B\nC','A\nC','B'],v:'out',e:'An else always belongs to the nearest unmatched if (the inner one), whatever the indentation says. The outer condition x > 5 is false, so the whole inner if/else is skipped.'},
+{t:'cond',d:2,q:'What happens with this code?',c:J`
+int x = 5;
+if (x = 5) {
+    System.out.println("five");
+}
+`,o:['Compilation error: int cannot be converted to boolean','It prints five','Nothing is printed','It prints five twice'],v:'ce',e:'`x = 5` is an assignment whose value is an int. An if condition must be a boolean: use `x == 5`.'},
+{t:'cond',d:3,q:'What is printed?',c:J`
+int x = 1;
+if (x > 5); {
+    System.out.println("Yes");
+}
+System.out.println("End");
+`,o:['Yes\nEnd','End','Compilation error','Yes'],v:'out',e:'The semicolon right after `if (...)` is an empty statement that forms the whole if body. The block that follows is just a normal block that always runs.'},
+{t:'cond',d:1,tf:1,a:false,q:'In Java, `if (1) { ... }` compiles, just like in C.',c:J`
+if (1) {
+    System.out.println("hi");
+}
+`,v:'ce',e:'Java requires a boolean expression in conditions. An int is never accepted.'},
+{t:'cond',d:2,q:'Which type CANNOT be used as the expression of a classic switch statement?',oc:1,o:['double','int','char','String'],e:'switch works with byte, short, char, int (and their wrapper classes), String and enums, but not with double, float, long or boolean.'},
+{t:'cond',d:2,q:'What is printed?',c:J`
+String s = "hi";
+switch (s) {
+    case "hi":
+        System.out.println("Hello");
+        break;
+    case "bye":
+        System.out.println("Goodbye");
+        break;
+    default:
+        System.out.println("?");
+}
+`,o:['Hello','Hello\nGoodbye','?','Compilation error: switch cannot use a String'],v:'out',e:'Since Java 7, switch works with Strings (compared with equals).'},
+{t:'cond',d:2,q:'What is printed?',c:J`
+int a = 4;
+String r = (a % 2 == 0) ? "even" : "odd";
+System.out.println(r);
+`,o:['even','odd','true','Compilation error'],v:'out',e:'The conditional (ternary) operator `cond ? x : y` gives x when cond is true. 4 % 2 == 0 is true.'},
+{t:'cond',d:2,q:'What is printed?',c:J`
+int a = 10, b = 20;
+if (a > 5) {
+    if (b < 15) {
+        System.out.println("X");
+    } else {
+        System.out.println("Y");
+    }
+} else {
+    System.out.println("Z");
+}
+`,o:['Y','X','Z','X\nY'],v:'out',e:'a > 5 is true, so we enter the outer block. b < 15 is false, so the inner else runs.'},
+{t:'cond',d:3,q:'What is printed?',c:J`
+int x = 0;
+if (x > 0 || x++ == 0) {
+    System.out.println("in " + x);
+} else {
+    System.out.println("out " + x);
+}
+`,o:['in 1','in 0','out 1','out 0'],v:'out',e:'x > 0 is false, so || evaluates the right side: x++ == 0 compares the old value 0 (true) and then x becomes 1.'},
+{t:'cond',d:1,q:'Which keyword stops a switch from falling through into the next case?',o:['`break`','`stop`','`exit`','`continue`'],e:'break jumps out of the switch.'},
+{t:'cond',d:2,q:'What is printed?',c:J`
+int m = 4;
+switch (m) {
+    case 12: case 1: case 2:
+        System.out.println("Winter");
+        break;
+    case 3: case 4: case 5:
+        System.out.println("Spring");
+        break;
+    default:
+        System.out.println("Other");
+}
+`,o:['Spring','Winter','Other','Spring\nOther'],v:'out',e:'Several case labels can share one block. 4 matches `case 4`, prints Spring, then break.'},
+{t:'cond',d:2,tf:1,a:false,q:'In a switch statement, `default` must always be the last label.',e:'default may appear anywhere (putting it last is just the usual style). It runs only when no case matches.'},
+{t:'cond',d:1,q:'What is printed?',c:J`
+int x = 15;
+if (x > 10 && x < 20) {
+    System.out.println("A");
+} else if (x > 12) {
+    System.out.println("B");
+} else {
+    System.out.println("C");
+}
+`,o:['A','B','A\nB','C'],v:'out',e:'The first condition is true, so A is printed and the else-if is never checked.'},
+{t:'cond',d:3,q:'Which condition is true exactly when `age` is between 13 and 19 (inclusive)?',oc:1,o:['age >= 13 && age <= 19','13 <= age <= 19','age >= 13 || age <= 19','age > 13 && age < 19'],e:'Java does not allow chained comparisons like `13 <= age <= 19` (compile error). With || the condition would be true for every age, and `>`/`<` would exclude 13 and 19.'},
+
+// ---------- 8. Loops ----------
+{t:'loops',d:1,q:'What is printed?',c:J`
+for (int i = 0; i < 5; i++) {
+    System.out.print(i);
+}
+`,o:['01234','012345','12345','1234'],v:'out',e:'i starts at 0 and the loop runs while i < 5, so 5 is never printed.'},
+{t:'loops',d:1,q:'How many times does the body of `for (int i = 1; i <= 10; i++)` run?',o:['10','9','11','It never stops'],e:'i takes the values 1, 2, ..., 10.'},
+{t:'loops',d:2,q:'How many times does the body of `for (int i = 0; i <= 10; i += 2)` run?',o:['6','5','10','11'],e:'i = 0, 2, 4, 6, 8, 10 → 6 times.'},
+{t:'loops',d:2,q:'What is printed?',c:J`
+int i = 10;
+while (i < 5) {
+    System.out.print(i);
+    i++;
+}
+System.out.print("done");
+`,o:['done','10done','10','Nothing, it is an infinite loop'],v:'out',e:'A while loop checks its condition BEFORE the first iteration. 10 < 5 is false, so the body never runs.'},
+{t:'loops',d:2,q:'What is printed?',c:J`
+int i = 10;
+do {
+    System.out.print(i);
+    i++;
+} while (i < 5);
+`,o:['10','Nothing','1011121314','Nothing, it is an infinite loop'],v:'out',e:'A do-while checks the condition AFTER the body, so the body always runs at least once.'},
+{t:'loops',d:2,q:'What is printed?',c:J`
+for (int i = 1; i <= 10; i++) {
+    if (i == 4) break;
+    System.out.print(i);
+}
+`,o:['123','1234','12345678910','123567810'],v:'out',e:'break leaves the loop immediately when i is 4, before 4 is printed.'},
+{t:'loops',d:2,q:'What is printed?',c:J`
+for (int i = 1; i <= 5; i++) {
+    if (i % 2 == 0) continue;
+    System.out.print(i);
+}
+`,o:['135','24','1','12345'],v:'out',e:'continue skips the rest of the current iteration, so even numbers are not printed, but the loop keeps going.'},
+{t:'loops',d:2,q:'What is printed?',c:J`
+for (int i = 1; i <= 3; i++) {
+    for (int j = 1; j <= i; j++) {
+        System.out.print("*");
+    }
+    System.out.println();
+}
+`,o:['*\n**\n***','***\n***\n***','***\n**\n*','******'],v:'out',e:'The inner loop runs i times, so row i has i stars.'},
+{t:'loops',d:2,q:'What is printed?',c:J`
+int count = 0;
+for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 3; j++) {
+        count++;
+    }
+}
+System.out.println(count);
+`,o:['12','7','16','9'],v:'out',e:'The inner body runs 3 times for each of the 4 outer iterations: 4 × 3 = 12.'},
+{t:'loops',d:1,tf:1,a:true,q:'The body of a do-while loop always runs at least once.',e:'Because the condition is checked at the end.'},
+{t:'loops',d:3,q:'What is printed?',c:J`
+int sum = 0;
+int i;
+for (i = 1; i <= 5; i++);
+sum += i;
+System.out.println(sum);
+`,o:['6','15','5','0'],v:'out',e:'The `;` right after the for header is an empty loop body. The loop just counts i up to 6; afterwards `sum += i` runs once.'},
+{t:'loops',d:2,q:'What is printed?',c:J`
+int n = 5, f = 1;
+while (n > 0) {
+    f *= n;
+    n--;
+}
+System.out.println(f);
+`,o:['120','24','15','0'],v:'out',e:'This computes 5 × 4 × 3 × 2 × 1 = 120 (5 factorial).'},
+{t:'loops',d:3,q:'What is printed?',c:J`
+int x = 0;
+while (x < 10) {
+    x += 3;
+}
+System.out.println(x);
+`,o:['12','9','10','3'],v:'out',e:'x goes 0 → 3 → 6 → 9 → 12. At 9 the condition is still true, so 3 is added once more.'},
+{t:'loops',d:1,q:'Which loop is usually the best choice when you know in advance how many times to repeat?',o:['for','while','do-while','switch'],e:'A for loop keeps the counter initialization, condition and update together. while is better when you repeat until something happens.'},
+{t:'loops',d:3,q:'What is printed?',c:J`
+for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+        if (j == 1) break;
+        System.out.println(i + "" + j);
+    }
+}
+`,o:['00\n10\n20','00\n01\n02','00','00\n10\n11\n20'],v:'out',e:'break only exits the INNER loop. For each i, only j = 0 is printed.'},
+{t:'loops',d:2,q:'Which of these never ends (an infinite loop)?',oc:1,o:['while (true) { }','for (int i = 0; i < 10; i++) { }','int i = 0; while (i < 3) i++;','do { } while (1 > 2);'],e:'while (true) has no way to stop unless there is a break (or return) inside.'},
+{t:'loops',d:3,q:'What is printed?',c:J`
+int i = 0;
+while (i++ < 3) {
+    System.out.print(i);
+}
+`,o:['123','012','0123','1234'],v:'out',e:'`i++ < 3` compares the OLD value, then increments. 0 < 3 (i=1, print 1), 1 < 3 (print 2), 2 < 3 (print 3), 3 < 3 is false.'},
+{t:'loops',d:1,tf:1,a:false,q:'`continue` immediately ends the whole loop.',e:'That is `break`. continue only skips to the next iteration.'},
+{t:'loops',d:3,q:'What is printed?',c:J`
+int total = 0;
+for (int i = 10; i > 0; i -= 3) {
+    total += i;
+}
+System.out.println(total);
+`,o:['22','18','21','55'],v:'out',e:'i takes 10, 7, 4, 1 (then −2 ends the loop). 10 + 7 + 4 + 1 = 22.'},
+
+// ---------- 9. String methods ----------
+{t:'strings',d:1,q:'What is printed?',c:J`
+String s = "Java";
+System.out.println(s.length());
+`,o:['4','3','5','Compilation error'],v:'out',e:'length() returns the number of characters.'},
+{t:'strings',d:1,q:'What is printed?',c:J`
+String s = "Hello";
+System.out.println(s.charAt(1));
+`,o:['e','H','l','Compilation error'],v:'out',e:'Indexes start at 0: H=0, e=1, l=2, l=3, o=4.'},
+{t:'strings',d:2,q:'What is printed?',c:J`
+String s = "Programming";
+System.out.println(s.substring(3, 7));
+`,o:['gram','gramm','ogra','ramm'],v:'out',e:'substring(begin, end) includes index begin but EXCLUDES index end: indexes 3, 4, 5, 6 → "gram".'},
+{t:'strings',d:2,q:'What is printed?',c:J`
+System.out.println("Hello".substring(2));
+`,o:['llo','ello','He','lo'],v:'out',e:'With one argument, substring returns everything from that index to the end.'},
+{t:'strings',d:2,q:'What is printed?',c:J`
+System.out.println("banana".indexOf('n'));
+`,o:['2','3','1','4'],v:'out',e:'indexOf returns the index of the FIRST occurrence: b=0, a=1, n=2.'},
+{t:'strings',d:1,q:'What is printed?',c:J`
+System.out.println("banana".indexOf("x"));
+`,o:['-1','0','6','An exception is thrown'],v:'out',e:'When the text is not found, indexOf returns −1.'},
+{t:'strings',d:1,q:'What is printed?',c:J`
+System.out.println("java".toUpperCase());
+`,o:['JAVA','Java','java','jAVA'],v:'out',e:'toUpperCase() returns a new String with all letters in upper case.'},
+{t:'strings',d:2,q:'How should you check whether two Strings `a` and `b` contain the same text?',oc:1,o:['a.equals(b)','a == b','a = b','a.compare(b)'],e:'== compares references (are they the very same object?), not content. Always use equals() for String content.'},
+{t:'strings',d:3,q:'What is printed?',c:J`
+String a = "hi";
+String b = new String("hi");
+System.out.println((a == b) + " " + a.equals(b));
+`,o:['false true','true true','true false','false false'],v:'out',e:'`new String` always creates a new object, so == is false. equals compares the characters, which are the same.'},
+{t:'strings',d:2,q:'What is printed?',c:J`
+String s = "abc";
+s.toUpperCase();
+System.out.println(s);
+`,o:['abc','ABC','Abc','Compilation error'],v:'out',e:'Strings are immutable. toUpperCase() returns a NEW String, which is thrown away here. You would need `s = s.toUpperCase();`.'},
+{t:'strings',d:2,q:'What happens when this runs?',c:J`
+String s = "cat";
+System.out.println(s.charAt(3));
+`,o:['A StringIndexOutOfBoundsException is thrown','It prints t','It prints a space','Compilation error'],v:'rt',e:'Valid indexes are 0 to length() − 1 (here 0..2). Index 3 is out of range. This is a runtime error, not a compile error.'},
+{t:'strings',d:3,q:'What is printed?',c:J`
+System.out.println(1 + 2 + "3" + 4 + 5);
+`,o:['3345','12345','15','339'],v:'out',e:'Left to right: 1 + 2 = 3 (numbers), 3 + "3" = "33" (now a String), then "33" + 4 = "334", and + 5 = "3345".'},
+{t:'strings',d:3,q:'What is printed?',c:J`
+System.out.println('a' + 'b');
+`,o:['195','ab','"ab"','Compilation error'],v:'out',e:"Two chars added with + are promoted to int: 97 + 98 = 195. To join them as text, start with a String: `\"\" + 'a' + 'b'`."},
+{t:'strings',d:1,tf:1,a:false,q:'The first character of a String is at index 1.',e:'Indexes start at 0. The last character is at length() − 1.'},
+{t:'strings',d:3,q:'What is printed?',c:J`
+String s = "Hello World";
+System.out.println(s.indexOf("o", 5));
+`,o:['7','4','5','-1'],v:'out',e:'indexOf(str, from) starts searching at index 5 (the space). The next "o" is in "World", at index 7.'},
+{t:'strings',d:2,q:'What is printed?',c:J`
+String w = "level";
+System.out.println(w.charAt(0) == w.charAt(w.length() - 1));
+`,o:['true','false','l','Compilation error'],v:'out',e:"Comparing two chars with == is fine (chars are primitives). Both are 'l'."},
+{t:'strings',d:2,q:'What does `"Java".equalsIgnoreCase("JAVA")` return?',o:['true','false','0','"JAVA"'],e:'equalsIgnoreCase compares the text but treats upper and lower case as equal.'},
+{t:'strings',d:3,q:'What is printed?',c:J`
+String s = "";
+for (int i = 0; i < 3; i++) {
+    s = i + s;
+}
+System.out.println(s);
+`,o:['210','012','3','0'],v:'out',e:'Each number is added to the FRONT: "0" → "10" → "210".'},
+{t:'strings',d:1,q:'Which expression gives the number of characters in the String `s`?',oc:1,o:['s.length()','s.length','s.size()','length(s)'],e:'For Strings it is a method: length() with parentheses. (Arrays use the field `length` without parentheses.)'},
+
+// ---------- 10. Methods ----------
+{t:'methods',d:1,q:'What does the return type `void` mean?',o:['The method does not return a value','The method returns 0','The method returns an empty String','The method cannot have parameters'],e:'A void method performs an action (like printing) but gives no value back to the caller.'},
+{t:'methods',d:1,q:'What is printed?',c:J`
+static int square(int x) {
+    return x * x;
+}
+
+public static void main(String[] args) {
+    System.out.println(square(5));
+}
+`,o:['25','10','5','Nothing'],v:'out',e:'square(5) returns 5 × 5, and println prints the returned value.'},
+{t:'methods',d:2,q:'What is printed?',c:J`
+static void change(int x) {
+    x = 100;
+}
+
+public static void main(String[] args) {
+    int a = 5;
+    change(a);
+    System.out.println(a);
+}
+`,o:['5','100','105','0'],v:'out',e:'Java passes primitives by value: the method receives a COPY of a. Changing the copy does not change the caller\'s variable.'},
+{t:'methods',d:1,q:'Which header declares a method that takes two ints and returns their sum as an int?',oc:1,o:['static int add(int a, int b)','static void add(int a, int b)','static int add(int a, b)','static add(int a, int b)'],e:'The return type comes before the name, and EACH parameter needs its own type.'},
+{t:'methods',d:2,q:'What happens with this code?',c:J`
+static int sign(int x) {
+    if (x > 0) {
+        return 1;
+    }
+}
+
+public static void main(String[] args) {
+    System.out.println(sign(5));
+}
+`,o:['Compilation error: missing return statement','It prints 1','It prints 0','It prints nothing'],v:'ce',e:'If x <= 0 the method would end without returning anything. Every possible path through a non-void method must return a value.'},
+{t:'methods',d:1,tf:1,a:true,q:'A method may contain more than one `return` statement.',e:'For example one inside an if and another at the end. The first return that executes ends the method.'},
+{t:'methods',d:2,q:'For `static int add(int a, int b)` called as `add(3, 4)`, what are `a`, `b` and `3`, `4`?',o:['a and b are parameters; 3 and 4 are arguments','a and b are arguments; 3 and 4 are parameters','All four are parameters','All four are return values'],e:'Parameters are the variables in the method definition. Arguments are the actual values passed in the call.'},
+{t:'methods',d:3,q:'What is printed?',c:J`
+static int f(int x) {
+    return x + 1;
+}
+
+static double f(double x) {
+    return x * 2;
+}
+
+public static void main(String[] args) {
+    System.out.println(f(3) + " " + f(3.0));
+}
+`,o:['4 6.0','4 4.0','6.0 6.0','Compilation error: f is already defined'],v:'out',e:'This is overloading: same name, different parameter types. f(3) calls the int version, f(3.0) the double version.'},
+{t:'methods',d:2,q:'What is printed?',c:J`
+static String greet(String n) {
+    return "Hi " + n;
+}
+
+public static void main(String[] args) {
+    String r = greet("Ana");
+    System.out.println(r.length());
+}
+`,o:['6','3','5','7'],v:'out',e:'greet returns "Hi Ana", which has 6 characters (including the space).'},
+{t:'methods',d:1,tf:1,a:false,q:'If `printHello()` is a `void` method, you can write `int x = printHello();`.',e:'A void method returns nothing, so there is no value to store. This is a compile error.'},
+{t:'methods',d:3,q:'What is printed?',c:J`
+static int twice(int n) {
+    System.out.print(n + " ");
+    return 2 * n;
+}
+
+public static void main(String[] args) {
+    System.out.println(twice(twice(3)));
+}
+`,o:['3 6 12','12','6 12','3 6 12 24'],v:'out',e:'The inner call runs first: it prints "3 " and returns 6. The outer call prints "6 " and returns 12, which println prints.'},
+{t:'methods',d:2,q:'What is printed?',c:J`
+static boolean isEven(int n) {
+    return n % 2 == 0;
+}
+
+public static void main(String[] args) {
+    System.out.println(isEven(7) || isEven(10));
+}
+`,o:['true','false','7','Compilation error'],v:'out',e:'isEven(7) is false and isEven(10) is true; false || true is true.'},
+{t:'methods',d:3,q:'What happens with this code?',c:J`
+public class Main {
+    int f() {
+        return 1;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(f());
+    }
+}
+`,o:['Compilation error: non-static method f() cannot be referenced from a static context','It prints 1','It prints 0','It throws an exception at runtime'],v:'ce',e:'main is static, so it can only call other static methods directly (or it must create an object first). Adding `static` to f fixes it.'},
+{t:'methods',d:2,q:'What does `return;` (with no value) do inside a void method?',o:['It ends the method immediately','It returns 0','It restarts the method','It is a compile error'],e:'In a void method, `return;` simply exits early.'},
+{t:'methods',d:2,q:'What is printed?',c:J`
+static int max(int a, int b) {
+    return a > b ? a : b;
+}
+
+public static void main(String[] args) {
+    System.out.println(max(max(3, 9), 5));
+}
+`,o:['9','5','3','17'],v:'out',e:'max(3, 9) is 9, then max(9, 5) is 9.'},
+{t:'methods',d:2,q:'What makes up a method\'s signature in Java (used to tell overloaded methods apart)?',o:['Its name and parameter types','Its return type only','Its name and return type','The names of its parameters'],e:'Two methods with the same name and parameter types but different return types are NOT allowed.'},
+{t:'methods',d:3,q:'What is printed?',c:J`
+static int sumTo(int n) {
+    int s = 0;
+    for (int i = 1; i <= n; i++) {
+        s += i;
+    }
+    return s;
+}
+
+public static void main(String[] args) {
+    System.out.println(sumTo(4) * 2);
+}
+`,o:['20','10','8','16'],v:'out',e:'sumTo(4) = 1 + 2 + 3 + 4 = 10, and 10 × 2 = 20.'},
+{t:'methods',d:2,q:'Given `static void show(int a, double b)`, which call compiles?',oc:1,o:['show(3, 2);','show(2.5, 3);','show(3);','show("3", 2.0);'],e:'Arguments must match the parameters in number and order. 2 (an int) can widen to double, but 2.5 cannot become an int automatically.'}
+];
+
+
+/* "What's the output?" questions. out = exact expected output (checked by compiling and running every snippet). */
+const OUTPUT = [
+{t:'struct',d:1,c:J`
+System.out.print("Hello");
+System.out.print(" ");
+System.out.println("World");
+System.out.println("!");
+`,out:'Hello World\n!',e:'print does not end the line, println does. So "Hello", " " and "World" share the first line.'},
+{t:'struct',d:2,c:J`
+System.out.print("Result: ");
+System.out.println(10 + 5);
+/* System.out.println("hidden"); */
+System.out.println("end");
+`,out:'Result: 15\nend',e:'`10 + 5` is computed as a number (15) because it is a separate argument, not joined to a String. The block comment is ignored.'},
+{t:'struct',d:1,c:J`
+System.out.println("Line 1");
+System.out.print("Line 2 ");
+System.out.print("still line 2");
+System.out.println();
+System.out.println("Line 3");
+`,out:'Line 1\nLine 2 still line 2\nLine 3',e:'The two print calls stay on the same line until println() ends it.'},
+{t:'ops',d:1,c:J`
+System.out.println(17 / 5);
+System.out.println(17 % 5);
+System.out.println(17.0 / 5);
+`,out:'3\n2\n3.4',e:'Integer division drops the decimals (3), % gives the remainder (2), and with a double the result keeps decimals (3.4).'},
+{t:'ops',d:2,c:J`
+int a = 5;
+System.out.println(a++);
+System.out.println(a);
+System.out.println(++a);
+`,out:'5\n6\n7',e:'a++ prints the old value (5) then increments; ++a increments first (6 → 7) and prints the new value.'},
+{t:'ops',d:3,c:J`
+int i = 3;
+int j = i++ + i++;
+System.out.println(i + " " + j);
+`,out:'5 7',e:'First i++ gives 3 (i becomes 4), second i++ gives 4 (i becomes 5). j = 3 + 4 = 7.'},
+{t:'ops',d:3,c:J`
+int x = 10;
+int y = x-- - --x;
+System.out.println(x + " " + y);
+`,out:'8 2',e:'x-- gives 10 (x becomes 9), then --x makes x 8 and gives 8. y = 10 − 8 = 2.'},
+{t:'strings',d:2,c:J`
+System.out.println("Sum: " + 3 + 4);
+System.out.println("Sum: " + (3 + 4));
+System.out.println(3 + 4 + " is the sum");
+`,out:'Sum: 34\nSum: 7\n7 is the sum',e:'+ works left to right. Once a String is involved, + means concatenation. Parentheses or numbers that come first are added as numbers.'},
+{t:'types',d:2,c:J`
+int a = 7;
+int b = 2;
+double c = a / b;
+System.out.println(c);
+System.out.println(a / (double) b);
+`,out:'3.0\n3.5',e:'a / b is integer division (3), then widened to 3.0. Casting b to double makes the division use decimals.'},
+{t:'loops',d:1,c:J`
+for (int i = 1; i < 5; i++) {
+    System.out.print(i + " ");
+}
+`,out:'1 2 3 4',e:'Off-by-one check: `i < 5` stops before 5. (Trailing spaces are ignored when your answer is checked.)'},
+{t:'loops',d:2,c:J`
+for (int i = 5; i >= 1; i -= 2) {
+    System.out.print(i);
+}
+`,out:'531',e:'i takes 5, 3, 1 and then −1 fails the condition.'},
+{t:'loops',d:3,c:J`
+int i = 0;
+do {
+    i += 2;
+} while (i < 7);
+System.out.println(i);
+`,out:'8',e:'i goes 2, 4, 6, 8. After reaching 6 the condition 6 < 7 is still true, so the body runs once more.'},
+{t:'loops',d:2,c:J`
+for (int i = 1; i <= 3; i++) {
+    for (int j = 1; j <= 3; j++) {
+        System.out.print(i * j + " ");
+    }
+    System.out.println();
+}
+`,out:'1 2 3\n2 4 6\n3 6 9',e:'A small multiplication table. `i * j + " "` multiplies first (numbers), then appends a space.'},
+{t:'loops',d:3,c:J`
+for (int i = 0; i < 10; i++) {
+    if (i % 3 == 0) continue;
+    if (i > 7) break;
+    System.out.print(i);
+}
+`,out:'12457',e:'Multiples of 3 (0, 3, 6, 9) are skipped by continue. At i = 8 the loop breaks.'},
+{t:'cond',d:2,c:J`
+int k = 1;
+switch (k) {
+    case 0: System.out.print("zero ");
+    case 1: System.out.print("one ");
+    case 2: System.out.print("two ");
+    default: System.out.print("many");
+}
+`,out:'one two many',e:'There is no break anywhere, so after matching case 1 execution falls through all the following labels, including default.'},
+{t:'strings',d:2,c:J`
+String s = "Computer";
+System.out.println(s.substring(0, 3) + s.charAt(s.length() - 1) + s.indexOf("put"));
+`,out:'Comr3',e:'substring(0, 3) = "Com", the last char is \'r\', and "put" starts at index 3. All joined as a String.'},
+{t:'strings',d:3,c:J`
+String s = "hello";
+String r = "";
+for (int i = s.length() - 1; i >= 0; i--) {
+    r += s.charAt(i);
+}
+System.out.println(r);
+`,out:'olleh',e:'The loop walks from the last index (4) down to 0, building the reversed String.'},
+{t:'cast',d:2,c:J`
+double d = 7.89;
+int n = (int) d;
+System.out.println(n + " " + d);
+`,out:'7 7.89',e:'The cast truncates to 7 but does not change d itself.'},
+{t:'cast',d:3,c:J`
+System.out.println((int) 'A' + 1);
+System.out.println((char) ('A' + 1));
+System.out.println('A' + "1");
+`,out:'66\nB\nA1',e:"(int) 'A' is 65, plus 1 is 66. Casting 66 to char gives B. A char + a String is concatenation."},
+{t:'methods',d:2,c:J`
+static int f(int n) {
+    return n * 2 + 1;
+}
+
+public static void main(String[] args) {
+    System.out.println(f(f(2)));
+}
+`,out:'11',e:'f(2) = 5, then f(5) = 11.'},
+{t:'methods',d:3,c:J`
+static void inc(int x) {
+    x++;
+    System.out.print(x + " ");
+}
+
+public static void main(String[] args) {
+    int a = 1;
+    inc(a);
+    inc(a);
+    System.out.println(a);
+}
+`,out:'2 2 1',e:'Each call gets a copy of a (1) and increments the copy to 2. The original a stays 1.'},
+{t:'vars',d:2,c:J`
+int a = 1, b = 2;
+int t = a;
+a = b;
+b = t;
+System.out.println(a + "," + b);
+`,out:'2,1',e:'A correct swap using a temporary variable.'},
+{t:'scanner',d:2,in:'4 5\n',c:J`
+Scanner sc = new Scanner(System.in);
+int a = sc.nextInt();
+int b = sc.nextInt();
+System.out.println(a * b);
+System.out.println(a + b + "!");
+`,out:'20\n9!',e:'a + b is computed first (9) because both are ints, then "!" is appended.'},
+{t:'scanner',d:3,in:'7\nBob Smith\n',c:J`
+Scanner sc = new Scanner(System.in);
+int n = sc.nextInt();
+sc.nextLine();
+String name = sc.nextLine();
+System.out.println(name + " " + n);
+`,out:'Bob Smith 7',e:'The extra sc.nextLine() consumes the leftover line break after 7, so the next nextLine() reads "Bob Smith".'},
+{t:'scanner',d:2,in:'3.5\n2\n',c:J`
+Scanner sc = new Scanner(System.in);
+double price = sc.nextDouble();
+int qty = sc.nextInt();
+System.out.println(price * qty);
+`,out:'7.0',e:'double × int gives a double, which always prints with a decimal point.'},
+{t:'cond',d:3,c:J`
+int x = 4;
+if (x > 2)
+    if (x > 6)
+        System.out.println("A");
+    else
+        System.out.println("B");
+else
+    System.out.println("C");
+`,out:'B',e:'The first else belongs to the inner if (x > 6); the second else belongs to the outer if. x > 2 is true and x > 6 is false → B.'},
+{t:'ops',d:2,c:J`
+System.out.println(10 - 2 - 3);
+System.out.println(2 * 3 % 4);
+System.out.println(1 + 2 * 3 - 4 / 2);
+`,out:'5\n2\n5',e:'Same-precedence operators go left to right: (10 − 2) − 3 = 5 and (2 × 3) % 4 = 2. Then 1 + 6 − 2 = 5.'},
+{t:'ops',d:3,c:J`
+int a = 3, b = 4;
+System.out.println(a < b == b > a);
+System.out.println(!(a == 3) || b != 4);
+`,out:'true\nfalse',e:'Relational operators (<, >) bind tighter than ==, so it is true == true. Then !true || false is false.'},
+{t:'types',d:3,c:J`
+long big = Integer.MAX_VALUE;
+big++;
+System.out.println(big);
+int small = Integer.MAX_VALUE;
+small++;
+System.out.println(small);
+`,out:'2147483648\n-2147483648',e:'A long has room for 2147483648. The int overflows and wraps around to the minimum value.'},
+{t:'loops',d:3,c:J`
+int n = 1234, sum = 0;
+while (n > 0) {
+    sum += n % 10;
+    n /= 10;
+}
+System.out.println(sum);
+`,out:'10',e:'n % 10 takes the last digit and n /= 10 removes it: 4 + 3 + 2 + 1 = 10.'},
+{t:'loops',d:3,c:J`
+for (int i = 0; i < 3; i++) {
+    for (int j = i; j < 3; j++) {
+        System.out.print(j);
+    }
+    System.out.println();
+}
+`,out:'012\n12\n2',e:'The inner loop starts at j = i, so each row starts one number later.'},
+{t:'strings',d:2,c:J`
+String a = "Java";
+String b = "java";
+System.out.println(a.equals(b));
+System.out.println(a.equalsIgnoreCase(b));
+System.out.println(a.toLowerCase().equals(b));
+`,out:'false\ntrue\ntrue',e:'equals is case-sensitive; equalsIgnoreCase is not; "Java".toLowerCase() is "java".'},
+{t:'strings',d:3,c:J`
+String s = "a-b-c";
+int count = 0;
+for (int i = 0; i < s.length(); i++) {
+    if (s.charAt(i) == '-') count++;
+}
+System.out.println(count + s.length());
+`,out:'7',e:'There are 2 dashes and the length is 5. Both are ints, so + adds them: 7.'},
+{t:'methods',d:3,c:J`
+static int calc(int a, int b) {
+    if (a > b) return a - b;
+    return b - a;
+}
+
+public static void main(String[] args) {
+    System.out.println(calc(3, 8) + calc(8, 3));
+}
+`,out:'10',e:'calc returns the distance between the numbers: 5 + 5.'},
+{t:'cast',d:3,c:J`
+int a = 5, b = 2;
+System.out.println(a / b * 2.0);
+System.out.println(a * 2.0 / b);
+`,out:'4.0\n5.0',e:'Left to right: 5 / 2 = 2 (int!), then 2 × 2.0 = 4.0. In the second line 5 × 2.0 = 10.0 first, then 10.0 / 2 = 5.0.'},
+{t:'vars',d:2,c:J`
+final int SIZE = 3;
+int total = 0;
+for (int i = 0; i < SIZE; i++) {
+    total += SIZE;
+}
+System.out.println(total);
+`,out:'9',e:'The loop runs 3 times and adds 3 each time.'},
+{t:'cond',d:2,c:J`
+int t = 25;
+String w;
+if (t > 30) w = "hot";
+else if (t > 20) w = "warm";
+else w = "cold";
+System.out.println("It is " + w);
+`,out:'It is warm',e:'25 > 30 is false, 25 > 20 is true.'},
+{t:'loops',d:2,c:J`
+int i = 1;
+while (i < 100) {
+    i *= 3;
+}
+System.out.println(i);
+`,out:'243',e:'1 → 3 → 9 → 27 → 81 → 243. At 81 the condition is still true.'},
+{t:'ops',d:2,c:J`
+int x = 7;
+x %= 4;
+x += 10;
+x /= 3;
+System.out.println(x);
+`,out:'4',e:'7 % 4 = 3, 3 + 10 = 13, 13 / 3 = 4 (integer division).'},
+{t:'strings',d:3,c:J`
+String s = "Mississippi";
+System.out.println(s.indexOf("ss") + " " + s.indexOf("ss", 3) + " " + s.indexOf('z'));
+`,out:'2 5 -1',e:'"ss" first appears at index 2. Searching from index 3, the next "ss" starts at 5. \'z\' is not found → −1.'},
+{t:'methods',d:2,c:J`
+static void line(int n) {
+    for (int i = 0; i < n; i++) {
+        System.out.print("-");
+    }
+    System.out.println();
+}
+
+public static void main(String[] args) {
+    line(3);
+    line(1);
+}
+`,out:'---\n-',e:'Each call prints n dashes and then ends the line.'},
+{t:'cond',d:2,c:J`
+char g = 'B';
+switch (g) {
+    case 'A':
+        System.out.println("Excellent");
+        break;
+    case 'B':
+    case 'C':
+        System.out.println("Good");
+        break;
+    default:
+        System.out.println("Try again");
+}
+`,out:'Good',e:"'B' matches the case 'B' label, which shares its block with 'C'."},
+{t:'types',d:2,c:J`
+System.out.println(5 / 2 + 5 % 2 + 5.0 / 2);
+`,out:'5.5',e:'5 / 2 = 2, 5 % 2 = 1, 5.0 / 2 = 2.5. 2 + 1 + 2.5 = 5.5.'},
+{t:'loops',d:3,c:J`
+int count = 0;
+for (int i = 10; i >= 0; i--) {
+    count++;
+}
+System.out.println(count);
+`,out:'11',e:'Off-by-one: 10 down to 0 inclusive is 11 values.'},
+{t:'strings',d:1,c:J`
+String name = "Ada";
+System.out.println("Hello, " + name + "!");
+System.out.println(name.length() + name);
+`,out:'Hello, Ada!\n3Ada',e:'name.length() is the int 3, then + name concatenates.'},
+{t:'scanner',d:3,in:'5\n2\n',c:J`
+Scanner sc = new Scanner(System.in);
+int a = sc.nextInt();
+int b = sc.nextInt();
+System.out.println(a / b);
+System.out.println((double) a / b);
+System.out.println(a % b);
+`,out:'2\n2.5\n1',e:'Values read with nextInt are ordinary ints: integer division, casting and % work as usual.'},
+{t:'vars',d:3,c:J`
+int x = 2;
+int y = x * 3;
+x = y - x;
+y = x + y;
+System.out.println(x + " " + y);
+`,out:'4 10',e:'Statements run in order: y = 6, then x = 6 − 2 = 4, then y = 4 + 6 = 10.'}
+];
+
+/* Find-the-bug questions.
+   line = the buggy line (1-based), ok = other lines also accepted.
+   o[0] = the correct replacement for that line; the others are tempting wrong fixes.
+   out = what the fixed program prints. The build check confirms that the buggy code is wrong,
+   that o[0] gives exactly out, and that every wrong option fails or prints something else. */
+const BUGS = [
+{t:'struct',d:1,kind:'compile',line:1,c:J`
+System.out.println("Hello")
+System.out.println("World");
+`,o:['System.out.println("Hello");','System.out.println(Hello);',"System.out.println('Hello');",'System.out.printline("Hello");'],out:'Hello\nWorld',e:'Every statement must end with a semicolon. Error: \';\' expected.'},
+{t:'struct',d:2,kind:'compile',line:1,c:J`
+system.out.println("Start");
+System.out.println("End");
+`,o:['System.out.println("Start");','System.Out.println("Start");','System.out.Println("Start");','system.Out.println("Start");'],out:'Start\nEnd',e:'Java is case-sensitive: it is System (capital S), out (lowercase) and println (lowercase).'},
+{t:'types',d:1,kind:'compile',line:3,c:J`
+int count = 5;
+String msg = "Count: " + count;
+boolean done = "false";
+System.out.println(msg + " " + done);
+`,o:['boolean done = false;',"boolean done = 'false';",'boolean done = False;','Boolean done = "false";'],out:'Count: 5 false',e:'"false" in double quotes is a String. A boolean takes the literal false (lowercase, no quotes).'},
+{t:'types',d:2,kind:'compile',line:1,c:J`
+float price = 2.5;
+int qty = 4;
+System.out.println(price * qty);
+`,o:['float price = 2.5f;','float price = (int) 2.5;','float price = "2.5";','int price = 2.5;'],out:'10.0',e:'2.5 is a double literal and double → float is narrowing. Add the f suffix. (Casting to int compiles but changes the value to 2.)'},
+{t:'types',d:3,kind:'logic',line:2,c:J`
+int seconds = 3000000;
+int millis = seconds * 1000;
+System.out.println(millis);
+`,o:['long millis = seconds * 1000L;','long millis = seconds * 1000;','int millis = seconds * 1000L;','long millis = (long) (seconds * 1000);'],out:'3000000000',e:'3,000,000,000 does not fit in an int, so int × int overflows. Making 1000 a long (1000L) makes the multiplication happen in long. Storing an already-overflowed int result in a long does not help.'},
+{t:'vars',d:1,kind:'compile',line:3,c:J`
+final int MAX_TRIES = 3;
+int tries = 0;
+MAX_TRIES++;
+System.out.println(tries + "/" + MAX_TRIES);
+`,o:['tries++;','MAX_TRIES = MAX_TRIES + 1;','final tries++;','tries = MAX_TRIES;'],out:'1/3',e:'MAX_TRIES is final, so it cannot be changed. The program meant to count one try: tries++.'},
+{t:'vars',d:2,kind:'compile',line:1,c:J`
+int sum;
+for (int i = 1; i <= 3; i++) {
+    sum += i;
+}
+System.out.println(sum);
+`,o:['int sum = 0;','int sum = 1;','sum = 0;','int sum = null;'],out:'6',e:'Local variables must be initialized before they are read; `sum += i` reads sum. A primitive cannot be null.'},
+{t:'ops',d:2,kind:'logic',line:2,c:J`
+int a = 7, b = 8;
+double avg = (a + b) / 2;
+System.out.println(avg);
+`,o:['double avg = (a + b) / 2.0;','double avg = a + b / 2.0;','double avg = (double) ((a + b) / 2);','int avg = (a + b) / 2;'],out:'7.5',e:'(a + b) / 2 is integer division (7). Dividing by 2.0 forces decimal division. Without the parentheses only b would be divided.'},
+{t:'ops',d:1,kind:'logic',line:2,c:J`
+int n = 10;
+if (n % 2 == 1) {
+    System.out.println(n + " is even");
+} else {
+    System.out.println(n + " is odd");
+}
+`,o:['if (n % 2 == 0) {','if (n / 2 == 0) {','if (n % 2 = 0) {','if (n % 2 != 0) {'],out:'10 is even',e:'The messages say "even" when the remainder is 1, which is backwards. Even means n % 2 == 0.'},
+{t:'ops',d:2,kind:'compile',line:2,c:J`
+int x = 5;
+if (x = 5) {
+    System.out.println("five");
+}
+`,o:['if (x == 5) {','if (x === 5) {','if (x.equals(5)) {','if (5 = x) {'],out:'five',e:'= assigns, == compares. Java has no === operator, and a primitive int has no equals method.'},
+{t:'ops',d:3,kind:'compile',line:1,c:J`
+char grade = "A";
+System.out.println("Grade: " + grade);
+`,o:["char grade = 'A';",'char grade = A;',"char grade = 'Grade A';","String grade = 'A';"],out:'Grade: A',e:'char literals use single quotes and contain exactly one character. "A" in double quotes is a String.'},
+{t:'ops',d:2,kind:'logic',line:3,c:J`
+int correct = 17;
+int total = 20;
+int percent = correct / total * 100;
+System.out.println(percent + "%");
+`,o:['int percent = correct * 100 / total;','int percent = (correct / total) * 100;','double percent = correct / total * 100;','int percent = correct / (total * 100);'],out:'85%',e:'17 / 20 is 0 in integer division, and 0 × 100 is still 0. Multiply first: 1700 / 20 = 85.'},
+{t:'cast',d:2,kind:'compile',line:2,c:J`
+double total = 17.8;
+int rounded = total;
+System.out.println(rounded);
+`,o:['int rounded = (int) total;','int rounded = int(total);','int rounded = (double) total;','int rounded = Math.round(total);'],out:'17',e:'double → int needs an explicit cast, which truncates to 17. `int(total)` is not Java syntax, and Math.round(double) returns a long, which also needs a cast.'},
+{t:'cast',d:2,kind:'compile',line:2,c:J`
+String input = "25";
+int age = input;
+System.out.println(age + 1);
+`,o:['int age = Integer.parseInt(input);','int age = (int) input;','int age = input.length();','int age = Integer.parseInt(25);'],out:'26',e:'A String cannot be assigned or cast to int. Integer.parseInt converts the text "25" into the number 25 (it needs a String argument).'},
+{t:'scanner',d:1,kind:'compile',line:2,in:'21\n',c:J`
+Scanner sc = new Scanner(System.in);
+int n = sc.nextInteger();
+System.out.println(n * 2);
+`,o:['int n = sc.nextInt();','int n = sc.next();','int n = sc.readInt();','int n = Scanner.nextInt();'],out:'42',e:'The method is nextInt(). next() returns a String, and nextInt must be called on the Scanner object (sc), not on the class.'},
+{t:'scanner',d:2,kind:'compile',line:1,in:'Sam\n',c:J`
+import java.util.Scaner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        String name = in.nextLine();
+        System.out.println("Hi, " + name);
+    }
+}
+`,o:['import java.util.Scanner;','import java.io.Scanner;','import java.util.Scaner.*;','import Scanner;'],out:'Hi, Sam',e:'The class is spelled Scanner and it lives in java.util.'},
+{t:'scanner',d:3,kind:'logic',line:3,ok:[2],in:'20\nLea\n',c:J`
+Scanner sc = new Scanner(System.in);
+int age = sc.nextInt();
+String name = sc.nextLine();
+System.out.println(name + " is " + age);
+`,o:['sc.nextLine(); String name = sc.nextLine();','String name = sc.nextLine(); sc.nextLine();','String name = sc.nextLine().trim();','String name = sc.nextInt() + "";'],out:'Lea is 20',e:'nextInt() leaves the line break after 20 in the input, so nextLine() returns an empty String. Call sc.nextLine() once to throw away the rest of that line. (Changing line 2 to read the whole line and parse it also works, so line 2 is accepted too.)'},
+{t:'cond',d:2,kind:'logic',line:2,c:J`
+int temp = 35;
+if (temp < 30); {
+    System.out.println("Cold");
+}
+System.out.println("Done");
+`,o:['if (temp < 30) {','if (temp > 30); {','if temp < 30 {','if (temp < 30); else {'],out:'Done',e:'The semicolon after the condition is an empty if body, so the block below always runs. Remove it.'},
+{t:'cond',d:2,kind:'logic',line:4,c:J`
+int day = 6;
+switch (day) {
+    case 6:
+        System.out.println("Saturday");
+    case 7:
+        System.out.println("Sunday");
+        break;
+    default:
+        System.out.println("Weekday");
+}
+`,o:['System.out.println("Saturday"); break;','System.out.println("Saturday"); continue;','break; System.out.println("Saturday");','System.out.println("Saturday"); exit;'],out:'Saturday',e:'Without break, case 6 falls through into case 7 and also prints Sunday. continue is not allowed outside a loop, and code after break is unreachable.'},
+{t:'cond',d:2,kind:'logic',line:2,c:J`
+int age = 25;
+if (age >= 13 || age <= 19) {
+    System.out.println("Teenager");
+} else {
+    System.out.println("Not a teenager");
+}
+`,o:['if (age >= 13 && age <= 19) {','if (age > 13 || age < 19) {','if (13 <= age <= 19) {','if (age >= 13 || age >= 19) {'],out:'Not a teenager',e:'With || the condition is true for every age. Both conditions must hold, so use &&. Chained comparisons like 13 <= age <= 19 do not compile.'},
+{t:'strings',d:3,kind:'logic',line:3,c:J`
+String a = "yes";
+String b = new String("yes");
+if (a == b) {
+    System.out.println("Same");
+} else {
+    System.out.println("Different");
+}
+`,o:['if (a.equals(b)) {','if (a = b) {','if (a.equals(b) == false) {','if (a.length() == b) {'],out:'Same',e:'== compares whether two variables refer to the same object. Use equals() to compare the text.'},
+{t:'strings',d:1,kind:'compile',line:2,c:J`
+String s = "hello";
+System.out.println(s.length);
+`,o:['System.out.println(s.length());','System.out.println(s.size());','System.out.println(length(s));','System.out.println(s.length[]);'],out:'5',e:'For Strings, length is a method: s.length() with parentheses.'},
+{t:'strings',d:2,kind:'runtime',line:2,c:J`
+String word = "code";
+for (int i = 0; i <= word.length(); i++) {
+    System.out.print(word.charAt(i));
+}
+`,o:['for (int i = 0; i < word.length(); i++) {','for (int i = 1; i <= word.length(); i++) {','for (int i = 0; i <= word.length() - 2; i++) {','for (int i = 0; i < word.length; i++) {'],out:'code',e:'The last valid index is length() − 1. With <= the loop calls charAt(4) and throws StringIndexOutOfBoundsException.'},
+{t:'strings',d:2,kind:'logic',line:3,c:J`
+String email = "student@uni.edu";
+int at = email.indexOf("@");
+String user = email.substring(0, at + 1);
+System.out.println(user);
+`,o:['String user = email.substring(0, at);','String user = email.substring(1, at);','String user = email.substring(at);','String user = email.charAt(at);'],out:'student',e:'substring(begin, end) excludes end. substring(0, at) stops just before the @.'},
+{t:'loops',d:1,kind:'logic',line:1,c:J`
+for (int i = 1; i < 10; i++) {
+    System.out.print(i + " ");
+}
+`,o:['for (int i = 1; i <= 10; i++) {','for (int i = 0; i < 10; i++) {','for (int i = 1; i < 11; i += 2) {','for (int i = 2; i <= 10; i++) {'],out:'1 2 3 4 5 6 7 8 9 10',e:'The goal is to print 1 to 10. `i < 10` stops at 9: a classic off-by-one error.'},
+{t:'loops',d:2,kind:'logic',line:4,c:J`
+int i = 1;
+int sum = 0;
+while (i <= 5) {
+    sum += i;
+}
+System.out.println(sum);
+`,o:['sum += i; i++;','sum = i++;','sum += ++i;','sum++; i++;'],out:'15',e:'i never changes, so the loop never ends (infinite loop). Each iteration must add i and then move i forward.'},
+{t:'loops',d:2,kind:'logic',line:2,c:J`
+int n = 5;
+int fact = 0;
+for (int i = 1; i <= n; i++) {
+    fact *= i;
+}
+System.out.println(fact);
+`,o:['int fact = 1;','int fact = n;','double fact = 0;','int fact;'],out:'120',e:'Anything multiplied by 0 stays 0. A product must start at 1 (a sum starts at 0).'},
+{t:'loops',d:2,kind:'compile',line:1,c:J`
+for (int i = 0; i < 5; i++) {
+    System.out.print(i);
+}
+System.out.println(" last=" + i);
+`,o:['int i; for (i = 0; i < 5; i++) {','for (i = 0; i < 5; i++) {','for (int i = 0; i <= 5; i++) {','int i = 0; for (int i = 0; i < 5; i++) {'],out:'01234 last=5',e:'A variable declared in the for header does not exist after the loop. Declare it before the loop to use it afterwards.'},
+{t:'loops',d:3,kind:'logic',line:2,c:J`
+for (int i = 1; i <= 3; i++) {
+    for (int j = 1; j <= 3; j++) {
+        System.out.print("*");
+    }
+    System.out.println();
+}
+`,o:['for (int j = 1; j <= i; j++) {','for (int j = 1; j < i; j++) {','for (int i = 1; i <= i; i++) {','for (int j = i; j <= 3; j++) {'],out:'*\n**\n***',e:'To print a triangle, row i needs i stars, so the inner loop must depend on i.'},
+{t:'methods',d:2,kind:'compile',line:2,c:J`
+static int doubleIt(int x) {
+    int r = x * 2;
+}
+
+public static void main(String[] args) {
+    System.out.println(doubleIt(4));
+}
+`,o:['return x * 2;','System.out.println(x * 2);','int r = x * 2; return;','return "x * 2";'],out:'8',e:'A method with return type int must return an int value. Error: missing return statement.'},
+{t:'methods',d:2,kind:'compile',line:1,c:J`
+static void square(int n) {
+    return n * n;
+}
+
+public static void main(String[] args) {
+    int result = square(6);
+    System.out.println(result + 1);
+}
+`,o:['static int square(int n) {','static double square(int n) {','static square(int n) {','static void square(double n) {'],out:'37',e:'A void method cannot return a value. The return type must match what is returned and how it is used (stored in an int).'},
+{t:'methods',d:3,kind:'logic',line:2,c:J`
+static double average(int a, int b) {
+    return a + b / 2.0;
+}
+
+public static void main(String[] args) {
+    System.out.println(average(4, 6));
+}
+`,o:['return (a + b) / 2.0;','return a + (b / 2.0);','return (a + b) % 2.0;','return (a + b) / 2.0'],out:'5.0',e:'Division has higher precedence than addition, so only b was divided. Parentheses fix the order. (The last option is missing its semicolon.)'},
+{t:'methods',d:3,kind:'compile',line:6,c:J`
+static int area(int w, int h) {
+    return w * h;
+}
+
+public static void main(String[] args) {
+    int a = area(4);
+    System.out.println(a);
+}
+`,o:['int a = area(4, 5);','int a = area(4, "5");','int a = area(4.0, 5);','int a = area();'],out:'20',e:'The call must pass exactly as many arguments as there are parameters, with compatible types: two ints.'}
+];
+
+/* Write-the-code tasks. sol is the model solution, out its exact output (checked). */
+const TASKS = [
+{t:'loops',d:1,title:'Even numbers 1–20',task:'Print all even numbers from 1 to 20 on one line, separated by spaces.',hints:['Use a for loop. You can start at 2 and add 2 each time…','…or loop from 1 to 20 and print only numbers where `i % 2 == 0`.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        for (int i = 2; i <= 20; i += 2) {
+            System.out.print(i + " ");
+        }
+        System.out.println();
+    }
+}
+`,out:'2 4 6 8 10 12 14 16 18 20'},
+{t:'loops',d:2,title:'Is it prime?',task:'Given `int n = 29;`, print `29 is prime` if n is a prime number, otherwise `29 is not prime`. Your code should work for any n.',hints:['A prime has no divisors between 2 and n − 1 (numbers below 2 are not prime).','Use a boolean flag that starts true and becomes false when `n % i == 0`. You only need to test i while `i * i <= n`.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int n = 29;
+        boolean isPrime = n >= 2;
+        for (int i = 2; i * i <= n; i++) {
+            if (n % i == 0) {
+                isPrime = false;
+                break;
+            }
+        }
+        if (isPrime) {
+            System.out.println(n + " is prime");
+        } else {
+            System.out.println(n + " is not prime");
+        }
+    }
+}
+`,out:'29 is prime'},
+{t:'loops',d:2,title:'Sum of digits',task:'Given `int n = 4729;`, compute the sum of its digits and print `Sum of digits: 22`.',hints:['`n % 10` gives the last digit.','`n /= 10` removes the last digit. Repeat while n > 0.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int n = 4729;
+        int sum = 0;
+        while (n > 0) {
+            sum += n % 10;
+            n /= 10;
+        }
+        System.out.println("Sum of digits: " + sum);
+    }
+}
+`,out:'Sum of digits: 22'},
+{t:'loops',d:1,title:'Multiplication table',task:'Print the multiplication table of 7 from 1 to 10, one line each, in the format `7 x 1 = 7`.',hints:['Loop i from 1 to 10.','Build each line with String concatenation: `7 + " x " + i + " = " + (7 * i)`. Note the parentheses!'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int n = 7;
+        for (int i = 1; i <= 10; i++) {
+            System.out.println(n + " x " + i + " = " + (n * i));
+        }
+    }
+}
+`,out:'7 x 1 = 7\n7 x 2 = 14\n7 x 3 = 21\n7 x 4 = 28\n7 x 5 = 35\n7 x 6 = 42\n7 x 7 = 49\n7 x 8 = 56\n7 x 9 = 63\n7 x 10 = 70'},
+{t:'loops',d:2,title:'Factorial',task:'Compute 6! (6 factorial = 6 × 5 × 4 × 3 × 2 × 1) with a loop and print `6! = 720`. Use a `long` so larger values also work.',hints:['Start the result at 1, not 0.','Multiply by every i from 1 to n.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int n = 6;
+        long fact = 1;
+        for (int i = 1; i <= n; i++) {
+            fact *= i;
+        }
+        System.out.println(n + "! = " + fact);
+    }
+}
+`,out:'6! = 720'},
+{t:'cond',d:1,title:'Largest of three',task:'Given `int a = 12, b = 45, c = 27;`, print `Largest: 45` using if / else.',hints:['Assume the first one is the largest, then compare it with the others.','`int max = a; if (b > max) max = b; ...`'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int a = 12, b = 45, c = 27;
+        int max = a;
+        if (b > max) {
+            max = b;
+        }
+        if (c > max) {
+            max = c;
+        }
+        System.out.println("Largest: " + max);
+    }
+}
+`,out:'Largest: 45'},
+{t:'cond',d:2,title:'Grade calculator',task:'Given `int score = 78;`, print the letter grade: 90+ → A, 80–89 → B, 70–79 → C, 60–69 → D, below 60 → F. Output: `Grade: C`.',hints:['Use an if / else if chain, starting from the highest grade.','Because only the first true branch runs, you only need `score >= 80`, not `score >= 80 && score < 90`.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int score = 78;
+        char grade;
+        if (score >= 90) {
+            grade = 'A';
+        } else if (score >= 80) {
+            grade = 'B';
+        } else if (score >= 70) {
+            grade = 'C';
+        } else if (score >= 60) {
+            grade = 'D';
+        } else {
+            grade = 'F';
+        }
+        System.out.println("Grade: " + grade);
+    }
+}
+`,out:'Grade: C'},
+{t:'cond',d:2,title:'Day of the week',task:'Given `int day = 3;`, use a switch to print the day name (1 = Monday … 7 = Sunday). Any other number prints `Invalid day`. Output: `Wednesday`.',hints:['One case per day, each ending with break.','Use default for invalid numbers.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int day = 3;
+        String name;
+        switch (day) {
+            case 1: name = "Monday"; break;
+            case 2: name = "Tuesday"; break;
+            case 3: name = "Wednesday"; break;
+            case 4: name = "Thursday"; break;
+            case 5: name = "Friday"; break;
+            case 6: name = "Saturday"; break;
+            case 7: name = "Sunday"; break;
+            default: name = "Invalid day";
+        }
+        System.out.println(name);
+    }
+}
+`,out:'Wednesday'},
+{t:'methods',d:2,title:'Leap year method',task:'Write `static boolean isLeap(int year)`. A year is a leap year if it is divisible by 4 but not by 100, OR divisible by 400. Print the result for 2024, 1900 and 2000 as shown in the expected output.',hints:['Translate the rule directly: `(year % 4 == 0 && year % 100 != 0) || year % 400 == 0`.','Use the conditional operator to choose the text: `isLeap(y) ? "leap" : "not leap"`.'],sol:J`
+public class Main {
+    static boolean isLeap(int year) {
+        return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+    }
+
+    public static void main(String[] args) {
+        System.out.println("2024: " + (isLeap(2024) ? "leap" : "not leap"));
+        System.out.println("1900: " + (isLeap(1900) ? "leap" : "not leap"));
+        System.out.println("2000: " + (isLeap(2000) ? "leap" : "not leap"));
+    }
+}
+`,out:'2024: leap\n1900: not leap\n2000: leap'},
+{t:'loops',d:3,title:'Fibonacci',task:'Print the first 10 Fibonacci numbers on one line: each number is the sum of the two before it, starting with 0 and 1.',hints:['Keep two variables a = 0 and b = 1.','In each step print a, then compute `int next = a + b; a = b; b = next;`.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int a = 0, b = 1;
+        for (int i = 0; i < 10; i++) {
+            System.out.print(a + " ");
+            int next = a + b;
+            a = b;
+            b = next;
+        }
+        System.out.println();
+    }
+}
+`,out:'0 1 1 2 3 5 8 13 21 34'},
+{t:'loops',d:3,title:'Reverse a number',task:'Given `int n = 12345;`, build the reversed number 54321 as an int (not a String) and print `Reversed: 54321`.',hints:['Take the last digit with n % 10 and remove it with n /= 10.','Append a digit to the result with `rev = rev * 10 + digit`.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int n = 12345;
+        int rev = 0;
+        while (n > 0) {
+            int digit = n % 10;
+            rev = rev * 10 + digit;
+            n /= 10;
+        }
+        System.out.println("Reversed: " + rev);
+    }
+}
+`,out:'Reversed: 54321'},
+{t:'strings',d:2,title:'Count the vowels',task:'Count the vowels (a, e, i, o, u, upper or lower case) in `"Programming in Java"` and print `Vowels: 6`.',hints:['Loop over every index and get each character with charAt(i).','Convert to lower case first; a char c is a vowel if `"aeiou".indexOf(c) != -1`.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        String text = "Programming in Java";
+        String lower = text.toLowerCase();
+        int count = 0;
+        for (int i = 0; i < lower.length(); i++) {
+            char c = lower.charAt(i);
+            if ("aeiou".indexOf(c) != -1) {
+                count++;
+            }
+        }
+        System.out.println("Vowels: " + count);
+    }
+}
+`,out:'Vowels: 6'},
+{t:'strings',d:2,title:'Reverse a String',task:'Reverse the String `"Java"` with a loop and print `avaJ`.',hints:['Start an empty String result.','Loop from the last index (length() − 1) down to 0 and append charAt(i).'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        String s = "Java";
+        String reversed = "";
+        for (int i = s.length() - 1; i >= 0; i--) {
+            reversed += s.charAt(i);
+        }
+        System.out.println(reversed);
+    }
+}
+`,out:'avaJ'},
+{t:'strings',d:3,title:'Palindrome check',task:'Check whether `"racecar"` reads the same forwards and backwards. Print `racecar is a palindrome` or `racecar is not a palindrome`. Do it by comparing characters, without building a reversed String.',hints:['Compare charAt(i) with charAt(length() − 1 − i).','You only need to check the first half; stop as soon as one pair differs.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        String word = "racecar";
+        boolean palindrome = true;
+        int n = word.length();
+        for (int i = 0; i < n / 2; i++) {
+            if (word.charAt(i) != word.charAt(n - 1 - i)) {
+                palindrome = false;
+                break;
+            }
+        }
+        if (palindrome) {
+            System.out.println(word + " is a palindrome");
+        } else {
+            System.out.println(word + " is not a palindrome");
+        }
+    }
+}
+`,out:'racecar is a palindrome'},
+{t:'methods',d:2,title:'max method',task:'Write `static int max(int a, int b)` that returns the larger number. In main, print `Max: 13` by calling `max(8, 13)`.',hints:['The method needs a return type of int and must return a value on every path.','`if (a > b) return a; return b;` (or the conditional operator).'],sol:J`
+public class Main {
+    static int max(int a, int b) {
+        if (a > b) {
+            return a;
+        }
+        return b;
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Max: " + max(8, 13));
+    }
+}
+`,out:'Max: 13'},
+{t:'methods',d:1,title:'isEven method',task:'Write `static boolean isEven(int n)`. In main, print the results of `isEven(10)` and `isEven(7)` on separate lines.',hints:['Return the boolean expression directly: `return n % 2 == 0;`.'],sol:J`
+public class Main {
+    static boolean isEven(int n) {
+        return n % 2 == 0;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isEven(10));
+        System.out.println(isEven(7));
+    }
+}
+`,out:'true\nfalse'},
+{t:'methods',d:3,title:'Celsius to Fahrenheit',task:'Write `static double toFahrenheit(double c)` using F = C × 9 / 5 + 32. Print the result for 0, 37.5 and 100, each on its own line.',hints:['Return type and parameter are both double.','Be careful: `9 / 5` alone is integer division (1)! Write `c * 9 / 5` so c (a double) comes first, or use 9.0 / 5.'],sol:J`
+public class Main {
+    static double toFahrenheit(double c) {
+        return c * 9 / 5 + 32;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(toFahrenheit(0));
+        System.out.println(toFahrenheit(37.5));
+        System.out.println(toFahrenheit(100));
+    }
+}
+`,out:'32.0\n99.5\n212.0'},
+{t:'scanner',d:1,title:'Read and add',task:'Read two integers from the keyboard and print their sum as `Sum: 13`. Test input: `8 5`.',in:'8 5\n',hints:['You need `import java.util.Scanner;` and `Scanner sc = new Scanner(System.in);`.','Call sc.nextInt() twice.'],sol:J`
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int a = sc.nextInt();
+        int b = sc.nextInt();
+        System.out.println("Sum: " + (a + b));
+        sc.close();
+    }
+}
+`,out:'Sum: 13'},
+{t:'scanner',d:2,title:'Name and age',task:'Read a full name (a whole line) and then an age. Print `Hello Mia Lopez, next year you will be 20`. Test input: `Mia Lopez` on the first line, `19` on the second.',in:'Mia Lopez\n19\n',hints:['Use nextLine() for the name (it may contain spaces) and nextInt() for the age.','Reading the line first avoids the nextInt/nextLine trap. Put `(age + 1)` in parentheses!'],sol:J`
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String name = sc.nextLine();
+        int age = sc.nextInt();
+        System.out.println("Hello " + name + ", next year you will be " + (age + 1));
+        sc.close();
+    }
+}
+`,out:'Hello Mia Lopez, next year you will be 20'},
+{t:'ops',d:2,title:'Seconds to h/m/s',task:'Given `int total = 3725;` seconds, print it as `1 h 2 m 5 s` using / and %.',hints:['Hours: total / 3600. What is left: total % 3600.','Minutes: left / 60. Seconds: left % 60.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int total = 3725;
+        int hours = total / 3600;
+        int rest = total % 3600;
+        int minutes = rest / 60;
+        int seconds = rest % 60;
+        System.out.println(hours + " h " + minutes + " m " + seconds + " s");
+    }
+}
+`,out:'1 h 2 m 5 s'},
+{t:'loops',d:3,title:'Number triangle',task:'With nested loops, print this pattern for n = 4:\n1\n12\n123\n1234',hints:['The outer loop chooses the row i (1 to n).','The inner loop prints the numbers 1 to i, then println() ends the row.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int n = 4;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= i; j++) {
+                System.out.print(j);
+            }
+            System.out.println();
+        }
+    }
+}
+`,out:'1\n12\n123\n1234'},
+{t:'cast',d:2,title:'Sum and average',task:'Compute the sum of the integers 1 to 100 and their average. Print `Sum: 5050` and `Average: 50.5`.',hints:['Accumulate the sum in an int with a for loop.','For the average avoid integer division: `sum / 100.0` or `(double) sum / 100`.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        int sum = 0;
+        for (int i = 1; i <= 100; i++) {
+            sum += i;
+        }
+        double average = (double) sum / 100;
+        System.out.println("Sum: " + sum);
+        System.out.println("Average: " + average);
+    }
+}
+`,out:'Sum: 5050\nAverage: 50.5'},
+{t:'scanner',d:3,title:'Sum until zero',task:'Keep reading integers until the user enters 0. Then print the sum and how many numbers (not counting the 0) were entered: `Sum: 16, Count: 3`. Test input: `5 3 8 0`.',in:'5 3 8 0\n',hints:['A loop that runs until a special "sentinel" value: while (true) with break, or a do-while.','Read a number; if it is 0 stop; otherwise add it and count it.'],sol:J`
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int sum = 0;
+        int count = 0;
+        int x = sc.nextInt();
+        while (x != 0) {
+            sum += x;
+            count++;
+            x = sc.nextInt();
+        }
+        System.out.println("Sum: " + sum + ", Count: " + count);
+        sc.close();
+    }
+}
+`,out:'Sum: 16, Count: 3'},
+{t:'vars',d:1,title:'Circle area with a constant',task:'Declare a constant `PI` with value 3.14 and a radius `r = 2`. Print `Area: 12.56`.',hints:['Constants use the final keyword and UPPER_CASE names.','Area = PI × r × r.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        final double PI = 3.14;
+        int r = 2;
+        double area = PI * r * r;
+        System.out.println("Area: " + area);
+    }
+}
+`,out:'Area: 12.56'},
+{t:'struct',d:1,title:'Hello box',task:'Write a complete program (class + main) that prints this box exactly:\n*********\n* Hello *\n*********',hints:['Three println statements are enough.','Count the characters: 9 stars per border line.'],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("*********");
+        System.out.println("* Hello *");
+        System.out.println("*********");
+    }
+}
+`,out:'*********\n* Hello *\n*********'},
+{t:'types',d:2,title:'Character codes',task:'Given `char c = \'D\';`, print its numeric code, the next character, and the lowercase version (using arithmetic, not toLowerCase): `68 E d`.',hints:["Casting a char to int gives its code. 'a' − 'A' is 32.","`(char) (c + 1)` is the next character; `(char) (c + 32)` is lowercase for letters A–Z."],sol:J`
+public class Main {
+    public static void main(String[] args) {
+        char c = 'D';
+        int code = (int) c;
+        char next = (char) (c + 1);
+        char lower = (char) (c + ('a' - 'A'));
+        System.out.println(code + " " + next + " " + lower);
+    }
+}
+`,out:'68 E d'}
+];
+/*DATA-END*/
+
+
+/* Cheat sheets: each section has a heading (h), HTML text (p), optional code (c) and optional table rows (tbl). */
+const CHEATS = {
+struct: { intro: 'Every Java program is made of classes. Execution starts in the <code>main</code> method.', s: [
+  { h: 'The skeleton', p: 'The file must be called <code>Main.java</code> because the public class is called <code>Main</code>.', c: J`
+public class Main {                          // class name = file name
+    public static void main(String[] args) { // program starts here
+        System.out.println("Hello, World!"); // statement ends with ;
+    }
+}
+` },
+  { h: 'Compile and run', p: '<code>javac Main.java</code> compiles the source code into bytecode (<code>Main.class</code>). <code>java Main</code> runs it on the JVM. The same .class file runs on any operating system.' },
+  { h: 'print vs println', c: J`
+System.out.print("A");      // no line break after
+System.out.println("B");    // line break after  -> AB
+System.out.println();       // just an empty line
+System.out.println("x = " + 5);  // x = 5
+` },
+  { h: 'Escape sequences', tbl: [['Code', 'Meaning', 'Example output'], ['\\n', 'new line', 'Line1⏎Line2'], ['\\t', 'tab', 'a    b'], ['\\"', 'double quote', 'He said "hi"'], ['\\\\', 'backslash', 'C:\\temp']] },
+  { h: 'Comments', c: J`
+// single-line comment
+/* multi-line
+   comment */
+/** Javadoc comment (documentation) */
+` },
+  { h: 'Rules that cost points', p: '<ul><li>Java is <b>case-sensitive</b>: <code>System</code>, not <code>system</code>; <code>println</code>, not <code>Println</code>.</li><li>Every statement ends with <code>;</code> — but not after <code>}</code> of a class/method, and never right after <code>if (...)</code> or <code>for (...)</code>.</li><li>Braces <code>{ }</code> must be balanced.</li><li>Strings use double quotes <code>"..."</code>; single quotes are only for one <code>char</code>.</li><li>At most one <code>public</code> class per file.</li></ul>' }
+] },
+
+types: { intro: 'Java has 8 primitive types. Everything else (like String) is a reference type (an object).', s: [
+  { h: 'The 8 primitive types', tbl: [['Type', 'Size', 'Range / precision', 'Example'], ['byte', '8 bits', '−128 … 127', 'byte b = 10;'], ['short', '16 bits', '−32,768 … 32,767', 'short s = 1000;'], ['int', '32 bits', '−2,147,483,648 … 2,147,483,647', 'int n = 42;'], ['long', '64 bits', '≈ ±9.22 × 10¹⁸', 'long big = 3000000000L;'], ['float', '32 bits', '≈ 7 significant digits', 'float f = 3.14f;'], ['double', '64 bits', '≈ 15–16 significant digits', 'double d = 3.14;'], ['char', '16 bits', '0 … 65,535 (one Unicode char)', "char c = 'A';"], ['boolean', '—', 'true or false only', 'boolean ok = true;']] },
+  { h: 'Literals', p: '<ul><li>A whole number like <code>42</code> is an <b>int</b>; add <code>L</code> for long.</li><li>A decimal like <code>3.5</code> is a <b>double</b>; add <code>f</code> for float (<code>float f = 3.5;</code> does not compile!).</li><li><code>\'A\'</code> is a char, <code>"A"</code> is a String.</li><li>A number too big for int needs the L: <code>3000000000L</code>.</li></ul>' },
+  { h: 'Overflow and precision', c: J`
+int x = Integer.MAX_VALUE;  // 2147483647
+x++;                        // -2147483648  (wraps around, no error!)
+System.out.println(0.1 + 0.2);  // 0.30000000000000004
+char c = 'A';
+c++;                        // 'B'
+System.out.println(c + 1);  // 67  (char + int = int)
+` },
+  { h: 'String is not a primitive', p: '<code>String</code> is a class (capital S). It has methods like <code>length()</code>; primitives have no methods. The default value of an object reference is <code>null</code>.' }
+] },
+
+vars: { intro: 'A variable is a named storage location with a fixed type.', s: [
+  { h: 'Declare, assign, initialize', c: J`
+int age;            // declaration
+age = 19;           // assignment
+double gpa = 3.7;   // declaration + initialization
+int a = 1, b = 2;   // several at once (same type)
+` },
+  { h: 'Constants with final', c: J`
+final double TAX_RATE = 0.2;
+final int MAX_STUDENTS = 30;
+// TAX_RATE = 0.3;   // compile error: cannot assign a value to final variable
+` },
+  { h: 'Naming rules (compiler)', p: '<ul><li>Letters, digits, <code>_</code> and <code>$</code> only — no spaces, no <code>-</code>, no <code>#</code>.</li><li>Cannot start with a digit: <code>2nd</code> ✗, <code>second2</code> ✓.</li><li>Cannot be a keyword: <code>int</code>, <code>class</code>, <code>if</code>, <code>for</code>, <code>new</code>, <code>final</code>, <code>static</code>…</li><li>Case-sensitive: <code>total</code> ≠ <code>Total</code>.</li></ul>' },
+  { h: 'Naming conventions (style)', tbl: [['What', 'Style', 'Example'], ['variables, methods', 'camelCase', 'studentCount, getTotal()'], ['constants', 'UPPER_SNAKE_CASE', 'MAX_SIZE'], ['classes', 'PascalCase', 'BankAccount']] },
+  { h: 'Scope and initialization', p: 'A variable only exists inside the block <code>{ }</code> where it is declared. Local variables have no default value: reading one before assigning it is a compile error.', c: J`
+for (int i = 0; i < 3; i++) { }
+// System.out.println(i);   // error: i does not exist here
+
+int t = a;   // correct swap needs a temporary variable
+a = b;
+b = t;
+` }
+] },
+
+ops: { intro: 'Most exam traps live here: integer division, ++ and precedence.', s: [
+  { h: 'Arithmetic', tbl: [['Expression', 'Result', 'Why'], ['7 / 2', '3', 'int / int → decimals dropped'], ['7.0 / 2', '3.5', 'one double → double division'], ['7 % 3', '1', 'remainder'], ['-7 % 3', '-1', 'sign follows the left operand'], ['1 / 2', '0', 'integer division again!']] },
+  { h: 'Increment and decrement', c: J`
+int i = 5;
+int a = i++;   // a = 5, then i = 6   (post: use, then increment)
+int b = ++i;   // i = 7, then b = 7   (pre: increment, then use)
+` },
+  { h: 'Compound assignment', c: J`
+x += 5;   // x = x + 5
+x -= 2;   // x = x - 2
+x *= 3;   // x = x * 3
+x /= 2;   // x = x / 2   (integer division if x is int)
+x %= 4;   // x = x % 4
+` },
+  { h: 'Relational and logical', p: '<code>== != &lt; &gt; &lt;= &gt;=</code> give a boolean. <code>&amp;&amp;</code> (and), <code>||</code> (or), <code>!</code> (not). <b>Short-circuit:</b> <code>&amp;&amp;</code> skips the right side if the left is false; <code>||</code> skips it if the left is true.' },
+  { h: 'Precedence (high → low)', tbl: [['Level', 'Operators'], ['1', '()  then  x++  x--'], ['2', '++x  --x  !  unary -  (cast)'], ['3', '*  /  %'], ['4', '+  -'], ['5', '<  >  <=  >='], ['6', '==  !='], ['7', '&&'], ['8', '||'], ['9', '?:'], ['10', '=  +=  -=  *=  /=  %=']] },
+  { h: 'String concatenation goes left to right', c: J`
+System.out.println(1 + 2 + "3");   // 33
+System.out.println("1" + 2 + 3);   // 123
+System.out.println("1" + (2 + 3)); // 15
+` }
+] },
+
+cast: { intro: 'Widening happens automatically; narrowing needs an explicit cast.', s: [
+  { h: 'Widening (automatic)', p: '<code>byte → short → int → long → float → double</code>, and <code>char → int</code>. No information is lost, so no cast is needed.', c: J`
+int n = 5;
+double d = n;        // 5.0
+long l = n;          // 5
+int code = 'A';      // 65
+` },
+  { h: 'Narrowing (explicit cast)', c: J`
+double price = 9.99;
+int whole = (int) price;      // 9   (truncates, does NOT round)
+int neg = (int) -3.7;         // -3  (toward zero)
+long r = Math.round(9.5);     // 10  (rounds; returns long)
+byte b = (byte) 130;          // -126 (overflow)
+char c = (char) 66;           // 'B'
+` },
+  { h: 'Where the cast goes matters', c: J`
+int a = 7, b = 2;
+double x = (double) a / b;    // 3.5  (cast first, then divide)
+double y = (double) (a / b);  // 3.0  (int division first!)
+double z = a / b;             // 3.0
+double w = a / 2.0;           // 3.5
+` },
+  { h: 'String ⇄ number', c: J`
+int n = Integer.parseInt("42");        // 42
+double d = Double.parseDouble("3.5");  // 3.5
+String s1 = String.valueOf(42);        // "42"
+String s2 = "" + 42;                   // "42"
+// Integer.parseInt("3.5") -> NumberFormatException at runtime
+` }
+] },
+
+scanner: { intro: 'Scanner reads input typed on the keyboard (System.in).', s: [
+  { h: 'Setup', c: J`
+import java.util.Scanner;          // before the class
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter your age: ");
+        int age = sc.nextInt();
+        System.out.println("Next year: " + (age + 1));
+        sc.close();
+    }
+}
+` },
+  { h: 'Methods', tbl: [['Method', 'Reads', 'Input "Ana Maria 19"'], ['next()', 'one word (token)', '"Ana"'], ['nextLine()', 'rest of the line', '"Ana Maria 19"'], ['nextInt()', 'an int', '(error on "Ana")'], ['nextDouble()', 'a double', '—'], ['nextLong() / nextBoolean()', 'long / boolean', '—'], ['next().charAt(0)', 'one char', "'A'"]] },
+  { h: 'The nextInt → nextLine trap', p: '<code>nextInt()</code> (and nextDouble, next…) leaves the Enter key (line break) in the input. A following <code>nextLine()</code> returns an empty String. Fix it by calling <code>sc.nextLine()</code> once to consume the leftover.', c: J`
+int age = sc.nextInt();
+sc.nextLine();                 // eat the leftover line break
+String name = sc.nextLine();   // now reads the real line
+` },
+  { h: 'Errors', p: 'Typing <code>abc</code> when <code>nextInt()</code> expects a number throws <b>InputMismatchException</b> at runtime. You can check first with <code>sc.hasNextInt()</code>.' }
+] },
+
+cond: { intro: 'Conditions must be boolean expressions. Only the first true branch of an if/else-if chain runs.', s: [
+  { h: 'if / else if / else', c: J`
+if (score >= 90) {
+    grade = 'A';
+} else if (score >= 80) {   // only checked if the first was false
+    grade = 'B';
+} else {
+    grade = 'F';
+}
+` },
+  { h: 'Nested if and the dangling else', p: 'An <code>else</code> always belongs to the <b>closest</b> unmatched <code>if</code>, whatever the indentation. Use braces to avoid surprises.', c: J`
+if (x > 0)
+    if (x > 10) System.out.println("big");
+    else System.out.println("small");   // belongs to if (x > 10)!
+` },
+  { h: 'switch', p: 'Works with int, char, String (and byte, short, enums) — not double or boolean. Without <code>break</code>, execution <b>falls through</b> into the next case.', c: J`
+switch (day) {
+    case 6:
+    case 7:
+        System.out.println("Weekend");
+        break;
+    default:
+        System.out.println("Weekday");
+}
+` },
+  { h: 'Conditional (ternary) operator', c: J`
+String r = (n % 2 == 0) ? "even" : "odd";
+int max = (a > b) ? a : b;
+` },
+  { h: 'Classic mistakes', p: '<ul><li><code>if (x = 5)</code> → compile error; use <code>==</code>.</li><li><code>if (x &gt; 5);</code> → the semicolon is an empty body; the block below always runs.</li><li><code>13 &lt;= age &lt;= 19</code> does not compile; write <code>age &gt;= 13 &amp;&amp; age &lt;= 19</code>.</li><li>Compare Strings with <code>.equals()</code>, not <code>==</code>.</li></ul>' }
+] },
+
+loops: { intro: 'for when you know how many times; while when you repeat until something happens; do-while when the body must run at least once.', s: [
+  { h: 'The three loops', c: J`
+for (int i = 0; i < 5; i++) {      // init; condition; update
+    System.out.print(i);           // 01234
+}
+
+int n = 10;
+while (n > 0) {                    // checked BEFORE each iteration
+    n -= 3;
+}
+
+int x = 100;
+do {                               // runs at least once
+    x++;
+} while (x < 5);                   // x is 101
+` },
+  { h: 'break and continue', c: J`
+for (int i = 1; i <= 10; i++) {
+    if (i % 2 == 0) continue;   // skip the rest, go to i++
+    if (i > 7) break;           // leave the loop completely
+    System.out.print(i);        // 1357
+}
+` },
+  { h: 'Counting iterations (off-by-one)', tbl: [['Loop header', 'Values of i', 'Runs'], ['for (i = 0; i < n; i++)', '0 … n−1', 'n'], ['for (i = 1; i <= n; i++)', '1 … n', 'n'], ['for (i = 0; i <= n; i++)', '0 … n', 'n + 1'], ['for (i = 10; i > 0; i -= 3)', '10, 7, 4, 1', '4']] },
+  { h: 'Nested loops', p: 'The inner loop runs completely for every iteration of the outer loop. <code>break</code> only exits the innermost loop.', c: J`
+for (int row = 1; row <= 3; row++) {
+    for (int col = 1; col <= row; col++) {
+        System.out.print("*");
+    }
+    System.out.println();   // *  **  ***
+}
+` },
+  { h: 'Patterns to memorize', c: J`
+int sum = 0;                 // sum: start at 0
+long fact = 1;               // product: start at 1
+while (n > 0) {              // digits of n
+    int digit = n % 10;      // last digit
+    n /= 10;                 // remove last digit
+}
+` }
+] },
+
+strings: { intro: 'Indexes start at 0. Strings are immutable: methods return NEW Strings.', s: [
+  { h: 'Methods (s = "Hello World")', tbl: [['Call', 'Result', 'Note'], ['s.length()', '11', 'method → parentheses'], ['s.charAt(0)', "'H'", 'returns a char'], ['s.charAt(s.length() - 1)', "'d'", 'last character'], ['s.substring(6)', '"World"', 'from index to end'], ['s.substring(0, 5)', '"Hello"', 'end index NOT included'], ['s.indexOf(\'o\')', '4', 'first occurrence'], ['s.indexOf("o", 5)', '7', 'search from index 5'], ['s.indexOf("z")', '-1', 'not found'], ['s.toUpperCase()', '"HELLO WORLD"', 's itself is unchanged'], ['s.equals("hello world")', 'false', 'case-sensitive'], ['s.equalsIgnoreCase("hello world")', 'true', '']] },
+  { h: 'equals vs ==', c: J`
+String a = "hi";
+String b = new String("hi");
+System.out.println(a == b);       // false (different objects)
+System.out.println(a.equals(b));  // true  (same text)
+` },
+  { h: 'Immutability', c: J`
+String s = "abc";
+s.toUpperCase();          // result thrown away
+System.out.println(s);    // abc
+s = s.toUpperCase();      // keep the new String
+System.out.println(s);    // ABC
+` },
+  { h: 'Looping over characters', c: J`
+String word = "java";
+for (int i = 0; i < word.length(); i++) {   // < length(), not <=
+    char c = word.charAt(i);
+    System.out.print(c + " ");
+}
+// word.charAt(word.length()) -> StringIndexOutOfBoundsException
+` },
+  { h: 'Concatenation surprises', c: J`
+System.out.println("a" + 1 + 2);   // a12
+System.out.println(1 + 2 + "a");   // 3a
+System.out.println('a' + 'b');     // 195 (char + char = int)
+System.out.println("" + 'a' + 'b'); // ab
+` }
+] },
+
+methods: { intro: 'A method is a named block of code that can take parameters and return a value.', s: [
+  { h: 'Anatomy', c: J`
+//  modifiers  return type  name   parameters
+    static     int          add   (int a, int b) {
+        return a + b;           // value sent back to the caller
+    }
+
+    // in main:  int s = add(3, 4);   3 and 4 are ARGUMENTS
+` },
+  { h: 'void vs returning a value', c: J`
+static void greet(String name) {      // no value returned
+    System.out.println("Hi " + name);
+}
+
+static boolean isEven(int n) {        // must return on every path
+    return n % 2 == 0;
+}
+` },
+  { h: 'Pass by value', p: 'A method receives <b>copies</b> of primitive arguments. Changing a parameter inside the method does not change the caller\'s variable.', c: J`
+static void change(int x) { x = 100; }
+// int a = 5; change(a);  -> a is still 5
+` },
+  { h: 'Overloading', p: 'Same name, different parameter lists (number or types). The return type alone cannot distinguish methods.', c: J`
+static int area(int side) { return side * side; }
+static int area(int w, int h) { return w * h; }
+static double area(double r) { return 3.14 * r * r; }
+` },
+  { h: 'Common compile errors', p: '<ul><li><b>missing return statement</b> – a non-void method where some path does not return.</li><li><b>incompatible types</b> – returning a value from a void method, or storing a void result.</li><li><b>non-static method cannot be referenced from a static context</b> – calling a non-static method directly from <code>main</code>.</li><li>Wrong number/types of arguments in a call.</li></ul>' }
+] }
+};
+
+
+/* ====================== App ====================== */
+'use strict';
+const $ = (s, el = document) => el.querySelector(s);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k === 'html') el.innerHTML = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat()) { if (k == null || k === false) continue; el.append(k.nodeType ? k : document.createTextNode(String(k))); }
+  return el;
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\n/g, '<br>');
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const norm = s => String(s).replace(/\r\n?/g, '\n').split('\n').map(l => l.replace(/\s+$/, '')).join('\n').replace(/\n+$/, '');
+const pct = (c, a) => a ? Math.round(100 * c / a) : 0;
+const TOPIC = Object.fromEntries(TOPICS.map(t => [t.id, t]));
+const DIFF = { 1: 'Easy', 2: 'Medium', 3: 'Hard' };
+const TYPE_LABEL = { mcq: 'Multiple choice', tf: 'True / False', out: "What's the output?", bug: 'Find the bug' };
+const KIND_TYPES = { quiz: ['mcq', 'tf'], output: ['out'], bug: ['bug'] };
+
+/* ---------- syntax highlighting ---------- */
+const KW = new Set('abstract assert break case catch class const continue default do else enum extends final finally for goto if implements import instanceof interface native new package private protected public return static strictfp super switch synchronized this throw throws transient try volatile while var'.split(' '));
+const PRIM = new Set('boolean byte char double float int long short void'.split(' '));
+const LIT = new Set(['true', 'false', 'null']);
+const TOK = /\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|"(?:[^"\\\n]|\\.)*"?|'(?:[^'\\\n]|\\.)*'?|\d[\d_]*(?:\.\d+)?(?:[eE][+-]?\d+)?[LlFfDd]?|[A-Za-z_$][\w$]*|[\s\S]/g;
+const PAREN = /\s*\(/y;
+function hl(src) {
+  let out = '', m; TOK.lastIndex = 0;
+  while ((m = TOK.exec(src))) {
+    const t = m[0], c = t[0]; let cls = null;
+    if (c === '/' && (t[1] === '/' || t[1] === '*')) cls = 'c';
+    else if (c === '"' || c === "'") cls = 's';
+    else if (c >= '0' && c <= '9') cls = 'n';
+    else if (/[A-Za-z_$]/.test(c)) {
+      if (PRIM.has(t)) cls = 't'; else if (KW.has(t)) cls = 'k'; else if (LIT.has(t)) cls = 'l';
+      else if (/^[A-Z]/.test(t)) cls = 'cl';
+      else { PAREN.lastIndex = TOK.lastIndex; if (PAREN.test(src)) cls = 'f'; }
+    }
+    out += cls ? `<span class="tk-${cls}">${esc(t)}</span>` : esc(t);
+  }
+  return out;
+}
+const codeBlock = code => h('pre', { class: 'code', html: hl(code) });
+const stdinBlock = s => h('div', { class: 'stdin' }, h('b', {}, '⌨ Keyboard input typed by the user:'), h('pre', {}, s.replace(/\n$/, '').replace(/\n/g, '⏎\n') + '⏎'));
+
+/* ---------- storage ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('jmp.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('jmp.' + k, JSON.stringify(v)); } catch (e) { } },
+  del(k) { try { localStorage.removeItem('jmp.' + k); } catch (e) { } }
+};
+let settings = Object.assign({ topics: [], diff: 0, count: 20, theme: null, examDate: '' }, store.get('settings', {}));
+let prog = Object.assign({ topics: {}, modes: {}, wrong: {}, mocks: [], tasks: {} }, store.get('progress', {}));
+const saveSettings = () => store.set('settings', settings);
+const saveProg = () => store.set('progress', prog);
+function record(t, ok, mode, id) {
+  const T = prog.topics[t] || (prog.topics[t] = { a: 0, c: 0, r: [] });
+  T.a++; if (ok) T.c++; T.r.push(ok ? 1 : 0); if (T.r.length > 20) T.r.shift();
+  const M = prog.modes[mode] || (prog.modes[mode] = { a: 0, c: 0 });
+  M.a++; if (ok) M.c++;
+  if (id) { if (ok) delete prog.wrong[id]; else prog.wrong[id] = 1; }
+  saveProg();
+}
+function topicStats(t) {
+  const T = prog.topics[t] || { a: 0, c: 0, r: [] };
+  const recent = T.r.length ? T.r.reduce((s, x) => s + x, 0) / T.r.length : 0;
+  let status = 'new';
+  if (T.a >= 4) status = recent < 0.7 ? 'weak' : recent >= 0.85 && T.a >= 8 ? 'strong' : 'ok';
+  else if (T.a > 0) status = 'started';
+  return { a: T.a, c: T.c, acc: pct(T.c, T.a), recent: Math.round(recent * 100), r: T.r, status };
+}
+const weakTopics = () => TOPICS.map(t => ({ id: t.id, s: topicStats(t.id) })).filter(x => x.s.status === 'weak').sort((a, b) => a.s.recent - b.s.recent).map(x => x.id);
+
+/* ---------- items ---------- */
+const ITEMS = [];
+QUIZ.forEach((q, i) => ITEMS.push({ id: 'q' + i, type: q.tf ? 'tf' : 'mcq', t: q.t, d: q.d, q }));
+OUTPUT.forEach((q, i) => ITEMS.push({ id: 'o' + i, type: 'out', t: q.t, d: q.d, q }));
+BUGS.forEach((q, i) => ITEMS.push({ id: 'b' + i, type: 'bug', t: q.t, d: q.d, q }));
+const ITEM = Object.fromEntries(ITEMS.map(it => [it.id, it]));
+function pool(types, topics, diff) {
+  return ITEMS.filter(it => types.includes(it.type) && (!topics.length || topics.includes(it.t)) && (!diff || it.d === diff));
+}
+const lineOK = (q, l) => l === q.line || (q.ok || []).includes(l);
+function makeInst(item, saved) {
+  const inst = { item, answer: null, draft: '', sel: { line: null, fix: null }, cursor: 1 };
+  if (item.type === 'mcq' || item.type === 'bug') inst.order = shuffle(item.q.o.map((_, i) => i));
+  if (saved) { if (saved.order) inst.order = saved.order; if (item.type === 'bug') { inst.sel = saved.answer || inst.sel; inst.answer = inst.sel; } else inst.answer = saved.answer; }
+  return inst;
+}
+function isAnswered(inst) {
+  const a = inst.answer;
+  if (inst.item.type === 'bug') return !!a && a.line != null && a.fix != null;
+  if (inst.item.type === 'out') return a != null && a.trim() !== '';
+  return a != null;
+}
+function grade(inst) {
+  const q = inst.item.q, a = inst.answer;
+  switch (inst.item.type) {
+    case 'mcq': return a === 0;
+    case 'tf': return a === q.a;
+    case 'out': return a != null && norm(a) === norm(q.out);
+    case 'bug': return !!a && a.fix === 0 && lineOK(q, a.line);
+  }
+}
+
+/* ---------- question rendering (practice | exam | review) ---------- */
+function qHeader(inst, extra) {
+  const it = inst.item;
+  return h('div', { class: 'qhead' },
+    h('span', { class: 'badge new' }, TOPIC[it.t].name), h('span', { class: 'badge d' + it.d }, DIFF[it.d]),
+    h('span', { class: 'badge' }, TYPE_LABEL[it.type]), extra);
+}
+function feedbackBox(ok, html) {
+  return h('div', { class: 'feedback ' + (ok ? 'good' : 'bad') }, h('div', { class: 'fh' }, ok ? '✓ Correct!' : '✗ Not quite'), h('div', { html }));
+}
+function renderQuestion(inst, mode, onChange) {
+  const t = inst.item.type;
+  const el = t === 'out' ? renderOutput(inst, mode, onChange) : t === 'bug' ? renderBug(inst, mode, onChange) : renderChoice(inst, mode, onChange);
+  el.prepend(qHeader(inst));
+  return el;
+}
+function renderChoice(inst, mode, onChange) {
+  const q = inst.item.q, tf = inst.item.type === 'tf';
+  const show = mode === 'review' || (mode === 'practice' && inst.answer != null);
+  const el = h('div', {}, h('div', { class: 'qtext', html: fmt(tf ? 'True or false?  ' + q.q : q.q) }));
+  if (q.c) el.append(codeBlock(q.c));
+  if (q.in) el.append(stdinBlock(q.in));
+  const choices = tf ? [{ v: true, label: 'True', key: 'T' }, { v: false, label: 'False', key: 'F' }]
+    : inst.order.map((oi, k) => ({ v: oi, label: q.o[oi], key: 'ABCD'[k] }));
+  const correct = tf ? q.a : 0, isCode = !tf && (q.oc || q.v === 'out');
+  const list = h('div', { class: 'opts' });
+  const pick = v => { if (show) return; inst.answer = v; onChange(); };
+  for (const ch of choices) {
+    let cls = 'opt';
+    if (show) cls += ch.v === correct ? ' correct' : ch.v === inst.answer ? ' wrong' : ' dim';
+    else if (inst.answer === ch.v) cls += ' selected';
+    list.append(h('button', { class: cls, disabled: show, onclick: () => pick(ch.v) },
+      h('span', { class: 'key' }, ch.key), h('span', { class: 'ob' }, isCode ? h('pre', {}, ch.label) : h('span', { html: fmt(ch.label) }))));
+  }
+  el.append(list);
+  if (show) {
+    const ok = grade(inst);
+    let html = fmt(q.e);
+    if (tf) html = `<b>The statement is ${q.a ? 'true' : 'false'}.</b> ` + html;
+    if (mode === 'review' && inst.answer == null) html = '<b>Not answered.</b> ' + html;
+    el.append(feedbackBox(ok, html));
+  }
+  el._keys = e => {
+    if (show) return false;
+    const k = e.key.toLowerCase();
+    if (tf) {
+      if (k === 't' || k === '1') { pick(true); return true; }
+      if (k === 'f' || k === '2') { pick(false); return true; }
+      return false;
+    }
+    let i = 'abcd'.indexOf(k); if (i < 0) i = '1234'.indexOf(k);
+    if (i >= 0 && i < choices.length) { pick(choices[i].v); return true; }
+    return false;
+  };
+  return el;
+}
+function diffView(yours, expected) {
+  const y = norm(yours || '').split('\n'), x = norm(expected).split('\n');
+  const yp = h('pre'), xp = h('pre');
+  if (!norm(yours || '')) yp.append(h('span', { class: 'muted' }, '(no answer)'));
+  else y.forEach((l, i) => yp.append(h('span', { class: l === x[i] ? 'good-line' : 'bad-line' }, l === '' ? ' ' : l)));
+  if (norm(yours || '') && y.length < x.length) yp.append(h('span', { class: 'bad-line' }, '(missing lines)'));
+  x.forEach(l => xp.append(h('span', { class: 'good-line' }, l === '' ? ' ' : l)));
+  return h('div', { class: 'diff' }, h('div', {}, h('div', { class: 'label' }, 'Your answer'), yp), h('div', {}, h('div', { class: 'label' }, 'Correct output'), xp));
+}
+function renderOutput(inst, mode, onChange) {
+  const q = inst.item.q, show = mode === 'review' || (mode === 'practice' && inst.answer != null);
+  const el = h('div', {}, h('div', { class: 'qtext' }, 'What exactly does this code print?'), codeBlock(q.c));
+  if (q.in) el.append(stdinBlock(q.in));
+  if (!show) {
+    const ta = h('textarea', { class: 'answer', spellcheck: 'false', autocapitalize: 'off', autocomplete: 'off', placeholder: 'Type the exact output here. Put each output line on its own line.' + (mode === 'practice' ? '\nCtrl+Enter to check.' : '') });
+    ta.value = mode === 'exam' ? (inst.answer || '') : inst.draft;
+    ta.addEventListener('input', () => { if (mode === 'exam') { inst.answer = ta.value; onChange(true); } else inst.draft = ta.value; });
+    const submit = () => { inst.answer = inst.draft; onChange(); };
+    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && mode === 'practice') { e.preventDefault(); e.stopPropagation(); submit(); } });
+    el.append(ta, h('div', { class: 'small muted' }, 'Spaces at the end of a line are ignored; everything else must match exactly.'));
+    if (mode === 'practice') el.append(h('div', { class: 'nav-row' },
+      h('button', { class: 'btn primary', onclick: submit }, 'Check answer ', h('span', { class: 'kb' }, 'Ctrl+⏎')),
+      h('button', { class: 'btn ghost', onclick: () => { inst.answer = inst.draft || ''; onChange(); } }, "I don't know – show me")));
+    el._focus = ta;
+  } else {
+    const ok = grade(inst);
+    el.append(diffView(inst.answer, q.out), feedbackBox(ok, fmt(q.e)));
+  }
+  el._keys = () => false;
+  return el;
+}
+function renderBug(inst, mode, onChange) {
+  const q = inst.item.q, show = mode === 'review' || (mode === 'practice' && inst.answer != null);
+  const sel = show ? (inst.answer || { line: null, fix: null }) : inst.sel;
+  const lines = q.c.split('\n');
+  const kindTxt = { compile: 'a <b>compile error</b>', logic: 'a <b>logic error</b> (it compiles but does the wrong thing)', runtime: 'a <b>runtime error</b> (it compiles but crashes)' }[q.kind];
+  const el = h('div', {}, h('div', { class: 'qtext', html: `This code has ${kindTxt}. Click the line with the bug, then choose the fix.` }));
+  el.append(h('div', { class: 'small muted' }, 'When it is fixed, it should print:'), h('div', { class: 'output-box' }, q.out));
+  if (q.in) el.append(stdinBlock(q.in));
+  const changed = () => { if (mode === 'exam') inst.answer = inst.sel; onChange(); };
+  const chooseLine = n => { if (show || !lines[n - 1].trim()) return; inst.sel.line = n; inst.cursor = n; changed(); };
+  const chooseFix = i => { if (show) return; inst.sel.fix = i; changed(); };
+  const box = h('div', { class: 'bug-code', role: 'listbox', 'aria-label': 'Code lines' });
+  lines.forEach((l, i) => {
+    const n = i + 1; let cls = 'bug-line';
+    if (!l.trim()) cls += ' blank';
+    if (show) { if (lineOK(q, n)) cls += ' ans'; else if (sel.line === n) cls += ' wrongsel'; }
+    else { if (sel.line === n) cls += ' sel'; if (inst.cursor === n && sel.line !== n) cls += ' cursor'; }
+    box.append(h('div', { class: cls, onclick: () => chooseLine(n), html: `<span class="ln">${n}</span><span>${hl(l) || ' '}</span>` }));
+  });
+  el.append(box);
+  el.append(h('div', { class: 'label', style: 'margin-top:12px' }, sel.line ? `Replace line ${sel.line} with:` : 'Choose the fix (the corrected line):'));
+  const list = h('div', { class: 'opts' });
+  inst.order.forEach((oi, k) => {
+    let cls = 'opt';
+    if (show) cls += oi === 0 ? ' correct' : oi === sel.fix ? ' wrong' : ' dim';
+    else if (sel.fix === oi) cls += ' selected';
+    list.append(h('button', { class: cls, disabled: show, onclick: () => chooseFix(oi) }, h('span', { class: 'key' }, String(k + 1)), h('span', { class: 'ob' }, h('pre', { html: hl(q.o[oi]) }))));
+  });
+  el.append(list);
+  const submit = () => { if (sel.line == null || sel.fix == null) return; inst.answer = { line: sel.line, fix: sel.fix }; onChange(); };
+  if (mode === 'practice' && !show) el.append(h('div', { class: 'nav-row' },
+    h('button', { class: 'btn primary', disabled: sel.line == null || sel.fix == null, onclick: submit }, 'Check answer ', h('span', { class: 'kb' }, '⏎')),
+    h('span', { class: 'small muted' }, sel.line == null ? 'Pick a line (click, or ↑/↓)…' : sel.fix == null ? 'Now pick a fix (1–4)…' : 'Ready!')));
+  if (show) {
+    const ok = grade(inst), a = inst.answer;
+    let html = `The bug is on <b>line ${q.line}</b>${q.ok ? ' (line ' + q.ok.join(', ') + ' also accepted)' : ''}. Fixed line: <code>${esc(q.o[0])}</code><br>` + fmt(q.e);
+    if (a && !ok) html = (a.line == null ? 'You did not pick a line. ' : lineOK(q, a.line) ? 'Right line, ' : 'Wrong line, ') + (a.fix == null ? 'no fix chosen.' : a.fix === 0 ? 'right fix.' : 'wrong fix.') + '<br>' + html;
+    if (!a && mode === 'review') html = '<b>Not answered.</b> ' + html;
+    el.append(feedbackBox(ok, html));
+  }
+  el._keys = e => {
+    if (show) return false;
+    const k = e.key;
+    const move = d => { let n = inst.cursor || 1; do { n += d; } while (n >= 1 && n <= lines.length && !lines[n - 1].trim()); if (n >= 1 && n <= lines.length) chooseLine(n); };
+    if (k === 'ArrowDown' || k === 'j') { move(1); return true; }
+    if (k === 'ArrowUp' || k === 'k') { move(-1); return true; }
+    const i = '1234'.indexOf(k); if (i >= 0 && i < inst.order.length) { chooseFix(inst.order[i]); return true; }
+    if (k === 'Enter' && mode === 'practice') { submit(); return true; }
+    return false;
+  };
+  return el;
+}
+
+/* ---------- shell: theme, nav, keys, modal ---------- */
+const mainEl = () => $('main');
+let viewKeys = null, gPending = false, timerHandle = null;
+function applyTheme() {
+  const t = settings.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.dataset.theme = t;
+  const b = $('#themeBtn'); if (b) { b.textContent = t === 'dark' ? '☀' : '☾'; b.title = (t === 'dark' ? 'Light' : 'Dark') + ' mode (Shift+D)'; }
+}
+function toggleTheme() { settings.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; saveSettings(); applyTheme(); }
+function toast(msg) { const t = h('div', { class: 'toast', role: 'status' }, msg); document.body.append(t); setTimeout(() => t.remove(), 2600); }
+let modalEl = null;
+function modal(content) { closeModal(); modalEl = h('div', { class: 'modal-bg', onclick: e => { if (e.target === modalEl) closeModal(); } }, h('div', { class: 'card modal', role: 'dialog', 'aria-modal': 'true' }, content, h('div', { class: 'nav-row' }, h('button', { class: 'btn', onclick: closeModal }, 'Close ', h('span', { class: 'kb' }, 'Esc'))))); document.body.append(modalEl); }
+function closeModal() { if (modalEl) { modalEl.remove(); modalEl = null; } }
+function showHelp() {
+  const rows = [['?', 'Show this help'], ['Shift + D', 'Toggle dark mode'], ['g then h / q / o / b / w / m / c / p', 'Go to Home, Quiz, Output, Bug, Write code, Mock exam, Cheat sheets, Progress'],
+    ['A B C D  or  1 2 3 4', 'Choose an answer'], ['T / F', 'True / False'], ['Enter', 'Start · Check · Next question'], ['Ctrl + Enter', 'Check your typed output'],
+    ['↑ ↓  (or J / K)', 'Find the bug: move between lines'], ['1 – 4', 'Find the bug: choose the fix'], ['← →', 'Mock exam: previous / next question'], ['Esc', 'Leave a text box (so shortcuts work again)'],
+    ['Tab / Shift+Tab', 'Code editor: indent / unindent']];
+  modal(h('div', {}, h('h2', { style: 'margin-top:0' }, 'Keyboard shortcuts'), h('div', { class: 'kbd-list' }, rows.flatMap(([k, d]) => [h('div', {}, ...k.split('  ').map(x => h('kbd', { style: 'margin-right:4px' }, x))), h('div', {}, d)]))));
+}
+document.addEventListener('keydown', e => {
+  if (modalEl) { if (e.key === 'Escape') closeModal(); return; }
+  const tag = e.target.tagName;
+  if (tag === 'TEXTAREA' || tag === 'INPUT' || tag === 'SELECT') { if (e.key === 'Escape') e.target.blur(); return; }
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if ((tag === 'BUTTON' || tag === 'A') && (e.key === 'Enter' || e.key === ' ')) return;
+  if (e.key === '?') { e.preventDefault(); showHelp(); return; }
+  if (e.key === 'D' && e.shiftKey) { toggleTheme(); return; }
+  if (gPending) {
+    gPending = false;
+    const map = { h: 'home', q: 'quiz', o: 'output', b: 'bug', w: 'code', m: 'mock', c: 'cheat', p: 'progress' };
+    if (map[e.key]) { e.preventDefault(); location.hash = map[e.key]; }
+    return;
+  }
+  if (viewKeys && viewKeys(e)) { e.preventDefault(); return; }
+  if (e.key === 'g') { gPending = true; setTimeout(() => gPending = false, 1500); }
+});
+
+/* ---------- filters ---------- */
+function filtersUI(opts, onChange) {
+  const box = h('div', { class: 'filters' });
+  const draw = () => {
+    box.replaceChildren();
+    const weak = weakTopics();
+    const chips = h('div', { class: 'chips' }, h('button', { class: 'chip' + (settings.topics.length ? '' : ' on'), onclick: () => { settings.topics = []; done(); } }, 'All topics'));
+    for (const t of TOPICS) {
+      const on = settings.topics.includes(t.id);
+      chips.append(h('button', { class: 'chip' + (on ? ' on' : '') + (weak.includes(t.id) ? ' weak' : ''), title: weak.includes(t.id) ? 'Weak topic' : '', onclick: () => { settings.topics = on ? settings.topics.filter(x => x !== t.id) : [...settings.topics, t.id]; done(); } }, t.name + (weak.includes(t.id) ? ' ⚠' : '')));
+    }
+    if (weak.length) chips.append(h('button', { class: 'chip weak', onclick: () => { settings.topics = weak.slice(); done(); } }, 'Only my weak topics'));
+    box.append(h('div', {}, h('div', { class: 'label' }, 'Topics'), chips));
+    const seg = (vals, cur, set) => h('div', { class: 'seg' }, vals.map(([v, l]) => h('button', { class: cur === v ? 'on' : '', onclick: () => { set(v); done(); } }, l)));
+    const r = h('div', { class: 'row', style: 'gap:22px' }, h('div', {}, h('div', { class: 'label' }, 'Difficulty'), seg([[0, 'All'], [1, 'Easy'], [2, 'Medium'], [3, 'Hard']], settings.diff, v => settings.diff = v)));
+    if (opts.count) r.append(h('div', {}, h('div', { class: 'label' }, 'Questions'), seg([[10, '10'], [20, '20'], [0, 'All']], settings.count, v => settings.count = v)));
+    box.append(r);
+  };
+  const done = () => { saveSettings(); draw(); onChange && onChange(); };
+  draw();
+  return box;
+}
+
+/* ---------- practice sessions ---------- */
+let S = null;
+const MODE_INFO = {
+  quiz: { title: 'Quiz', icon: '?', desc: 'Multiple-choice and true/false questions with an explanation after each answer.' },
+  output: { title: "What's the output?", icon: '>_', desc: 'Read a snippet and type exactly what it prints. Watch out for integer division, i++ vs ++i, String + number and off-by-one loops.' },
+  bug: { title: 'Find the bug', icon: '🐞', desc: 'Each snippet has one compile, logic or runtime error. Pick the line, then pick the correct fix.' }
+};
+function startSession(route, kind, title, items) {
+  if (!items.length) { toast('No questions match these filters.'); return; }
+  S = { route, kind, title, insts: items.map(it => makeInst(it)), idx: 0, finished: false };
+  if (location.hash.slice(1) !== route) location.hash = route; else renderSession();
+}
+function renderSetup(kind) {
+  const info = MODE_INFO[kind], m = mainEl();
+  const count = h('span', { class: 'muted small' });
+  const start = () => {
+    const items = shuffle(pool(KIND_TYPES[kind], settings.topics, settings.diff));
+    startSession(kind, kind, info.title, settings.count ? items.slice(0, settings.count) : items);
+  };
+  const upd = () => { count.textContent = pool(KIND_TYPES[kind], settings.topics, settings.diff).length + ' questions available'; };
+  m.replaceChildren(h('h1', {}, info.title), h('p', { class: 'muted' }, info.desc),
+    h('div', { class: 'card' }, filtersUI({ count: true }, upd), h('div', { class: 'nav-row' }, h('button', { class: 'btn primary', onclick: start }, 'Start ', h('span', { class: 'kb' }, '⏎')), count)));
+  upd();
+  viewKeys = e => { if (e.key === 'Enter') { start(); return true; } return false; };
+}
+function renderSession() {
+  const m = mainEl(), inst = S.insts[S.idx], n = S.insts.length;
+  if (inst.answer != null && !inst.recorded) { inst.recorded = true; inst.correct = grade(inst); record(inst.item.t, inst.correct, S.kind, inst.item.id); }
+  const answered = S.insts.filter(i => i.recorded).length, correct = S.insts.filter(i => i.correct).length;
+  const q = renderQuestion(inst, 'practice', renderSession);
+  const next = () => { if (S.idx < n - 1) { S.idx++; renderSession(); window.scrollTo(0, 0); } else { S.finished = true; renderResults(); } };
+  const nav = h('div', { class: 'nav-row' });
+  if (inst.answer != null) nav.append(h('button', { class: 'btn primary', onclick: next }, S.idx < n - 1 ? 'Next question ' : 'See results ', h('span', { class: 'kb' }, '⏎')));
+  else nav.append(h('button', { class: 'btn ghost', onclick: next }, 'Skip'));
+  nav.append(h('span', { class: 'spacer' }), h('button', { class: 'btn ghost', onclick: () => { S.finished = true; renderResults(); } }, 'Finish now'));
+  m.replaceChildren(
+    h('div', { class: 'qwrap' },
+      h('div', { class: 'row' }, h('h1', { style: 'margin:0' }, S.title), h('span', { class: 'spacer' }), h('span', { class: 'badge' }, `Question ${S.idx + 1} / ${n}`), h('span', { class: 'badge good' }, `Score ${correct} / ${answered}`)),
+      h('div', { class: 'progress-line', style: 'margin-top:10px' }, h('i', { style: `width:${100 * (S.idx + (inst.answer != null ? 1 : 0)) / n}%` })),
+      h('div', { class: 'card' }, q, nav)));
+  viewKeys = e => {
+    if (inst.answer != null && e.key === 'Enter') { next(); return true; }
+    return q._keys(e);
+  };
+  if (q._focus && matchMedia('(pointer: fine)').matches) q._focus.focus();
+}
+function topicTable(insts) {
+  const by = {};
+  for (const i of insts) { const b = by[i.item.t] || (by[i.item.t] = { a: 0, c: 0 }); b.a++; if (i.correct) b.c++; }
+  const tb = h('tbody');
+  for (const t of TOPICS) {
+    const b = by[t.id]; if (!b) continue; const p = pct(b.c, b.a);
+    tb.append(h('tr', {}, h('td', {}, t.name), h('td', {}, `${b.c} / ${b.a}`), h('td', { style: 'width:40%' }, h('div', { class: 'bar ' + (p < 50 ? 'low' : p < 75 ? 'mid' : '') }, h('i', { style: `width:${p}%` }))), h('td', {}, p + '%')));
+  }
+  return h('div', { class: 'table-wrap' }, h('table', { class: 't' }, h('thead', {}, h('tr', {}, h('th', {}, 'Topic'), h('th', {}, 'Correct'), h('th', {}, ''), h('th', {}, '%'))), tb));
+}
+function renderResults() {
+  const m = mainEl(), done = S.insts.filter(i => i.recorded), correct = done.filter(i => i.correct).length, p = pct(correct, done.length);
+  const missed = done.filter(i => !i.correct);
+  const reviewBox = h('div');
+  missed.forEach(i => reviewBox.append(h('div', { class: 'card review-item' }, renderQuestion(i, 'review', () => { }))));
+  const retry = () => startSession(S.route, S.kind, S.title + ' – retry', missed.map(i => i.item));
+  m.replaceChildren(h('div', { class: 'qwrap' },
+    h('h1', {}, S.title + ' – results'),
+    h('div', { class: 'card' },
+      h('div', { class: 'row' }, h('div', { class: 'big-score' }, done.length ? p + '%' : '–'), h('div', {}, h('b', {}, `${correct} of ${done.length} correct`), h('div', { class: 'muted small' }, done.length ? (p >= 85 ? 'Excellent – you are exam-ready on these topics.' : p >= 60 ? 'Good. Review the mistakes below, then try again.' : 'Keep going: read the cheat sheets for these topics and retry the mistakes.') : 'No answered questions.'))),
+      done.length ? topicTable(done) : null,
+      h('div', { class: 'nav-row' },
+        missed.length ? h('button', { class: 'btn primary', onclick: retry }, `Retry ${missed.length} mistake${missed.length > 1 ? 's' : ''}`) : null,
+        h('button', { class: 'btn', onclick: () => { const r = S.route; S = null; r === 'practice' ? (location.hash = 'home') : route(); } }, 'New session'),
+        h('a', { class: 'btn ghost', href: '#progress' }, 'View progress'))),
+    missed.length ? h('h2', {}, 'Review your mistakes') : null, reviewBox));
+  viewKeys = e => { if (e.key === 'Enter' && missed.length) { retry(); return true; } return false; };
+  window.scrollTo(0, 0);
+}
+function startMixed(topics, title) {
+  const wrongFirst = shuffle(ITEMS.filter(it => topics.includes(it.t) && prog.wrong[it.id]));
+  const rest = shuffle(ITEMS.filter(it => topics.includes(it.t) && !prog.wrong[it.id]));
+  startSession('practice', 'mixed', title, [...wrongFirst.slice(0, 8), ...rest].slice(0, 15));
+}
+function practiceWeak() {
+  let w = weakTopics();
+  if (!w.length) {
+    const tried = TOPICS.map(t => ({ id: t.id, s: topicStats(t.id) })).filter(x => x.s.a > 0).sort((a, b) => a.s.recent - b.s.recent);
+    if (!tried.length) { toast('Answer some questions first – then I can find your weak topics.'); return; }
+    w = tried.slice(0, 3).map(x => x.id);
+    toast('No weak topics yet – practicing your 3 lowest-scoring topics.');
+  }
+  startMixed(w, 'Weak topics: ' + w.map(t => TOPIC[t].name).join(', '));
+}
+
+/* ---------- mock exam ---------- */
+let M = null;
+const MOCK_MIN = 60;
+function buildMock() {
+  const types = shuffle([...Array(12).fill('choice'), ...Array(5).fill('out'), ...Array(3).fill('bug')]);
+  const topics = shuffle([...TOPICS, ...TOPICS].map(t => t.id));
+  const used = new Set(), items = [];
+  topics.forEach((t, i) => {
+    const want = types[i] === 'choice' ? ['mcq', 'tf'] : [types[i]];
+    const tries = [pool(want, [t], settings.diff), pool(want, [t], 0), pool(['mcq', 'tf', 'out', 'bug'], [t], 0)];
+    for (const p of tries) { const c = shuffle(p.filter(it => !used.has(it.id))); if (c.length) { used.add(c[0].id); items.push(c[0]); break; } }
+  });
+  return items;
+}
+function mockSave() {
+  if (!M || M.submitted) { store.del('mock'); return; }
+  store.set('mock', { ids: M.insts.map(i => i.item.id), saved: M.insts.map(i => ({ order: i.order || null, answer: i.item.type === 'bug' ? i.sel : i.answer })), idx: M.idx, endAt: M.endAt, startAt: M.startAt });
+}
+function mockRestore() {
+  const s = store.get('mock', null); if (!s || !s.ids || !s.ids.every(id => ITEM[id])) return null;
+  return { insts: s.ids.map((id, k) => makeInst(ITEM[id], s.saved[k])), idx: s.idx || 0, endAt: s.endAt, startAt: s.startAt, submitted: false };
+}
+const fmtTime = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+function renderMock() {
+  const m = mainEl();
+  clearInterval(timerHandle);
+  if (!M) M = mockRestore();
+  if (M && M.submitted) return renderMockResults();
+  if (M) {
+    if (Date.now() >= M.endAt) return finishMock(true);
+    return renderMockQuestion();
+  }
+  const hist = prog.mocks.slice(-5).reverse();
+  const begin = () => { const now = Date.now(); M = { insts: buildMock().map(it => makeInst(it)), idx: 0, startAt: now, endAt: now + MOCK_MIN * 60000, submitted: false }; mockSave(); renderMock(); };
+  m.replaceChildren(h('h1', {}, 'Mock exam'), h('p', { class: 'muted' }, 'Simulate the real midterm: 20 random questions across all 10 topics (multiple choice, true/false, output and find-the-bug), 60 minutes, and no feedback until you submit.'),
+    h('div', { class: 'card' },
+      h('ul', {}, h('li', {}, '2 questions per topic: about 12 multiple-choice/true-false, 5 output and 3 find-the-bug.'), h('li', {}, 'Move freely between questions; your answers are saved even if you reload the page.'), h('li', {}, 'At the end you get your score, a breakdown by topic and a full review.'), h('li', {}, 'Difficulty filter: ', h('b', {}, settings.diff ? DIFF[settings.diff] : 'mixed'), ' (change it in any practice mode).')),
+      h('div', { class: 'nav-row' }, h('button', { class: 'btn primary', onclick: begin }, 'Start the 60-minute exam ', h('span', { class: 'kb' }, '⏎')))),
+    hist.length ? h('h2', {}, 'Recent attempts') : null,
+    hist.length ? h('div', { class: 'card table-wrap' }, h('table', { class: 't' }, h('thead', {}, h('tr', {}, h('th', {}, 'Date'), h('th', {}, 'Score'), h('th', {}, 'Time used'))), h('tbody', {}, hist.map(x => h('tr', {}, h('td', {}, new Date(x.date).toLocaleString()), h('td', {}, `${x.score} / ${x.total} (${pct(x.score, x.total)}%)`), h('td', {}, fmtTime(x.secs * 1000))))))) : null);
+  viewKeys = e => { if (e.key === 'Enter') { begin(); return true; } return false; };
+}
+function renderMockQuestion() {
+  const m = mainEl(), n = M.insts.length, inst = M.insts[M.idx];
+  const timer = h('span', { class: 'timer' });
+  const tick = () => { const left = M.endAt - Date.now(); timer.textContent = '⏱ ' + fmtTime(left); timer.classList.toggle('low', left < 5 * 60000); if (left <= 0) finishMock(true); };
+  const palette = h('div', { class: 'palette' });
+  const drawPalette = () => { palette.replaceChildren(...M.insts.map((x, k) => h('button', { class: (isAnswered(x) ? 'done ' : '') + (k === M.idx ? 'cur' : ''), title: 'Question ' + (k + 1), onclick: () => go(k) }, k + 1))); };
+  const go = k => { if (k < 0 || k >= n) return; M.idx = k; mockSave(); renderMockQuestion(); window.scrollTo(0, 0); };
+  const onChange = soft => { mockSave(); if (soft) drawPalette(); else renderMockQuestion(); };
+  const submit = () => { const left = M.insts.filter(x => !isAnswered(x)).length; if (confirm(left ? `You have ${left} unanswered question${left > 1 ? 's' : ''}. Submit anyway?` : 'Submit your exam?')) finishMock(false); };
+  const q = renderQuestion(inst, 'exam', onChange);
+  drawPalette();
+  m.replaceChildren(h('div', { class: 'qwrap' },
+    h('div', { class: 'exam-bar' }, h('div', { class: 'row' }, h('b', {}, `Mock exam · Question ${M.idx + 1} / ${n}`), h('span', { class: 'spacer' }), timer, h('button', { class: 'btn primary', onclick: submit }, 'Submit exam')), palette),
+    h('div', { class: 'card' }, q, h('div', { class: 'nav-row' },
+      h('button', { class: 'btn', disabled: M.idx === 0, onclick: () => go(M.idx - 1) }, '← Previous'),
+      h('button', { class: 'btn primary', disabled: M.idx === n - 1, onclick: () => go(M.idx + 1) }, 'Next →'),
+      h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, `${M.insts.filter(isAnswered).length} of ${n} answered`)))));
+  tick(); timerHandle = setInterval(tick, 1000);
+  viewKeys = e => {
+    if (q._keys(e)) return true;
+    if (e.key === 'ArrowRight' || e.key === 'Enter') { go(M.idx + 1); return true; }
+    if (e.key === 'ArrowLeft') { go(M.idx - 1); return true; }
+    return false;
+  };
+}
+function finishMock(timeUp) {
+  clearInterval(timerHandle);
+  if (!M || M.submitted) return;
+  M.submitted = true; M.timeUp = timeUp;
+  M.finishedAt = Math.min(Date.now(), M.endAt);
+  for (const i of M.insts) { if (i.item.type === 'bug') i.answer = isAnswered(i) ? i.sel : (i.sel.line != null || i.sel.fix != null ? i.sel : null); i.correct = grade(i); i.recorded = true; record(i.item.t, i.correct, 'mock', i.item.id); }
+  const score = M.insts.filter(i => i.correct).length;
+  prog.mocks.push({ date: Date.now(), score, total: M.insts.length, secs: Math.round((M.finishedAt - M.startAt) / 1000) }); saveProg();
+  store.del('mock');
+  if (timeUp) toast("Time's up! Your exam was submitted.");
+  if (location.hash.slice(1) !== 'mock') location.hash = 'mock'; else renderMockResults();
+}
+function renderMockResults() {
+  const m = mainEl(), score = M.insts.filter(i => i.correct).length, n = M.insts.length, p = pct(score, n);
+  let onlyWrong = false;
+  const list = h('div');
+  const drawList = () => { list.replaceChildren(...M.insts.map((i, k) => (!onlyWrong || !i.correct) ? h('div', { class: 'card review-item', id: 'mq' + k }, h('div', { class: 'label' }, `Question ${k + 1}`), renderQuestion(i, 'review', () => { })) : null).filter(Boolean)); };
+  drawList();
+  const byType = {}; for (const i of M.insts) { const k = i.item.type === 'tf' ? 'mcq' : i.item.type; const b = byType[k] || (byType[k] = { a: 0, c: 0 }); b.a++; if (i.correct) b.c++; }
+  m.replaceChildren(h('div', { class: 'qwrap' },
+    h('h1', {}, 'Mock exam – results'),
+    h('div', { class: 'card' },
+      h('div', { class: 'row' }, h('div', { class: 'big-score' }, p + '%'), h('div', {}, h('b', {}, `${score} of ${n} correct`), h('div', { class: 'muted small' }, `Time used: ${fmtTime(M.finishedAt - M.startAt)}${M.timeUp ? ' (time ran out)' : ''}`), h('div', { class: 'small' }, p >= 85 ? 'Excellent – you are ready!' : p >= 70 ? 'Solid. Fix the weak topics below and you are there.' : p >= 50 ? 'Passing range, but review the red topics before the exam.' : 'Spend time on the cheat sheets and weak-topic practice, then try another mock.'))),
+      h('div', { class: 'palette' }, M.insts.map((i, k) => h('button', { class: i.correct ? 'r-good' : 'r-bad', onclick: () => { const el = document.getElementById('mq' + k); if (el) el.scrollIntoView({ behavior: 'smooth' }); } }, k + 1))),
+      h('h2', {}, 'Score by topic'), topicTable(M.insts),
+      h('div', { class: 'row small muted', style: 'margin-top:10px' }, Object.entries(byType).map(([k, b]) => h('span', { class: 'badge' }, `${TYPE_LABEL[k] === 'Multiple choice' ? 'Multiple choice / TF' : TYPE_LABEL[k]}: ${b.c}/${b.a}`))),
+      h('div', { class: 'nav-row' }, h('button', { class: 'btn primary', onclick: () => { M = null; renderMock(); } }, 'New mock exam'), h('button', { class: 'btn', onclick: practiceWeak }, 'Practice my weak topics'),
+        h('label', { class: 'row small', style: 'gap:6px;cursor:pointer' }, h('input', { type: 'checkbox', onchange: e => { onlyWrong = e.target.checked; drawList(); } }), 'Show only mistakes'))),
+    h('h2', {}, 'Review'), list));
+  viewKeys = null;
+  window.scrollTo(0, 0);
+}
+
+/* ---------- write-the-code mode ---------- */
+function makeEditor(initial, onInput) {
+  const gutter = h('div', { class: 'gutter', 'aria-hidden': 'true' }), pre = h('pre', { 'aria-hidden': 'true' });
+  const ta = h('textarea', { spellcheck: 'false', autocapitalize: 'off', autocomplete: 'off', autocorrect: 'off', wrap: 'off', 'aria-label': 'Java code editor' });
+  const wrap = h('div', { class: 'editor' }, gutter, h('div', { class: 'ed' }, pre, ta));
+  ta.value = initial;
+  const sync = () => { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; gutter.scrollTop = ta.scrollTop; };
+  const update = () => { pre.innerHTML = hl(ta.value) + '\n\n'; const n = ta.value.split('\n').length; gutter.innerHTML = Array.from({ length: n + 2 }, (_, i) => i < n ? i + 1 : '&nbsp;').join('<br>'); sync(); };
+  const insert = text => { ta.focus(); let ok = false; try { ok = document.execCommand('insertText', false, text); } catch (e) { } if (!ok) { ta.setRangeText(text, ta.selectionStart, ta.selectionEnd, 'end'); ta.dispatchEvent(new Event('input')); } };
+  ta.addEventListener('input', () => { update(); onInput(ta.value); });
+  ta.addEventListener('scroll', sync);
+  ta.addEventListener('keydown', e => {
+    const v = ta.value, s = ta.selectionStart, en = ta.selectionEnd;
+    const lineStart = v.lastIndexOf('\n', s - 1) + 1;
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      if (s === en && !e.shiftKey) { insert('    '); return; }
+      const ls = lineStart, le = v.indexOf('\n', en - (en > s && v[en - 1] === '\n' ? 1 : 0)); const end = le < 0 ? v.length : le;
+      const block = v.slice(ls, end).split('\n').map(l => e.shiftKey ? l.replace(/^ {1,4}/, '') : '    ' + l).join('\n');
+      ta.setSelectionRange(ls, end); insert(block); ta.setSelectionRange(ls, ls + block.length);
+    } else if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault();
+      const indent = v.slice(lineStart, s).match(/^\s*/)[0];
+      const before = v.slice(lineStart, s).trimEnd(), after = v.slice(en).match(/^[ \t]*(.)?/)[1];
+      if (before.endsWith('{') && after === '}') { insert('\n' + indent + '    \n' + indent); const p = ta.selectionStart - indent.length - 1; ta.setSelectionRange(p, p); }
+      else insert('\n' + indent + (before.endsWith('{') ? '    ' : ''));
+    } else if (e.key === '}' && /^\s+$/.test(v.slice(lineStart, s)) && s === en) {
+      e.preventDefault();
+      const cur = v.slice(lineStart, s); ta.setSelectionRange(lineStart, s); insert(cur.slice(0, Math.max(0, cur.length - 4)) + '}');
+    }
+  });
+  update();
+  return { el: wrap, ta, set(v) { ta.value = v; update(); onInput(v); } };
+}
+const starter = q => (q.in || q.t === 'scanner' ? 'import java.util.Scanner;\n\n' : '') + 'public class Main {\n    public static void main(String[] args) {\n        // your code here\n        \n    }\n}\n';
+function taskList() { return TASKS.map((q, i) => ({ q, i })).filter(x => (!settings.topics.length || settings.topics.includes(x.q.t)) && (!settings.diff || x.q.d === settings.diff)); }
+function renderCodeList() {
+  const m = mainEl(), grid = h('div', { class: 'grid g2 task-list', style: 'margin-top:14px' });
+  const draw = () => {
+    const list = taskList();
+    grid.replaceChildren(...(list.length ? list.map(({ q, i }) => {
+      const st = prog.tasks[i];
+      return h('a', { class: 'card mode-card', href: '#code/' + i },
+        h('div', { class: 'row', style: 'gap:6px' }, h('span', { class: 'badge new' }, TOPIC[q.t].name), h('span', { class: 'badge d' + q.d }, DIFF[q.d]), h('span', { class: 'spacer' }), st === 'solved' ? h('span', { class: 'badge good' }, '✓ solved') : st === 'retry' ? h('span', { class: 'badge weak' }, 'try again') : null),
+        h('h3', { style: 'margin-top:8px' }, q.title), h('div', { class: 'muted small', html: fmt(q.task.split('\n')[0]) }));
+    }) : [h('div', { class: 'card empty muted' }, 'No tasks match these filters.')]));
+  };
+  draw();
+  m.replaceChildren(h('h1', {}, 'Write the code'), h('p', { class: 'muted' }, 'Small programming tasks like the ones on the exam. Write your solution in the editor (with Java syntax highlighting), use the hints if you are stuck, then compare with the model solution.'),
+    h('div', { class: 'card' }, filtersUI({}, draw)), grid);
+  viewKeys = null;
+}
+function renderTask(i) {
+  const q = TASKS[i]; if (!q) { location.hash = 'code'; return; }
+  const m = mainEl(), drafts = store.get('drafts', {});
+  const list = taskList().map(x => x.i), pos = list.indexOf(i);
+  const prevI = pos > 0 ? list[pos - 1] : null, nextI = pos >= 0 && pos < list.length - 1 ? list[pos + 1] : null;
+  const ed = makeEditor(drafts[i] != null ? drafts[i] : starter(q), v => { const d = store.get('drafts', {}); d[i] = v; store.set('drafts', d); });
+  let hintsShown = 0;
+  const hintBox = h('div'), solBox = h('div');
+  const hintBtn = h('button', { class: 'btn', onclick: () => { if (hintsShown < q.hints.length) { hintBox.append(h('div', { class: 'feedback good', style: 'margin-top:8px', html: '💡 <b>Hint ' + (hintsShown + 1) + ':</b> ' + fmt(q.hints[hintsShown]) })); hintsShown++; } hintBtn.textContent = hintsShown < q.hints.length ? `💡 Hint (${hintsShown}/${q.hints.length})` : '💡 No more hints'; hintBtn.disabled = hintsShown >= q.hints.length; } }, `💡 Hint (0/${q.hints.length})`);
+  const solBtn = h('button', { class: 'btn', onclick: () => {
+    if (solBox.firstChild) { solBox.replaceChildren(); solBtn.textContent = '👁 Show model solution'; return; }
+    solBox.replaceChildren(h('div', { class: 'row', style: 'margin-top:12px' }, h('b', {}, 'Model solution'), h('span', { class: 'spacer' }),
+      h('button', { class: 'btn ghost', onclick: () => { navigator.clipboard && navigator.clipboard.writeText(q.sol).then(() => toast('Copied!'), () => toast('Copy failed')); } }, 'Copy'),
+      h('button', { class: 'btn ghost', onclick: () => { if (confirm('Replace your code with the model solution?')) ed.set(q.sol); } }, 'Load into editor')),
+      codeBlock(q.sol), h('div', { class: 'small muted' }, 'Your solution does not have to look identical – it is correct if it prints exactly the expected output for every valid input.'));
+    solBtn.textContent = '🙈 Hide solution';
+  } }, '👁 Show model solution');
+  const mark = ok => { prog.tasks[i] = ok ? 'solved' : 'retry'; record(q.t, ok, 'code', null); toast(ok ? 'Nice! Marked as solved.' : 'Marked to try again later.'); renderTask(i); };
+  const st = prog.tasks[i];
+  m.replaceChildren(h('div', { class: 'qwrap' },
+    h('div', { class: 'row' }, h('a', { class: 'btn ghost', href: '#code' }, '← All tasks'), h('span', { class: 'spacer' }),
+      prevI != null ? h('a', { class: 'btn ghost', href: '#code/' + prevI }, '‹ Prev') : null, nextI != null ? h('a', { class: 'btn ghost', href: '#code/' + nextI }, 'Next ›') : null),
+    h('div', { class: 'card', style: 'margin-top:8px' },
+      h('div', { class: 'qhead' }, h('span', { class: 'badge new' }, TOPIC[q.t].name), h('span', { class: 'badge d' + q.d }, DIFF[q.d]), st === 'solved' ? h('span', { class: 'badge good' }, '✓ solved') : st === 'retry' ? h('span', { class: 'badge weak' }, 'try again') : null),
+      h('h1', {}, q.title), h('div', { class: 'qtext', style: 'font-weight:500', html: fmt(q.task) }),
+      q.in ? h('div', {}, h('div', { class: 'label' }, 'Test input (what the user types)'), h('div', { class: 'output-box' }, q.in.replace(/\n$/, ''))) : null,
+      h('div', { class: 'label', style: 'margin-top:8px' }, 'Expected output'), h('div', { class: 'output-box' }, q.out),
+      h('div', { class: 'label', style: 'margin-top:14px' }, 'Your code'), ed.el,
+      h('div', { class: 'small muted', style: 'margin-top:6px' }, 'This page cannot run Java. Test your code in your IDE (or javac + java), or compare carefully with the model solution. Tab indents, Esc leaves the editor.'),
+      h('div', { class: 'nav-row' }, hintBtn, solBtn, h('span', { class: 'spacer' }), h('button', { class: 'btn ghost', onclick: () => { if (confirm('Reset the editor to the starting code?')) ed.set(starter(q)); } }, 'Reset')),
+      hintBox, solBox,
+      h('div', { class: 'nav-row', style: 'border-top:1px solid var(--border);padding-top:14px' }, h('b', {}, 'How did it go?'),
+        h('button', { class: 'btn good', onclick: () => mark(true) }, '✓ I solved it'), h('button', { class: 'btn', onclick: () => mark(false) }, '✗ Not yet')))));
+  viewKeys = null;
+}
+
+/* ---------- cheat sheets ---------- */
+function renderCheatIndex() {
+  mainEl().replaceChildren(h('h1', {}, 'Cheat sheets'), h('p', { class: 'muted' }, 'Short explanations and examples for every topic. Read one, then practice it.'),
+    h('div', { class: 'grid g3' }, TOPICS.map((t, k) => h('a', { class: 'card mode-card', href: '#cheat/' + t.id }, h('div', { class: 'mi' }, t.icon), h('h3', {}, (k + 1) + '. ' + t.name), h('div', { class: 'muted small', html: CHEATS[t.id].intro })))));
+  viewKeys = null;
+}
+function renderCheat(id) {
+  const c = CHEATS[id]; if (!c) { location.hash = 'cheat'; return; }
+  const k = TOPICS.findIndex(t => t.id === id), prev = TOPICS[k - 1], next = TOPICS[k + 1];
+  const secs = c.s.map(s => h('div', { class: 'cheat-sec' }, h('h3', {}, s.h), s.p ? h('div', { html: s.p }) : null, s.c ? codeBlock(s.c) : null,
+    s.tbl ? h('div', { class: 'table-wrap' }, h('table', { class: 't' }, h('thead', {}, h('tr', {}, s.tbl[0].map(x => h('th', {}, x)))), h('tbody', {}, s.tbl.slice(1).map(r => h('tr', {}, r.map(x => h('td', {}, x))))))) : null));
+  mainEl().replaceChildren(h('div', { class: 'qwrap cheat' },
+    h('div', { class: 'row' }, h('a', { class: 'btn ghost', href: '#cheat' }, '← All topics'), h('span', { class: 'spacer' }), prev ? h('a', { class: 'btn ghost', href: '#cheat/' + prev.id }, '‹ ' + prev.name) : null, next ? h('a', { class: 'btn ghost', href: '#cheat/' + next.id }, next.name + ' ›') : null),
+    h('div', { class: 'card', style: 'margin-top:8px' }, h('h1', {}, (k + 1) + '. ' + TOPIC[id].name), h('p', { class: 'muted', html: c.intro }), secs,
+      h('div', { class: 'nav-row', style: 'margin-top:20px' }, h('button', { class: 'btn primary', onclick: () => startMixed([id], 'Practice: ' + TOPIC[id].name) }, 'Practice this topic'),
+        h('button', { class: 'btn', onclick: () => { settings.topics = [id]; saveSettings(); location.hash = 'quiz'; } }, 'Quiz on this topic')))));
+  viewKeys = null;
+}
+
+/* ---------- home & progress ---------- */
+function topicCards() {
+  return h('div', { class: 'grid g3' }, TOPICS.map(t => {
+    const s = topicStats(t.id), p = s.recent;
+    const badge = { new: h('span', { class: 'badge new' }, 'not started'), started: h('span', { class: 'badge' }, 'just started'), weak: h('span', { class: 'badge weak' }, '⚠ weak'), ok: h('span', { class: 'badge' }, 'ok'), strong: h('span', { class: 'badge good' }, '★ strong') }[s.status];
+    return h('div', { class: 'card topic-card' + (s.status === 'weak' ? ' is-weak' : '') },
+      h('div', { class: 'row', style: 'gap:8px' }, h('span', { class: 'ti' }, t.icon), h('b', {}, t.name), h('span', { class: 'spacer' }), badge),
+      h('div', { class: 'bar ' + (p < 50 ? 'low' : p < 75 ? 'mid' : '') }, h('i', { style: `width:${s.a ? Math.max(p, 3) : 0}%` })),
+      h('div', { class: 'small muted' }, s.a ? `${s.recent}% recent · ${s.c}/${s.a} correct overall` : 'No answers yet'),
+      h('div', { class: 'row', style: 'gap:6px' }, h('button', { class: 'btn', style: 'padding:6px 11px;font-size:14px', onclick: () => startMixed([t.id], 'Practice: ' + t.name) }, 'Practice'), h('a', { class: 'btn ghost', style: 'padding:6px 11px;font-size:14px', href: '#cheat/' + t.id }, 'Cheat sheet')));
+  }));
+}
+function renderHome() {
+  const tot = Object.values(prog.topics).reduce((s, x) => ({ a: s.a + x.a, c: s.c + x.c }), { a: 0, c: 0 });
+  const best = prog.mocks.length ? Math.max(...prog.mocks.map(x => pct(x.score, x.total))) + '%' : '–';
+  const weak = weakTopics();
+  let daysTxt = '';
+  if (settings.examDate) { const d = Math.ceil((new Date(settings.examDate + 'T00:00') - new Date(new Date().toDateString())) / 864e5); daysTxt = d > 1 ? `${d} days to go` : d === 1 ? 'Tomorrow – you got this!' : d === 0 ? 'Exam day – good luck!' : 'Exam date passed'; }
+  const modes = [['quiz', '?', 'Quiz', `${QUIZ.length} multiple-choice & true/false questions`], ['output', '>_', "What's the output?", `${OUTPUT.length} snippets: type the exact output`], ['bug', '🐞', 'Find the bug', `${BUGS.length} buggy programs: pick line + fix`], ['code', '{ }', 'Write the code', `${TASKS.length} tasks with hints & solutions`], ['mock', '⏱', 'Mock exam', '20 mixed questions · 60 minutes'], ['cheat', '📄', 'Cheat sheets', 'One page per topic with examples']];
+  mainEl().replaceChildren(
+    h('div', { class: 'hero' },
+      h('div', { class: 'card main' }, h('h1', {}, 'Ace your Java midterm'), h('p', { class: 'muted' }, `${ITEMS.length + TASKS.length} practice items over 10 topics – every code snippet was compiled and run to check the answers.`),
+        h('div', { class: 'row' }, h('a', { class: 'btn primary', href: '#quiz' }, 'Start a quiz'), h('button', { class: 'btn', onclick: practiceWeak }, weak.length ? `Practice my weak topics (${weak.length})` : 'Practice my weak topics'), h('a', { class: 'btn', href: '#mock' }, 'Mock exam'))),
+      h('div', { class: 'card' }, h('div', { class: 'stats' }, h('div', { class: 'stat' }, h('b', {}, tot.a), h('span', {}, 'answered')), h('div', { class: 'stat' }, h('b', {}, tot.a ? pct(tot.c, tot.a) + '%' : '–'), h('span', {}, 'accuracy')), h('div', { class: 'stat' }, h('b', {}, best), h('span', {}, 'best mock'))),
+        h('div', { class: 'row', style: 'margin-top:12px' }, h('label', { class: 'small muted', for: 'examDate' }, 'Exam date'), h('input', { type: 'date', id: 'examDate', value: settings.examDate, onchange: e => { settings.examDate = e.target.value; saveSettings(); renderHome(); } }), h('b', { class: 'small' }, daysTxt)),
+        h('div', { class: 'small muted', style: 'margin-top:10px' }, 'Press ', h('kbd', {}, '?'), ' for keyboard shortcuts.'))),
+    h('h2', {}, 'Practice modes'),
+    h('div', { class: 'grid g3' }, modes.map(([r, ic, t, d]) => h('a', { class: 'card mode-card', href: '#' + r }, h('div', { class: 'mi' }, ic), h('h3', {}, t), h('div', { class: 'muted small' }, d)))),
+    h('div', { class: 'row', style: 'margin-top:26px' }, h('h2', { style: 'margin:0' }, 'Topics'), h('span', { class: 'spacer' }), weak.length ? h('span', { class: 'badge weak' }, `${weak.length} weak topic${weak.length > 1 ? 's' : ''} highlighted`) : h('span', { class: 'small muted' }, 'A topic is marked weak when your recent accuracy is below 70%.')),
+    h('div', { style: 'margin-top:12px' }, topicCards()));
+  viewKeys = null;
+}
+function renderProgress() {
+  const rows = TOPICS.map(t => { const s = topicStats(t.id); return h('tr', {}, h('td', {}, t.name), h('td', {}, s.a), h('td', {}, s.a ? s.acc + '%' : '–'), h('td', {}, h('span', { class: 'recent' }, s.r.slice(-10).map(x => h('i', { class: x ? '' : 'x' })))), h('td', {}, { new: h('span', { class: 'badge new' }, 'not started'), started: h('span', { class: 'badge' }, 'started'), weak: h('span', { class: 'badge weak' }, '⚠ weak'), ok: h('span', { class: 'badge' }, 'ok'), strong: h('span', { class: 'badge good' }, '★ strong') }[s.status])); });
+  const modeNames = { quiz: 'Quiz', output: "What's the output?", bug: 'Find the bug', mixed: 'Topic / weak practice', mock: 'Mock exam', code: 'Write the code (self-check)' };
+  const solved = Object.values(prog.tasks).filter(x => x === 'solved').length;
+  mainEl().replaceChildren(h('h1', {}, 'Your progress'), h('p', { class: 'muted' }, 'Saved in this browser (localStorage). "Recent" shows your last answers per topic: green = right, red = wrong.'),
+    h('div', { class: 'card table-wrap' }, h('table', { class: 't' }, h('thead', {}, h('tr', {}, ['Topic', 'Answered', 'Accuracy', 'Recent', 'Status'].map(x => h('th', {}, x)))), h('tbody', {}, rows)),
+      h('div', { class: 'nav-row' }, h('button', { class: 'btn primary', onclick: practiceWeak }, 'Practice my weak topics'), h('span', { class: 'small muted' }, Object.keys(prog.wrong).length + ' questions you got wrong are queued for weak-topic practice.'))),
+    h('h2', {}, 'By mode'),
+    h('div', { class: 'card table-wrap' }, h('table', { class: 't' }, h('tbody', {}, Object.entries(modeNames).map(([k, n]) => { const x = prog.modes[k] || { a: 0, c: 0 }; return h('tr', {}, h('td', {}, n), h('td', {}, `${x.c} / ${x.a}`), h('td', {}, x.a ? pct(x.c, x.a) + '%' : '–')); }))),
+      h('div', { class: 'small muted', style: 'margin-top:8px' }, `Coding tasks marked solved: ${solved} / ${TASKS.length}`)),
+    h('h2', {}, 'Mock exams'),
+    h('div', { class: 'card' }, prog.mocks.length ? h('div', { class: 'table-wrap' }, h('table', { class: 't' }, h('tbody', {}, prog.mocks.slice().reverse().map(x => h('tr', {}, h('td', {}, new Date(x.date).toLocaleString()), h('td', {}, `${x.score} / ${x.total}`), h('td', {}, pct(x.score, x.total) + '%')))))) : h('div', { class: 'muted' }, 'No mock exams yet.')),
+    h('div', { class: 'nav-row', style: 'margin-top:24px' }, h('button', { class: 'btn', onclick: () => { if (confirm('Delete ALL saved progress (scores, mock history, solved tasks)? Your code drafts are kept.')) { prog = { topics: {}, modes: {}, wrong: {}, mocks: [], tasks: {} }; saveProg(); renderProgress(); toast('Progress reset.'); } } }, 'Reset progress')));
+  viewKeys = null;
+}
+
+/* ---------- router ---------- */
+function route() {
+  clearInterval(timerHandle); closeModal();
+  const [r, arg] = (location.hash.slice(1) || 'home').split('/');
+  document.querySelectorAll('nav.tabs a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + r));
+  viewKeys = null;
+  if (S && S.route === r) { S.finished ? renderResults() : renderSession(); return; }
+  switch (r) {
+    case 'quiz': case 'output': case 'bug': renderSetup(r); break;
+    case 'code': arg != null ? renderTask(+arg) : renderCodeList(); break;
+    case 'mock': renderMock(); break;
+    case 'cheat': arg ? renderCheat(arg) : renderCheatIndex(); break;
+    case 'progress': renderProgress(); break;
+    default: renderHome();
+  }
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+document.addEventListener('DOMContentLoaded', () => {
+  $('#themeBtn').addEventListener('click', toggleTheme);
+  $('#helpBtn').addEventListener('click', showHelp);
+  applyTheme(); route();
+});
+
+</script>
+</body>
+</html>
