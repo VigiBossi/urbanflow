@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CAI 109 Trainer</title>
+  <meta name="description" content="Interactive training platform for CAI 109 – Logical Circuits" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    /* apply the saved theme before first paint to avoid a flash */
+    try {
+      var s = JSON.parse(localStorage.getItem('cai109.progress.v1') || '{}');
+      var t = s.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#/">
+        <span class="brand-logo">⊕</span>
+        <span><b>CAI 109</b><small>Logical Circuits</small></span>
+      </a>
+      <nav class="nav">
+        <a href="#/" data-nav="dashboard"><span>🏠</span>Dashboard</a>
+        <a href="#/modules" data-nav="modules"><span>📚</span>Modules</a>
+        <a href="#/practice" data-nav="practice"><span>🎲</span>Practice generator</a>
+        <a href="#/tools" data-nav="tools"><span>🛠️</span>Tools</a>
+        <a href="#/exam" data-nav="exam"><span>📝</span>Exam prep</a>
+        <a href="#/mistakes" data-nav="mistakes"><span>🔁</span>Mistakes <em class="badge" id="mistake-count"></em></a>
+      </nav>
+      <div class="sidebar-modules" id="sidebar-modules"></div>
+      <div class="sidebar-foot">
+        <button class="btn ghost small" id="theme-toggle" title="Toggle dark mode">🌙 Dark mode</button>
+      </div>
+    </aside>
+    <main class="main" id="main" tabindex="-1"></main>
+  </div>
+
+  <!-- core engine -->
+  <script src="js/core/util.js"></script>
+  <script src="js/core/storage.js"></script>
+  <script src="js/core/boolean.js"></script>
+  <script src="js/core/numbers.js"></script>
+  <script src="js/core/checker.js"></script>
+  <script src="js/core/generators.js"></script>
+  <!-- course content (one file per module) -->
+  <script src="js/content/m01-number-systems.js"></script>
+  <script src="js/content/m02-signed-numbers.js"></script>
+  <script src="js/content/m03-binary-codes.js"></script>
+  <script src="js/content/m04-data-coding.js"></script>
+  <script src="js/content/m05-floating-point.js"></script>
+  <script src="js/content/m06-logic-gates.js"></script>
+  <script src="js/content/m07-boolean-algebra.js"></script>
+  <script src="js/content/m08-minterms-maxterms.js"></script>
+  <script src="js/content/m09-karnaugh-maps.js"></script>
+  <script src="js/content/m10-combinational.js"></script>
+  <script src="js/content/m11-sequential.js"></script>
+  <!-- user interface -->
+  <script src="js/ui/problem.js"></script>
+  <script src="js/ui/lesson.js"></script>
+  <script src="js/ui/dashboard.js"></script>
+  <script src="js/ui/practice.js"></script>
+  <script src="js/ui/tools.js"></script>
+  <script src="js/ui/exam.js"></script>
+  <script src="js/ui/mistakes.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
