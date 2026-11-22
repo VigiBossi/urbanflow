@@ -1,20 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'app.dart';
-import 'core/providers/auth_provider.dart';
-import 'core/providers/parking_provider.dart';
-import 'core/providers/reports_provider.dart';
+import 'package:material_ui/material_ui.dart';
 
-void main() {
+import 'app.dart';
+import 'core/di/app_dependencies.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => ParkingProvider()),
-        ChangeNotifierProvider(create: (_) => ReportsProvider()),
-      ],
-      child: const UrbanFlowApp(),
-    ),
-  );
+  final dependencies = await AppDependencies.mock();
+  runApp(UrbanFlowApp(dependencies: dependencies));
 }

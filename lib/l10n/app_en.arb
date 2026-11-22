@@ -1,0 +1,617 @@
+{
+  "@@locale": "en",
+  "appName": "UrbanFlow AI",
+  "appTagline": "Smart city services for Skopje",
+  "retry": "Retry",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "save": "Save",
+  "close": "Close",
+  "ok": "OK",
+  "send": "Send",
+  "all": "All",
+  "clearFilters": "Clear filters",
+  "loading": "Loading…",
+  "errorTitle": "Something went wrong",
+  "errorMessage": "We couldn't load the data. Check your connection and try again.",
+  "timeJustNow": "just now",
+  "timeMinutesAgo": "{count} min ago",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHoursAgo": "{count} h ago",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeDaysAgo": "{count} d ago",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "currencyAmount": "{amount} MKD",
+  "@currencyAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceMeters": "{value} m",
+  "@distanceMeters": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceKilometers": "{value} km",
+  "@distanceKilometers": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "durationHours": "{count} h",
+  "@durationHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "durationMinutes": "{count} min",
+  "@durationMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHoursMinutes": "{hours} h {minutes} min",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "loginTitle": "Welcome back",
+  "loginSubtitle": "Sign in to continue",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "emailRequired": "Please enter your email",
+  "emailInvalid": "Please enter a valid email address",
+  "passwordRequired": "Please enter your password",
+  "passwordTooShort": "Password must be at least 6 characters",
+  "signIn": "Sign in",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "invalidCredentials": "Incorrect email or password",
+  "networkError": "Network error. Please try again.",
+  "demoAccounts": "Demo accounts",
+  "demoAccountsHint": "Tap an account to fill in the form",
+  "roleCitizen": "Citizen",
+  "roleMunicipality": "Municipality",
+  "logout": "Log out",
+  "logoutConfirmTitle": "Log out?",
+  "logoutConfirmMessage": "You will need to sign in again to use the app.",
+  "navParking": "Parking",
+  "navMap": "Map",
+  "navReports": "Reports",
+  "navAssistant": "Assistant",
+  "navProfile": "Profile",
+  "navDashboard": "Dashboard",
+  "navManage": "Manage",
+  "locationFallback": "Location unavailable. Showing results around Skopje center.",
+  "locationEnable": "Enable",
+  "useMyLocation": "Use my location",
+  "locating": "Finding your location…",
+  "parkingTitle": "AI Parking",
+  "parkingSubtitle": "Ranked for you right now",
+  "rankingPreference": "Ranking preference",
+  "presetBalanced": "Balanced",
+  "presetClosest": "Closest",
+  "presetCheapest": "Cheapest",
+  "presetAvailable": "Most space",
+  "listView": "List",
+  "mapView": "Map",
+  "spotsFree": "{available}/{capacity} free",
+  "@spotsFree": {
+    "placeholders": {
+      "available": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "spotFull": "Full",
+  "priceFree": "Free",
+  "pricePerHour": "{price}/h",
+  "@pricePerHour": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreValue": "Score {value}",
+  "@scoreValue": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "topPick": "Top pick",
+  "whyThisSpot": "Why this spot?",
+  "factorDistance": "Distance",
+  "factorAvailability": "Availability",
+  "factorPrice": "Price",
+  "factorDemand": "Demand at this hour",
+  "scoreExplanation": "The score combines distance from you, free spaces, price and the expected demand for this time of day.",
+  "parkingTypeStreet": "Street",
+  "parkingTypeGarage": "Garage",
+  "parkingTypeLot": "Parking lot",
+  "zoneLabel": "Zone {zone}",
+  "@zoneLabel": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "payAndPark": "Pay & park",
+  "noSpotsTitle": "No parking found",
+  "noSpotsMessage": "There are no parking spots to show right now.",
+  "lastUpdated": "Updated {time}",
+  "@lastUpdated": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentTitle": "Pay for parking",
+  "selectDuration": "Duration",
+  "plateLabel": "License plate",
+  "plateHint": "SK 1234 AB",
+  "plateRequired": "Please enter your license plate",
+  "plateInvalid": "Use 4–10 letters and digits",
+  "paymentMethod": "Payment method",
+  "paymentCard": "Card •••• 4242",
+  "paymentWallet": "Mobile wallet",
+  "paymentSms": "SMS parking",
+  "totalLabel": "Total",
+  "payAmount": "Pay {amount}",
+  "@payAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "startFreeSession": "Start session",
+  "mockPaymentNotice": "Demo mode: no real payment is made.",
+  "paymentSuccess": "Payment successful. Your session has started.",
+  "spotFullError": "This parking spot is full. Please choose another one.",
+  "replaceSessionWarning": "Starting a new session will end your current one.",
+  "activeSessionTitle": "Parking session",
+  "timeRemaining": "Time remaining",
+  "endsAt": "Ends at {time}",
+  "@endsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "extend": "Extend",
+  "endSession": "End session",
+  "endSessionConfirm": "End your parking session now? Unused time is not refunded.",
+  "extendTitle": "Extend session",
+  "extendOption": "Add {duration} · {amount}",
+  "@extendOption": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionExtended": "Session extended",
+  "sessionEnded": "Parking session ended",
+  "sessionExpiredTitle": "Parking expired",
+  "sessionExpiredMessage": "Your session at {spot} has expired. Move your car or start a new session to avoid a fine.",
+  "@sessionExpiredMessage": {
+    "placeholders": {
+      "spot": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionWarningTitle": "10 minutes left",
+  "sessionWarningMessage": "Your parking at {spot} expires in less than 10 minutes.",
+  "@sessionWarningMessage": {
+    "placeholders": {
+      "spot": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionBanner": "Parking at {spot} · {time} left",
+  "@sessionBanner": {
+    "placeholders": {
+      "spot": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "viewSession": "View",
+  "noActiveSessionTitle": "No active session",
+  "noActiveSessionMessage": "Pick a parking spot to start a session.",
+  "amountPaid": "Paid",
+  "startedAt": "Started",
+  "sessionExpiredBadge": "Expired",
+  "myReports": "My reports",
+  "newReport": "New report",
+  "categoryLabel": "Category",
+  "categoryPothole": "Pothole",
+  "categoryStreetlight": "Broken streetlight",
+  "categoryGraffiti": "Graffiti",
+  "categoryTrash": "Trash",
+  "categoryDamagedSign": "Damaged sign",
+  "categoryOther": "Other",
+  "descriptionLabel": "Description",
+  "descriptionHint": "Describe the problem and where exactly it is",
+  "descriptionRequired": "Please describe the problem",
+  "descriptionTooShort": "Please add at least 10 characters",
+  "locationLabel": "Location",
+  "pickOnMap": "Pick on map",
+  "locationNotSet": "No location selected",
+  "locationRequired": "Please choose a location",
+  "addPhoto": "Add photo",
+  "photoAttached": "Photo attached",
+  "removePhoto": "Remove photo",
+  "photoDemoNote": "Photo upload is simulated in demo mode.",
+  "submitReport": "Submit report",
+  "reportSubmitted": "Report submitted. Thank you!",
+  "noReportsTitle": "No reports yet",
+  "noReportsMessage": "Spotted a problem in your neighborhood? Tap + to report it.",
+  "reportDetails": "Report details",
+  "statusLabel": "Status",
+  "statusSubmitted": "Submitted",
+  "statusInReview": "In review",
+  "statusInProgress": "In progress",
+  "statusResolved": "Resolved",
+  "priorityLabel": "Priority",
+  "priorityLow": "Low",
+  "priorityMedium": "Medium",
+  "priorityHigh": "High",
+  "priorityCritical": "Critical",
+  "reportedOn": "Reported {date}",
+  "@reportedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "neighborhoodLabel": "Neighborhood",
+  "progressLabel": "Progress",
+  "municipalityNotes": "Updates from the municipality",
+  "noNotes": "No updates yet",
+  "pickLocationTitle": "Choose location",
+  "tapToPlace": "Tap the map to place the pin",
+  "confirmLocation": "Confirm location",
+  "photoLabel": "Photo",
+  "manageReports": "Manage reports",
+  "filterStatus": "Status",
+  "filterCategory": "Category",
+  "filterPriority": "Priority",
+  "filterNeighborhood": "Neighborhood",
+  "sortNewest": "Newest first",
+  "sortPriority": "Highest priority",
+  "assignTo": "Assign to",
+  "assigneeLabel": "Assignee",
+  "unassigned": "Unassigned",
+  "assignedTo": "Assigned to {name}",
+  "@assignedTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "changeStatus": "Change status",
+  "noStatusChanges": "No further status changes available",
+  "notesLabel": "Notes",
+  "addNote": "Add note",
+  "noteHint": "Write a note for the team and the citizen…",
+  "noteAdded": "Note added",
+  "reportUpdated": "Report updated",
+  "invalidTransition": "This status change is not allowed",
+  "noMatchingTitle": "No matching reports",
+  "noMatchingMessage": "Try changing or clearing the filters.",
+  "reportsCount": "{count} reports",
+  "@reportsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createdLabel": "Created",
+  "departmentRoads": "Roads",
+  "departmentLighting": "Lighting",
+  "departmentSanitation": "Sanitation",
+  "departmentPublicSpaces": "Public spaces",
+  "cityMapTitle": "City map",
+  "layersLabel": "Layers",
+  "layerParking": "Parking",
+  "layerReports": "Reports",
+  "availabilityHigh": "Plenty of space",
+  "availabilityMedium": "Limited",
+  "availabilityLow": "Almost full",
+  "availabilityNone": "Full",
+  "mapAttribution": "OpenStreetMap contributors",
+  "clusterZoomHint": "{count} items here. Zoom in to see them.",
+  "@clusterZoomHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardTitle": "City dashboard",
+  "greeting": "Hello, {name}",
+  "@greeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kpiOpenReports": "Open reports",
+  "kpiAvgResolution": "Avg. resolution",
+  "kpiOccupancy": "Parking occupancy",
+  "kpiRevenue": "Revenue today",
+  "valueHours": "{value} h",
+  "@valueHours": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "valueDays": "{value} days",
+  "@valueDays": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notAvailable": "n/a",
+  "chartByCategory": "Reports by category",
+  "chartOverTime": "Reports over the last 14 days",
+  "chartOccupancyByHour": "Parking occupancy by hour (%)",
+  "aiInsights": "AI insights",
+  "noInsights": "No notable trends right now.",
+  "reportManagement": "Report management",
+  "viewAll": "View all",
+  "insightSpike": "{category} in {neighborhood} up {percent}% this week",
+  "@insightSpike": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "neighborhood": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "insightDrop": "{category} reports down {percent}% city-wide this week",
+  "@insightDrop": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "insightHotspot": "{neighborhood} has the most open reports ({count})",
+  "@insightHotspot": {
+    "placeholders": {
+      "neighborhood": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "insightUnassigned": "{count} high-priority reports are still unassigned",
+  "@insightUnassigned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "insightSlowResolution": "{category}: {days} days to resolve on average",
+  "@insightSlowResolution": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "insightPeakOccupancy": "Parking demand peaks around {hour} at {percent}%",
+  "@insightPeakOccupancy": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "insightFullParking": "{count} parking facilities are over 90% full",
+  "@insightFullParking": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "assistantTitle": "City assistant",
+  "assistantSubtitle": "Parking, traffic and city services",
+  "assistantWelcome": "Hi! I'm your UrbanFlow assistant. Ask me about parking, traffic or city services.",
+  "messageHint": "Ask me anything about the city…",
+  "assistantTyping": "Assistant is typing…",
+  "clearChat": "Clear chat",
+  "qrFindParking": "Find parking near me",
+  "qrParkingPrice": "Parking prices",
+  "qrTraffic": "Traffic right now",
+  "qrReportIssue": "How do I report an issue?",
+  "qrMyReports": "Status of my reports",
+  "qrCityHours": "City office hours",
+  "qrEmergency": "Emergency numbers",
+  "aiGreeting": "Hello! How can I help you today?",
+  "aiThanks": "You're welcome! Anything else I can help with?",
+  "aiFallback": "I'm not sure I understood. I can help with parking, traffic, reports and city services.",
+  "aiParkingBest": "Best option near you right now: {name}, {distance} away, {free} free spaces, {price}.",
+  "@aiParkingBest": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      },
+      "free": {
+        "type": "int"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "aiParkingNone": "I couldn't find free parking nearby right now. Try again in a few minutes.",
+  "aiParkingPrices": "Public parking in Skopje is priced by zone: Zone A {zoneA}, Zone B {zoneB}, Zone C {zoneC} per hour. Many mall garages are free.",
+  "@aiParkingPrices": {
+    "placeholders": {
+      "zoneA": {
+        "type": "String"
+      },
+      "zoneB": {
+        "type": "String"
+      },
+      "zoneC": {
+        "type": "String"
+      }
+    }
+  },
+  "aiSessionActive": "Your session at {name} has {time} remaining.",
+  "@aiSessionActive": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "aiSessionNone": "You don't have an active parking session.",
+  "aiTrafficHeavy": "Traffic is heavy right now, especially on {streets}. Allow extra time.",
+  "@aiTrafficHeavy": {
+    "placeholders": {
+      "streets": {
+        "type": "String"
+      }
+    }
+  },
+  "aiTrafficModerate": "Traffic is moderate. Expect some delays on {streets}.",
+  "@aiTrafficModerate": {
+    "placeholders": {
+      "streets": {
+        "type": "String"
+      }
+    }
+  },
+  "aiTrafficLight": "Traffic is light across the city right now.",
+  "aiReportHowTo": "Open Reports, tap +, choose a category, describe the problem and pin the location on the map. You can follow its status in My reports.",
+  "aiReportStatus": "You have {total} reports: {open} open and {resolved} resolved.",
+  "@aiReportStatus": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "open": {
+        "type": "int"
+      },
+      "resolved": {
+        "type": "int"
+      }
+    }
+  },
+  "aiReportStatusNone": "You haven't submitted any reports yet.",
+  "aiCityHours": "City of Skopje offices are open Monday to Friday, 08:00 to 16:00. Many services are also available online.",
+  "aiEmergency": "Emergency numbers in North Macedonia: 112 general emergency, 192 police, 193 fire department, 194 ambulance.",
+  "aiTransport": "City buses run from about 05:00 to 23:00. Main hubs are the Transport Center and the city center stops.",
+  "aiWaste": "Waste is collected daily in central areas and two to three times a week elsewhere. Report overflowing bins in Reports.",
+  "settingsTitle": "Profile & settings",
+  "signedInAs": "Signed in as",
+  "appearance": "Appearance",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "languageLabel": "Language",
+  "aboutLabel": "About",
+  "aboutText": "UrbanFlow AI helps citizens and the municipality of Skopje keep the city moving.",
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "langEnglish": "English",
+  "langAlbanian": "Shqip",
+  "langMacedonian": "Македонски",
+  "langTurkish": "Türkçe",
+  "scoreLabel": "Score"
+}
