@@ -90,6 +90,7 @@
         } else msgs.push(`${diff.length} digits differ from the correct answer. Use “Check my steps” to find the first step that goes wrong.`);
       } else if (Math.abs(u.ip.length - e.ip.length) === 1) msgs.push(u.ip.length > e.ip.length ? 'You have one digit too many — did you add an extra remainder or a leading digit?' : 'You are one digit short — did you stop dividing before the quotient reached 0 (the last remainder is the MSB)?');
     }
+    if (base === 10 && /^[01]{4,}$/.test(u.canon) && e.canon !== u.canon) msgs.unshift('That looks like a binary number — the answer must be written in decimal (base 10).');
     if (base !== 10 && /^\d+$/.test(String(input).trim()) && +String(input).trim() === Math.round(CAI.num.parseBase(e.ip, base)) && u.canon !== e.canon) msgs.unshift(`It looks like you wrote the value in decimal. The answer must be in base ${base}.`);
     return { ok: false, msgs };
   }
