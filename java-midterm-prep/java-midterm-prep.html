@@ -2482,6 +2482,13 @@ function toggleTheme() { settings.theme = document.documentElement.dataset.theme
 function toast(msg) { const t = h('div', { class: 'toast', role: 'status' }, msg); document.body.append(t); setTimeout(() => t.remove(), 2600); }
 let modalEl = null;
 function modal(content) { closeModal(); modalEl = h('div', { class: 'modal-bg', onclick: e => { if (e.target === modalEl) closeModal(); } }, h('div', { class: 'card modal', role: 'dialog', 'aria-modal': 'true' }, content, h('div', { class: 'nav-row' }, h('button', { class: 'btn', onclick: closeModal }, 'Close ', h('span', { class: 'kb' }, 'Esc'))))); document.body.append(modalEl); }
+function askConfirm(msg, yesLabel, onYes) {
+  closeModal();
+  const yes = h('button', { class: 'btn primary', onclick: () => { closeModal(); onYes(); } }, yesLabel);
+  modalEl = h('div', { class: 'modal-bg', onclick: e => { if (e.target === modalEl) closeModal(); } }, h('div', { class: 'card modal', role: 'alertdialog', 'aria-modal': 'true' },
+    h('p', { style: 'margin-top:0;font-weight:600' }, msg), h('div', { class: 'nav-row' }, yes, h('button', { class: 'btn', onclick: closeModal }, 'Cancel'))));
+  document.body.append(modalEl); yes.focus();
+}
 function closeModal() { if (modalEl) { modalEl.remove(); modalEl = null; } }
 function showHelp() {
   const rows = [['?', 'Show this help'], ['Shift + D', 'Toggle dark mode'], ['g then h / q / o / b / w / m / c / p', 'Go to Home, Quiz, Output, Bug, Write code, Mock exam, Cheat sheets, Progress'],
@@ -2491,7 +2498,7 @@ function showHelp() {
   modal(h('div', {}, h('h2', { style: 'margin-top:0' }, 'Keyboard shortcuts'), h('div', { class: 'kbd-list' }, rows.flatMap(([k, d]) => [h('div', {}, ...k.split('  ').map(x => h('kbd', { style: 'margin-right:4px' }, x))), h('div', {}, d)]))));
 }
 document.addEventListener('keydown', e => {
-  if (modalEl) { if (e.key === 'Escape') closeModal(); return; }
+  if (modalEl) { if (e.key === 'Escape') { e.preventDefault(); closeModal(); } return; }
   const tag = e.target.tagName;
   if (tag === 'TEXTAREA' || tag === 'INPUT' || tag === 'SELECT') { if (e.key === 'Escape') e.target.blur(); return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -2672,7 +2679,7 @@ function renderMockQuestion() {
   const drawPalette = () => { palette.replaceChildren(...M.insts.map((x, k) => h('button', { class: (isAnswered(x) ? 'done ' : '') + (k === M.idx ? 'cur' : ''), title: 'Question ' + (k + 1), onclick: () => go(k) }, k + 1))); };
   const go = k => { if (k < 0 || k >= n) return; M.idx = k; mockSave(); renderMockQuestion(); window.scrollTo(0, 0); };
   const onChange = soft => { mockSave(); if (soft) drawPalette(); else renderMockQuestion(); };
-  const submit = () => { const left = M.insts.filter(x => !isAnswered(x)).length; if (confirm(left ? `You have ${left} unanswered question${left > 1 ? 's' : ''}. Submit anyway?` : 'Submit your exam?')) finishMock(false); };
+  const submit = () => { const left = M.insts.filter(x => !isAnswered(x)).length; askConfirm(left ? `You have ${left} unanswered question${left > 1 ? 's' : ''}. Submit anyway?` : 'Submit your exam?', 'Submit exam', () => finishMock(false)); };
   const q = renderQuestion(inst, 'exam', onChange);
   drawPalette();
   m.replaceChildren(h('div', { class: 'qwrap' },
@@ -2764,7 +2771,7 @@ function renderCodeList() {
     const list = taskList();
     grid.replaceChildren(...(list.length ? list.map(({ q, i }) => {
       const st = prog.tasks[i];
-      return h('a', { class: 'card mode-card', href: '#code/' + i },
+      return h('a', { class: 'card mode-card', href: '#code-' + i },
         h('div', { class: 'row', style: 'gap:6px' }, h('span', { class: 'badge new' }, TOPIC[q.t].name), h('span', { class: 'badge d' + q.d }, DIFF[q.d]), h('span', { class: 'spacer' }), st === 'solved' ? h('span', { class: 'badge good' }, '✓ solved') : st === 'retry' ? h('span', { class: 'badge weak' }, 'try again') : null),
         h('h3', { style: 'margin-top:8px' }, q.title), h('div', { class: 'muted small', html: fmt(q.task.split('\n')[0]) }));
     }) : [h('div', { class: 'card empty muted' }, 'No tasks match these filters.')]));
@@ -2787,7 +2794,7 @@ function renderTask(i) {
     if (solBox.firstChild) { solBox.replaceChildren(); solBtn.textContent = '👁 Show model solution'; return; }
     solBox.replaceChildren(h('div', { class: 'row', style: 'margin-top:12px' }, h('b', {}, 'Model solution'), h('span', { class: 'spacer' }),
       h('button', { class: 'btn ghost', onclick: () => { navigator.clipboard && navigator.clipboard.writeText(q.sol).then(() => toast('Copied!'), () => toast('Copy failed')); } }, 'Copy'),
-      h('button', { class: 'btn ghost', onclick: () => { if (confirm('Replace your code with the model solution?')) ed.set(q.sol); } }, 'Load into editor')),
+      h('button', { class: 'btn ghost', onclick: () => { askConfirm('Replace your code with the model solution?', 'Replace', () => ed.set(q.sol)); } }, 'Load into editor')),
       codeBlock(q.sol), h('div', { class: 'small muted' }, 'Your solution does not have to look identical – it is correct if it prints exactly the expected output for every valid input.'));
     solBtn.textContent = '🙈 Hide solution';
   } }, '👁 Show model solution');
@@ -2795,7 +2802,7 @@ function renderTask(i) {
   const st = prog.tasks[i];
   m.replaceChildren(h('div', { class: 'qwrap' },
     h('div', { class: 'row' }, h('a', { class: 'btn ghost', href: '#code' }, '← All tasks'), h('span', { class: 'spacer' }),
-      prevI != null ? h('a', { class: 'btn ghost', href: '#code/' + prevI }, '‹ Prev') : null, nextI != null ? h('a', { class: 'btn ghost', href: '#code/' + nextI }, 'Next ›') : null),
+      prevI != null ? h('a', { class: 'btn ghost', href: '#code-' + prevI }, '‹ Prev') : null, nextI != null ? h('a', { class: 'btn ghost', href: '#code-' + nextI }, 'Next ›') : null),
     h('div', { class: 'card', style: 'margin-top:8px' },
       h('div', { class: 'qhead' }, h('span', { class: 'badge new' }, TOPIC[q.t].name), h('span', { class: 'badge d' + q.d }, DIFF[q.d]), st === 'solved' ? h('span', { class: 'badge good' }, '✓ solved') : st === 'retry' ? h('span', { class: 'badge weak' }, 'try again') : null),
       h('h1', {}, q.title), h('div', { class: 'qtext', style: 'font-weight:500', html: fmt(q.task) }),
@@ -2803,7 +2810,7 @@ function renderTask(i) {
       h('div', { class: 'label', style: 'margin-top:8px' }, 'Expected output'), h('div', { class: 'output-box' }, q.out),
       h('div', { class: 'label', style: 'margin-top:14px' }, 'Your code'), ed.el,
       h('div', { class: 'small muted', style: 'margin-top:6px' }, 'This page cannot run Java. Test your code in your IDE (or javac + java), or compare carefully with the model solution. Tab indents, Esc leaves the editor.'),
-      h('div', { class: 'nav-row' }, hintBtn, solBtn, h('span', { class: 'spacer' }), h('button', { class: 'btn ghost', onclick: () => { if (confirm('Reset the editor to the starting code?')) ed.set(starter(q)); } }, 'Reset')),
+      h('div', { class: 'nav-row' }, hintBtn, solBtn, h('span', { class: 'spacer' }), h('button', { class: 'btn ghost', onclick: () => { askConfirm('Reset the editor to the starting code?', 'Reset', () => ed.set(starter(q))); } }, 'Reset')),
       hintBox, solBox,
       h('div', { class: 'nav-row', style: 'border-top:1px solid var(--border);padding-top:14px' }, h('b', {}, 'How did it go?'),
         h('button', { class: 'btn good', onclick: () => mark(true) }, '✓ I solved it'), h('button', { class: 'btn', onclick: () => mark(false) }, '✗ Not yet')))));
@@ -2813,7 +2820,7 @@ function renderTask(i) {
 /* ---------- cheat sheets ---------- */
 function renderCheatIndex() {
   mainEl().replaceChildren(h('h1', {}, 'Cheat sheets'), h('p', { class: 'muted' }, 'Short explanations and examples for every topic. Read one, then practice it.'),
-    h('div', { class: 'grid g3' }, TOPICS.map((t, k) => h('a', { class: 'card mode-card', href: '#cheat/' + t.id }, h('div', { class: 'mi' }, t.icon), h('h3', {}, (k + 1) + '. ' + t.name), h('div', { class: 'muted small', html: CHEATS[t.id].intro })))));
+    h('div', { class: 'grid g3' }, TOPICS.map((t, k) => h('a', { class: 'card mode-card', href: '#cheat-' + t.id }, h('div', { class: 'mi' }, t.icon), h('h3', {}, (k + 1) + '. ' + t.name), h('div', { class: 'muted small', html: CHEATS[t.id].intro })))));
   viewKeys = null;
 }
 function renderCheat(id) {
@@ -2822,7 +2829,7 @@ function renderCheat(id) {
   const secs = c.s.map(s => h('div', { class: 'cheat-sec' }, h('h3', {}, s.h), s.p ? h('div', { html: s.p }) : null, s.c ? codeBlock(s.c) : null,
     s.tbl ? h('div', { class: 'table-wrap' }, h('table', { class: 't' }, h('thead', {}, h('tr', {}, s.tbl[0].map(x => h('th', {}, x)))), h('tbody', {}, s.tbl.slice(1).map(r => h('tr', {}, r.map(x => h('td', {}, x))))))) : null));
   mainEl().replaceChildren(h('div', { class: 'qwrap cheat' },
-    h('div', { class: 'row' }, h('a', { class: 'btn ghost', href: '#cheat' }, '← All topics'), h('span', { class: 'spacer' }), prev ? h('a', { class: 'btn ghost', href: '#cheat/' + prev.id }, '‹ ' + prev.name) : null, next ? h('a', { class: 'btn ghost', href: '#cheat/' + next.id }, next.name + ' ›') : null),
+    h('div', { class: 'row' }, h('a', { class: 'btn ghost', href: '#cheat' }, '← All topics'), h('span', { class: 'spacer' }), prev ? h('a', { class: 'btn ghost', href: '#cheat-' + prev.id }, '‹ ' + prev.name) : null, next ? h('a', { class: 'btn ghost', href: '#cheat-' + next.id }, next.name + ' ›') : null),
     h('div', { class: 'card', style: 'margin-top:8px' }, h('h1', {}, (k + 1) + '. ' + TOPIC[id].name), h('p', { class: 'muted', html: c.intro }), secs,
       h('div', { class: 'nav-row', style: 'margin-top:20px' }, h('button', { class: 'btn primary', onclick: () => startMixed([id], 'Practice: ' + TOPIC[id].name) }, 'Practice this topic'),
         h('button', { class: 'btn', onclick: () => { settings.topics = [id]; saveSettings(); location.hash = 'quiz'; } }, 'Quiz on this topic')))));
@@ -2838,7 +2845,7 @@ function topicCards() {
       h('div', { class: 'row', style: 'gap:8px' }, h('span', { class: 'ti' }, t.icon), h('b', {}, t.name), h('span', { class: 'spacer' }), badge),
       h('div', { class: 'bar ' + (p < 50 ? 'low' : p < 75 ? 'mid' : '') }, h('i', { style: `width:${s.a ? Math.max(p, 3) : 0}%` })),
       h('div', { class: 'small muted' }, s.a ? `${s.recent}% recent · ${s.c}/${s.a} correct overall` : 'No answers yet'),
-      h('div', { class: 'row', style: 'gap:6px' }, h('button', { class: 'btn', style: 'padding:6px 11px;font-size:14px', onclick: () => startMixed([t.id], 'Practice: ' + t.name) }, 'Practice'), h('a', { class: 'btn ghost', style: 'padding:6px 11px;font-size:14px', href: '#cheat/' + t.id }, 'Cheat sheet')));
+      h('div', { class: 'row', style: 'gap:6px' }, h('button', { class: 'btn', style: 'padding:6px 11px;font-size:14px', onclick: () => startMixed([t.id], 'Practice: ' + t.name) }, 'Practice'), h('a', { class: 'btn ghost', style: 'padding:6px 11px;font-size:14px', href: '#cheat-' + t.id }, 'Cheat sheet')));
   }));
 }
 function renderHome() {
@@ -2873,14 +2880,14 @@ function renderProgress() {
       h('div', { class: 'small muted', style: 'margin-top:8px' }, `Coding tasks marked solved: ${solved} / ${TASKS.length}`)),
     h('h2', {}, 'Mock exams'),
     h('div', { class: 'card' }, prog.mocks.length ? h('div', { class: 'table-wrap' }, h('table', { class: 't' }, h('tbody', {}, prog.mocks.slice().reverse().map(x => h('tr', {}, h('td', {}, new Date(x.date).toLocaleString()), h('td', {}, `${x.score} / ${x.total}`), h('td', {}, pct(x.score, x.total) + '%')))))) : h('div', { class: 'muted' }, 'No mock exams yet.')),
-    h('div', { class: 'nav-row', style: 'margin-top:24px' }, h('button', { class: 'btn', onclick: () => { if (confirm('Delete ALL saved progress (scores, mock history, solved tasks)? Your code drafts are kept.')) { prog = { topics: {}, modes: {}, wrong: {}, mocks: [], tasks: {} }; saveProg(); renderProgress(); toast('Progress reset.'); } } }, 'Reset progress')));
+    h('div', { class: 'nav-row', style: 'margin-top:24px' }, h('button', { class: 'btn', onclick: () => { askConfirm('Delete ALL saved progress (scores, mock history, solved tasks)? Your code drafts are kept.', 'Delete progress', () => { prog = { topics: {}, modes: {}, wrong: {}, mocks: [], tasks: {} }; saveProg(); renderProgress(); toast('Progress reset.'); }); } }, 'Reset progress')));
   viewKeys = null;
 }
 
 /* ---------- router ---------- */
 function route() {
   clearInterval(timerHandle); closeModal();
-  const [r, arg] = (location.hash.slice(1) || 'home').split('/');
+  const [r, arg] = (location.hash.slice(1) || 'home').split('-');
   document.querySelectorAll('nav.tabs a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + r));
   viewKeys = null;
   if (S && S.route === r) { S.finished ? renderResults() : renderSession(); return; }
