@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DB Trainer</title>
+  <meta name="description" content="Learn Database Systems: ER model, mapping, relational algebra, SQL and normalization — with exercises, flashcards and mock exams.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233b5bdb'/%3E%3Cpath d='M16 6 L26 16 L16 26 L6 16 Z' fill='none' stroke='white' stroke-width='2.5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app"><main><p class="muted">Loading…</p></main></div>
+  <noscript>This app needs JavaScript.</noscript>
+
+  <!-- 1) your settings -->
+  <script src="config.js"></script>
+  <!-- 2) Supabase client from a CDN (sql.js is loaded on demand by js/app.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 3) engines -->
+  <script src="js/util.js"></script>
+  <script src="js/sampledb.js"></script>
+  <script src="js/ra.js"></script>
+  <script src="js/fd.js"></script>
+  <script src="js/erd.js"></script>
+  <script src="js/schema.js"></script>
+  <script src="js/store.js"></script>
+  <!-- 4) course content (add lessons/exercises here) -->
+  <script src="content/common.js"></script>
+  <script src="content/m1.js"></script>
+  <script src="content/m2.js"></script>
+  <script src="content/m3.js"></script>
+  <script src="content/m4.js"></script>
+  <script src="content/extras.js"></script>
+  <!-- 5) the app -->
+  <script src="js/widgets.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
