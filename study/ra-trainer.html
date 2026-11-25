@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RA Trainer · CAI 105</title>
+<style>
+:root{
+  --bg:#f5f6fa;--card:#ffffff;--ink:#1c2230;--muted:#5f6878;--line:#e1e5ee;
+  --accent:#2f55d4;--accent-ink:#ffffff;--accent-soft:#e8eefd;
+  --ok:#1d8048;--ok-soft:#e4f4ea;--bad:#bf3a2b;--bad-soft:#fbe9e7;--warn:#9a6300;--warn-soft:#fff3d6;
+  --code:#f0f2f7;--th:#f3f5fa;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#11141b;--card:#1a1e28;--ink:#e5e8ef;--muted:#9aa2b3;--line:#2b3140;
+  --accent:#7d9bff;--accent-ink:#0d1220;--accent-soft:#222b45;
+  --ok:#4cc386;--ok-soft:#163024;--bad:#ff7d70;--bad-soft:#3a1d1b;--warn:#f0b445;--warn-soft:#382d15;
+  --code:#232836;--th:#202533;
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans)}
+.wrap{max-width:900px;margin:0 auto;padding:12px 16px 60px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:8px 0 4px}
+h1{font-size:19px;margin:0;letter-spacing:-.01em}
+h1 small{display:block;font-size:12px;font-weight:500;color:var(--muted)}
+.stats{display:flex;gap:6px;flex-wrap:wrap}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px 10px;font-size:13px;white-space:nowrap}
+.stat b{font-variant-numeric:tabular-nums}
+nav{display:flex;gap:4px;margin:10px 0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;overflow-x:auto}
+nav button{flex:1;border:0;background:none;color:var(--muted);padding:8px 10px;border-radius:9px;font:600 14px var(--sans);cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--accent);color:var(--accent-ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:10px 0}
+details.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:8px 0}
+details.panel>summary{cursor:pointer;padding:10px 14px;font-weight:600;list-style:none}
+details.panel>summary::-webkit-details-marker{display:none}
+details.panel>summary::before{content:"▸ ";color:var(--muted)}
+details.panel[open]>summary::before{content:"▾ "}
+details.panel .inner{padding:0 14px 14px}
+.dbgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.tname{font:600 13px var(--mono);margin:6px 0 4px}
+.tname span{color:var(--muted);font-weight:400}
+.tw{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+table.rel{border-collapse:collapse;font:12.5px/1.35 var(--mono);margin:2px 0}
+table.rel th,table.rel td{border:1px solid var(--line);padding:3px 8px;text-align:left;white-space:nowrap}
+table.rel th{background:var(--th);font-weight:600}
+.relcap{font-size:12px;color:var(--muted);margin:2px 0 6px}
+.empty{font:12.5px var(--mono);color:var(--muted);padding:4px 0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;font:600 13px var(--sans);cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+select{font:14px var(--sans);padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
+.badge{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--code);color:var(--muted);margin-right:4px;text-transform:uppercase;letter-spacing:.03em}
+.lv-easy{background:var(--ok-soft);color:var(--ok)}
+.lv-medium{background:var(--warn-soft);color:var(--warn)}
+.lv-hard{background:var(--bad-soft);color:var(--bad)}
+.qtext{font-size:16.5px;margin:10px 0 12px;font-weight:500}
+.expr{background:var(--code);border-radius:10px;padding:10px 12px;margin:8px 0;overflow-x:auto}
+.expr code,code{font-family:var(--mono);font-size:13.5px}
+code{background:var(--code);padding:1px 5px;border-radius:5px}
+.expr code{background:none;padding:0;white-space:pre-wrap;word-break:break-word}
+.greek{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:16px;word-break:break-word}
+.greek sub{font-size:11.5px;font-family:var(--mono)}
+.expr .greek{display:block;margin-top:4px;color:var(--muted)}
+.opts{display:grid;gap:8px}
+.opts.tables{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px 12px;font:14.5px/1.4 var(--sans);cursor:pointer;width:100%}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.opt .olabel{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px}
+textarea,input[type=text],input[type=number]{width:100%;font:14.5px/1.45 var(--mono);padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+textarea:focus,input:focus{outline:none;border-color:var(--accent)}
+.toolbar{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.tb{border:1px solid var(--line);background:var(--code);color:var(--ink);border-radius:7px;padding:4px 8px;font:12.5px var(--mono);cursor:pointer}
+.tb.t{background:var(--card);color:var(--muted)}
+.preview{font-size:13px;color:var(--muted);min-height:22px;margin-top:6px;overflow-x:auto}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:10px 18px;font:700 14.5px var(--sans);cursor:pointer}
+.btn.ghost{background:var(--code);color:var(--ink)}
+.btn.danger{background:var(--bad);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.fb{border-radius:10px;padding:10px 12px;margin-top:12px}
+.fb.ok{background:var(--ok-soft);border-left:4px solid var(--ok)}
+.fb.bad{background:var(--bad-soft);border-left:4px solid var(--bad)}
+.fb.hint{background:var(--warn-soft);border-left:4px solid var(--warn)}
+.fb.info{background:var(--accent-soft);border-left:4px solid var(--accent)}
+.fb b.t{display:block;margin-bottom:2px}
+.explain h4{margin:16px 0 6px;font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.explain ol{padding-left:22px;margin:4px 0}
+.explain li{margin:4px 0}
+.formal{display:grid;gap:6px;background:var(--code);border-radius:10px;padding:10px 12px}
+.formal .lbl{display:inline-block;min-width:78px;font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase}
+.step{border-left:3px solid var(--line);padding:2px 0 2px 10px;margin:8px 0}
+.steph{font-size:13.5px;margin-bottom:3px}
+.cheat{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.op{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--card)}
+.op .sym{font-family:"Cambria Math","Times New Roman",serif;font-size:26px;line-height:1;float:right;color:var(--accent)}
+.op h3{margin:0 0 2px;font-size:15px}
+.op .ar{font-size:12px;color:var(--muted)}
+.op p{margin:6px 0;font-size:13.5px}
+.bar{height:8px;background:var(--code);border-radius:99px;overflow:hidden;flex:1;min-width:80px}
+.bar i{display:block;height:100%;background:var(--bad)}
+.topicrow{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.topicrow .nm{width:170px;font-weight:600}
+.topicrow .pc{width:110px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.timer{font:700 18px var(--mono);font-variant-numeric:tabular-nums}
+.timer.low{color:var(--bad)}
+.dots{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.dot{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:600 13px var(--sans);cursor:pointer}
+.dot.ans{background:var(--accent-soft);border-color:var(--accent)}
+.dot.cur{outline:2px solid var(--accent);outline-offset:1px}
+.keyitem{border-top:1px solid var(--line);padding:12px 0}
+.keyitem:first-child{border-top:0}
+.pill{font-weight:700;font-size:12.5px;padding:2px 8px;border-radius:99px}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.big{font-size:34px;font-weight:800;letter-spacing:-.02em}
+.hidden{display:none!important}
+@media (max-width:560px){
+  .wrap{padding:8px 12px 50px}
+  .card{padding:13px}
+  .qtext{font-size:15.5px}
+  .topicrow .nm{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Relational Algebra Trainer<small>CAI 105 · Database Systems · works offline</small></h1>
+  <div class="stats" id="stats"></div>
+</header>
+<nav id="nav">
+  <button data-tab="practice" class="on">Practice</button>
+  <button data-tab="exam">Exam mode</button>
+  <button data-tab="cheat">Cheat sheet</button>
+  <button data-tab="progress">Progress</button>
+</nav>
+
+<details class="panel" id="dbpanel"><summary>Sample database (8 tables) — click to show</summary><div class="inner" id="dbinner"></div></details>
+<details class="panel"><summary>How to type answers (plain-text syntax)</summary><div class="inner small" id="syntaxhelp"></div></details>
+
+<section id="tab-practice"></section>
+<section id="tab-exam" class="hidden"></section>
+<section id="tab-cheat" class="hidden"></section>
+<section id="tab-progress" class="hidden"></section>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   1. SAMPLE DATABASE
+   ===================================================================== */
+const TABLES = {
+  BUS: { cols:["plate_no","make","model","year","seating_capacity"], rows:[
+    ["BUS-101","Mercedes","Citaro",2018,45],
+    ["BUS-102","Volvo","7900",2020,50],
+    ["BUS-103","MAN","Lions City",2015,40],
+    ["BUS-104","Mercedes","Intouro",2022,55],
+    ["BUS-105","Solaris","Urbino",2019,42],
+    ["BUS-106","Volvo","8900",2017,48]]},
+  DRIVER: { cols:["driver_no","first_name","last_name","age","salary"], rows:[
+    [1,"Adam","Novak",45,52000],
+    [2,"Elena","Rossi",29,41000],
+    [3,"Omar","Haddad",38,58000],
+    [4,"Mira","Petrova",52,63000],
+    [5,"Lucas","Martin",24,36000],
+    [6,"Sara","Kim",33,47000]]},
+  ROUTE: { cols:["route_no","price"], rows:[
+    [10,1.5],[12,2],[15,2.5],[21,1.5],[30,3],[40,4]]},
+  BUS_RIDE: { cols:["ride_id","date","departure_time","plate_no","driver_no","route_no"], rows:[
+    [1,"2026-11-20","07:30","BUS-101",1,12],
+    [2,"2026-11-20","08:15","BUS-102",3,10],
+    [3,"2026-11-20","17:45","BUS-104",1,15],
+    [4,"2026-11-21","07:30","BUS-101",2,12],
+    [5,"2026-11-21","09:00","BUS-103",4,21],
+    [6,"2026-11-22","12:10","BUS-105",3,12],
+    [7,"2026-11-22","18:30","BUS-102",6,30],
+    [8,"2026-11-23","06:50","BUS-104",4,10]]},
+  PASSENGER: { cols:["passenger_id","first_name","last_name","phone"], rows:[
+    [101,"Liam","Brown","555-0101"],
+    [102,"Ava","Lopez","555-0102"],
+    [103,"Noah","Fischer","555-0103"],
+    [104,"Zara","Ahmed","555-0104"],
+    [105,"Ethan","Clark","555-0105"],
+    [106,"Maya","Singh","555-0106"],
+    [107,"Leo","Varga","555-0107"]]},
+  RIDE_PASSENGER: { cols:["ride_id","passenger_id","boarding_time"], rows:[
+    [1,101,"07:28"],[2,101,"08:12"],[3,101,"17:40"],
+    [1,102,"07:29"],[4,102,"07:27"],
+    [1,103,"07:25"],[2,103,"08:10"],[3,103,"17:44"],
+    [2,104,"08:14"],[6,104,"12:05"],
+    [3,105,"17:43"],[7,105,"18:25"],
+    [8,106,"06:45"]]},
+  BUS_STOP: { cols:["stop_no","name","city"], rows:[
+    [1,"Central Station","Springfield"],
+    [2,"City Hall","Springfield"],
+    [3,"University","Springfield"],
+    [4,"Airport","Riverton"],
+    [5,"Harbor","Riverton"],
+    [6,"Old Town","Lakeside"]]},
+  ROUTE_STOP: { cols:["route_no","stop_no","stop_order","distance_km"], rows:[
+    [12,1,1,0],[12,2,2,1.8],[12,3,3,4.2],
+    [10,1,1,0],[10,4,2,12.5],
+    [15,2,1,0],[15,5,2,6.3],
+    [21,1,1,0],[21,2,2,1.8],[21,3,3,4.2],[21,4,4,15],
+    [30,6,1,0]]}
+};
+/* Hidden test databases: your typed answers are also checked on these, so a
+   query that only "happens" to give the right rows on the sample data is caught. */
+const EXTRA_ROWS = {
+  BUS:[["BUS-107","Volvo","7900",2020,45]],
+  DRIVER:[[7,"Nina","Weber",41,50000]],
+  ROUTE:[[50,2]],
+  BUS_RIDE:[[9,"2026-11-20","20:00","BUS-107",7,50]],
+  PASSENGER:[[108,"Nina","Weber","555-0108"]],
+  RIDE_PASSENGER:[[9,101,"19:58"]],
+  BUS_STOP:[[7,"Riverside Park","Springfield"]],
+  ROUTE_STOP:[[50,7,1,0]]
+};
+const TYPES = {};
+for (const [n,t] of Object.entries(TABLES))
+  TYPES[n] = t.cols.map((_,i)=>t.rows.every(r=>typeof r[i]==="number")?"num":"str");
+function mkDB(f){ const db={}; for (const [n,t] of Object.entries(TABLES)) db[n]={cols:t.cols,types:TYPES[n],rows:f(n,t.rows)}; return db; }
+const DBS = [
+  mkDB((n,rows)=>rows),
+  mkDB((n,rows)=>rows.filter((_,i)=>i%3!==1)),
+  mkDB((n,rows)=>rows.concat(EXTRA_ROWS[n]||[])),
+  mkDB((n,rows)=>rows.filter((_,i)=>i%3!==0).concat(EXTRA_ROWS[n]||[]))
+];
+const MAIN = DBS[0];
+
+/* =====================================================================
+   2. RELATIONAL ALGEBRA ENGINE  (parser + evaluator)
+   ===================================================================== */
+class RAError extends Error { constructor(m,pos){ super(m); this.pos=pos; } }
+const KW = {SELECT:"SELECT",SIGMA:"SELECT","σ":"SELECT",PROJECT:"PROJECT",PI:"PROJECT","π":"PROJECT",
+  RENAME:"RENAME",RHO:"RENAME","ρ":"RENAME",UNION:"UNION","∪":"UNION",INTERSECT:"INTERSECT","∩":"INTERSECT",
+  MINUS:"MINUS",EXCEPT:"MINUS",DIFFERENCE:"MINUS","-":"MINUS","−":"MINUS",TIMES:"TIMES",CROSS:"TIMES","×":"TIMES",
+  JOIN:"JOIN","⋈":"JOIN",NJOIN:"NJOIN",NATJOIN:"NJOIN",NATURAL:"NATURAL",DIVIDE:"DIVIDE","÷":"DIVIDE","/":"DIVIDE"};
+const SETOPS=["UNION","INTERSECT","MINUS"], JOINOPS=["TIMES","JOIN","NJOIN","DIVIDE","NATURAL"];
+
+function normalize(s){ return String(s).replace(/[‘’`´]/g,"'").replace(/[“”]/g,'"').replace(/ /g," "); }
+
+function lex(s){
+  const toks=[]; let i=0;
+  while (i<s.length){
+    const c=s[i];
+    if (/\s/.test(c)){ i++; continue; }
+    if (c==="("||c===")"){ toks.push({t:c,pos:i}); i++; continue; }
+    if (c==="["||c==="{"){
+      const close=c==="["?"]":"}"; let j=i+1, depth=1, q=null;
+      for (; j<s.length; j++){
+        const d=s[j];
+        if (q){ if (d===q) q=null; }
+        else if (d==="'"||d==='"') q=d;
+        else if (d===c) depth++;
+        else if (d===close){ depth--; if (!depth) break; }
+      }
+      if (j>=s.length) throw new RAError(`Missing closing "${close}" for the "${c}" opened here.`, i);
+      toks.push({t:"BR",v:s.slice(i+1,j),pos:i}); i=j+1; continue;
+    }
+    if (c==="]"||c==="}") throw new RAError(`Unexpected "${c}" — there is no matching opening bracket.`, i);
+    if (/[A-Za-z_]/.test(c)){
+      let j=i; while (j<s.length && /[A-Za-z0-9_]/.test(s[j])) j++;
+      const w=s.slice(i,j), u=w.toUpperCase();
+      if (s[j]==="." ) throw new RAError(`"${w}." — qualified names like R.attr only go inside [ ] (conditions or attribute lists).`, i);
+      toks.push(KW[u]?{t:KW[u],pos:i,raw:w}:{t:"ID",v:w,pos:i}); i=j; continue;
+    }
+    if (KW[c]){ toks.push({t:KW[c],pos:i,raw:c}); i++; continue; }
+    if (c==="'"||c==='"') throw new RAError(`Quotes are only allowed inside [ ] (e.g. SELECT[make = 'Volvo'](BUS)).`, i);
+    if (/[0-9]/.test(c)) throw new RAError(`A number cannot stand on its own here — numbers belong inside a condition in [ ].`, i);
+    throw new RAError(`Unexpected character "${c}".`, i);
+  }
+  return toks;
+}
+
+const EX_BR = {SELECT:"SELECT[salary > 50000](DRIVER)",PROJECT:"PROJECT[first_name, last_name](DRIVER)",RENAME:"RENAME[D](DRIVER)"};
+function parse(src){
+  const s=normalize(src).trim();
+  if (!s) throw new RAError("Type an expression first.",0);
+  const toks=lex(s); let p=0;
+  const peek=()=>toks[p], next=()=>toks[p++];
+  const desc=k=>k?(k.t==="ID"?`"${k.v}"`:k.t==="BR"?`"[${k.v}]"`:`"${k.raw||k.t}"`):"end of input";
+  function setLevel(){
+    let l=joinLevel();
+    while (peek() && SETOPS.includes(peek().t)){ const op=next().t; l={k:op,l,r:joinLevel()}; }
+    return l;
+  }
+  function joinLevel(){
+    let l=unary();
+    while (peek() && JOINOPS.includes(peek().t)){
+      const tk=next();
+      if (tk.t==="NATURAL"){ const j=next(); if (!j||j.t!=="JOIN") throw new RAError(`After NATURAL write JOIN (or just use NJOIN).`, tk.pos); l={k:"NJOIN",l,r:unary()}; continue; }
+      if (tk.t==="JOIN"){
+        if (peek() && peek().t==="BR"){ const br=next(); const cond=parseCond(br.v); l={k:"JOIN",cond,l,r:unary()}; }
+        else l={k:"NJOIN",l,r:unary()};
+        continue;
+      }
+      l={k:tk.t,l,r:unary()};
+    }
+    return l;
+  }
+  function unary(){
+    const k=peek();
+    if (!k) throw new RAError("The expression ends too early — a relation or ( … ) is missing.", s.length);
+    if (k.t==="("){
+      next(); const e=setLevel();
+      const c=next(); if (!c||c.t!==")") throw new RAError(`Missing ")" — found ${desc(c)} instead.`, c?c.pos:s.length);
+      return e;
+    }
+    if (k.t==="ID"){ next(); return {k:"REL",name:k.v.toUpperCase(),raw:k.v}; }
+    if (k.t==="SELECT"||k.t==="PROJECT"||k.t==="RENAME"){
+      next(); const br=peek();
+      if (!br||br.t!=="BR") throw new RAError(`${k.t} needs its parameter in square brackets right after it, e.g. ${EX_BR[k.t]}.`, k.pos);
+      next();
+      let node;
+      if (k.t==="SELECT") node={k:"SELECT",cond:parseCond(br.v)};
+      else if (k.t==="PROJECT") node={k:"PROJECT",attrs:parseAttrList(br.v)};
+      else node={k:"RENAME",...parseRename(br.v)};
+      if (!peek()) throw new RAError(`${k.t}[…] must be followed by the relation it works on, e.g. ${EX_BR[k.t]}.`, s.length);
+      node.c=unary();
+      return node;
+    }
+    if (k.t===")") throw new RAError(`Unexpected ")" — a relation was expected here.`, k.pos);
+    throw new RAError(`${desc(k)} cannot start an expression here — a relation name, SELECT/PROJECT/RENAME or "(" was expected. ${["UNION","INTERSECT","MINUS","TIMES","JOIN","NJOIN","DIVIDE"].includes(k.t)?"Binary operators need a relation on BOTH sides.":""}`, k.pos);
+  }
+  const e=setLevel();
+  if (p<toks.length){
+    const k=toks[p];
+    throw new RAError(`Unexpected ${desc(k)} — is an operator or a parenthesis missing before it?`, k.pos);
+  }
+  return e;
+}
+const ATTR_RE=/^[A-Za-z_]\w*(\.[A-Za-z_]\w*)?$/;
+function parseAttrList(v){
+  const parts=v.split(",").map(x=>x.trim());
+  if (parts.length===1 && !parts[0]) throw new RAError("PROJECT[ ] needs at least one attribute, e.g. PROJECT[first_name, last_name](DRIVER).");
+  for (const a of parts){
+    if (!a) throw new RAError("Empty attribute in PROJECT list (two commas in a row?).");
+    if (!ATTR_RE.test(a)) throw new RAError(`"${a}" is not an attribute name. PROJECT[…] takes a comma-separated list of attributes; to keep only some ROWS use SELECT[condition](…).`);
+  }
+  return parts;
+}
+function parseRename(v){
+  const t=v.trim().replace(/→/g,"->");
+  if (t.includes("->")){
+    const pairs=t.split(",").map(x=>x.trim()).map(x=>{
+      const m=x.match(/^([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)?)\s*->\s*([A-Za-z_]\w*)$/);
+      if (!m) throw new RAError(`Cannot read rename "${x}". Use old -> new, e.g. RENAME[salary -> pay](DRIVER).`);
+      return [m[1],m[2]];
+    });
+    return {pairs,spec:pairs.map(p=>p[0]+" -> "+p[1]).join(", ")};
+  }
+  const m=t.match(/^([A-Za-z_]\w*)?\s*(?:\(([^)]*)\))?$/);
+  if (!m||(!m[1]&&m[2]===undefined)) throw new RAError(`Cannot read RENAME[${v}]. Use RENAME[S](R), RENAME[S(a, b, …)](R) or RENAME[old -> new](R).`);
+  const rel=m[1]?m[1].toUpperCase():null;
+  let names=null;
+  if (m[2]!==undefined){
+    names=m[2].split(",").map(x=>x.trim());
+    for (const n of names) if (!/^[A-Za-z_]\w*$/.test(n)) throw new RAError(`"${n}" is not a valid attribute name in RENAME.`);
+  }
+  return {rel,names,spec:(m[1]||"")+(names?"("+names.join(", ")+")":"")};
+}
+
+/* ---- conditions ---- */
+function parseCond(src){
+  const s=src; const t=[]; let i=0;
+  while (i<s.length){
+    const c=s[i];
+    if (/\s/.test(c)){ i++; continue; }
+    if (c==="'"||c==='"'){
+      const j=s.indexOf(c,i+1);
+      if (j<0) throw new RAError(`Unclosed quote in condition [${src}].`);
+      t.push({t:"V",v:s.slice(i+1,j)}); i=j+1; continue;
+    }
+    const prevIsValue = t.length && (t[t.length-1].t==="V"||t[t.length-1].t==="A"||t[t.length-1].t===")");
+    if (/[0-9]/.test(c) || ((c==="-"||c===".") && /[0-9]/.test(s[i+1]||"") && !prevIsValue)){
+      const m=s.slice(i).match(/^-?\d*\.?\d+/);
+      const after=s[i+m[0].length]||"";
+      if (after==="-"||after===":"||/[A-Za-z_]/.test(after))
+        throw new RAError(`Dates, times and other text values must be in quotes, e.g. date = '2026-11-20' or plate_no = 'BUS-101'.`);
+      t.push({t:"V",v:Number(m[0])}); i+=m[0].length; continue;
+    }
+    if (/[A-Za-z_]/.test(c)){
+      const m=s.slice(i).match(/^[A-Za-z_]\w*(\.[A-Za-z_]\w*)?/);
+      const u=m[0].toUpperCase();
+      if (u==="AND"||u==="OR"||u==="NOT") t.push({t:u});
+      else t.push({t:"A",v:m[0]});
+      i+=m[0].length; continue;
+    }
+    const two=s.substr(i,2);
+    const map2={"<=":"<=",">=":">=","<>":"<>","!=":"<>","==":"=","&&":"AND","||":"OR"};
+    if (map2[two]){ const v=map2[two]; t.push(v==="AND"||v==="OR"?{t:v}:{t:"OP",v}); i+=2; continue; }
+    const map1={"=":"=","<":"<",">":">","≠":"<>","≤":"<=","≥":">=","∧":"AND","∨":"OR","¬":"NOT","!":"NOT",",":"COMMA"};
+    if (map1[c]){
+      const v=map1[c];
+      if (v==="COMMA") throw new RAError(`Use AND / OR to combine conditions, not a comma: [${src}].`);
+      t.push(["AND","OR","NOT"].includes(v)?{t:v}:{t:"OP",v}); i++; continue;
+    }
+    if (c==="("||c===")"){ t.push({t:c}); i++; continue; }
+    throw new RAError(`Unexpected character "${c}" in condition [${src}].`);
+  }
+  if (!t.length) throw new RAError("Empty condition [ ]. Write something like salary > 50000.");
+  let p=0;
+  const peek=()=>t[p];
+  function or(){ let l=and(); while (peek()&&peek().t==="OR"){ p++; l={k:"or",l,r:and()}; } return l; }
+  function and(){ let l=not(); while (peek()&&peek().t==="AND"){ p++; l={k:"and",l,r:not()}; } return l; }
+  function not(){ if (peek()&&peek().t==="NOT"){ p++; return {k:"not",x:not()}; } return prim(); }
+  function operand(){
+    const k=t[p++];
+    if (!k) throw new RAError(`Condition [${src}] ends too early.`);
+    if (k.t==="A") return {k:"attr",v:k.v};
+    if (k.t==="V") return {k:"val",v:k.v};
+    throw new RAError(`In condition [${src}]: expected an attribute or a value but found "${k.v||k.t}".`);
+  }
+  function prim(){
+    if (peek()&&peek().t==="("){ p++; const e=or(); if (!peek()||peek().t!==")") throw new RAError(`Missing ")" in condition [${src}].`); p++; return e; }
+    const a=operand();
+    const o=t[p++];
+    if (!o||o.t!=="OP") throw new RAError(`In condition [${src}]: a comparison operator (=, <>, <, >, <=, >=) is missing after "${a.v}".`);
+    const b=operand();
+    return {k:"cmp",op:o.v,a,b};
+  }
+  const e=or();
+  if (p<t.length) throw new RAError(`Cannot read condition [${src}] — near "${t[p].v||t[p].t}". Combine comparisons with AND / OR.`);
+  return e;
+}
+
+/* ---- evaluation ---- */
+const lc=x=>String(x).toLowerCase();
+function dedupe(rows){ const seen=new Set(),out=[]; for (const r of rows){ const k=JSON.stringify(r); if (!seen.has(k)){ seen.add(k); out.push(r); } } return out; }
+function dispName(rel,i){ const c=rel.cols[i]; const dup=rel.cols.filter(d=>lc(d.n)===lc(c.n)).length>1; return dup&&c.q.length?c.q[0]+"."+c.n:c.n; }
+function colList(rel){ return rel.cols.map((_,i)=>dispName(rel,i)).join(", "); }
+function resolve(rel,ref){
+  const parts=ref.split("."); let q=null,n=ref;
+  if (parts.length===2){ q=parts[0].toUpperCase(); n=parts[1]; }
+  const hits=[];
+  rel.cols.forEach((c,i)=>{ if (lc(c.n)===lc(n) && (!q||c.q.some(x=>x.toUpperCase()===q))) hits.push(i); });
+  if (hits.length===1) return hits[0];
+  if (!hits.length){
+    const byName=rel.cols.filter(c=>lc(c.n)===lc(n));
+    if (q&&byName.length) throw new RAError(`There is no "${ref}" here: "${n}" exists but belongs to ${byName.map(c=>c.q.join("/")||"?").join(" and ")}. Available: ${colList(rel)}.`);
+    throw new RAError(`Unknown attribute "${ref}". Available at this point: ${colList(rel)}.`);
+  }
+  const sameQ=hits.every(i=>rel.cols[i].q.join()===rel.cols[hits[0]].q.join());
+  throw new RAError(`"${ref}" is ambiguous — ${hits.length} columns are called "${n}". `+(sameQ
+    ?`They come from the same relation name, so first use RENAME (e.g. RENAME[D1](DRIVER) TIMES RENAME[D2](DRIVER)) and then write D1.${n} / D2.${n}.`
+    :`Write it with the relation name, e.g. ${hits.map(i=>rel.cols[i].q[0]+"."+n).join(" or ")}.`));
+}
+function compare(x,y,op){
+  let a=x,b=y;
+  if (typeof a==="number"||typeof b==="number"){
+    const na=Number(a),nb=Number(b);
+    if (!isNaN(na)&&!isNaN(nb)&&String(a).trim()!==""&&String(b).trim()!==""){ a=na; b=nb; } else { a=lc(a); b=lc(b); }
+  } else { a=lc(a); b=lc(b); }
+  switch(op){ case "=":return a===b; case "<>":return a!==b; case "<":return a<b; case ">":return a>b; case "<=":return a<=b; case ">=":return a>=b; }
+  return false;
+}
+function compileCond(c,rel){
+  if (c.k==="and"){ const a=compileCond(c.l,rel),b=compileCond(c.r,rel); return r=>a(r)&&b(r); }
+  if (c.k==="or"){ const a=compileCond(c.l,rel),b=compileCond(c.r,rel); return r=>a(r)||b(r); }
+  if (c.k==="not"){ const a=compileCond(c.x,rel); return r=>!a(r); }
+  const ga=opnd(c.a,rel,c), gb=opnd(c.b,rel,c);
+  return r=>compare(ga(r),gb(r),c.op);
+}
+function opnd(o,rel,cmp){
+  if (o.k==="val") return ()=>o.v;
+  try { const i=resolve(rel,o.v); return r=>r[i]; }
+  catch(e){
+    if (/^Unknown attribute/.test(e.message) && o===cmp.b && cmp.a.k==="attr")
+      e.message+=` (If "${o.v}" is a text value, put it in quotes: '${o.v}'.)`;
+    throw e;
+  }
+}
+function typeOfCol(c){ return c.t||"str"; }
+function checkCompat(L,R,op){
+  const sym={UNION:"∪",INTERSECT:"∩",MINUS:"−"}[op];
+  if (L.cols.length!==R.cols.length)
+    throw new RAError(`${op} (${sym}) needs union-compatible relations, but the left side has ${L.cols.length} attribute(s) (${colList(L)}) and the right side has ${R.cols.length} (${colList(R)}). Use PROJECT so both sides have the same attributes.`);
+  L.cols.forEach((c,i)=>{
+    const a=typeOfCol(c), b=typeOfCol(R.cols[i]);
+    if (a!==b) throw new RAError(`${op} (${sym}) needs union-compatible relations: column ${i+1} is "${c.n}" (${a==="num"?"numbers":"text"}) on the left but "${R.cols[i].n}" (${b==="num"?"numbers":"text"}) on the right — the domains don't match.`);
+  });
+}
+function product(L,R){ const rows=[]; for (const a of L.rows) for (const b of R.rows) rows.push(a.concat(b)); return {cols:L.cols.concat(R.cols),rows}; }
+
+function evaluate(n,db,trace){
+  if (trace&&!trace._k) trace._k=0;
+  let r;
+  try {
+  switch(n.k){
+    case "REL": {
+      const key=Object.keys(db).find(k=>k===n.name);
+      if (!key) throw new RAError(`Unknown relation "${n.raw}". The tables are: ${Object.keys(db).join(", ")}.`);
+      const t=db[key];
+      r={cols:t.cols.map((c,i)=>({n:c,q:[key],t:t.types[i]})),rows:dedupe(t.rows)};
+      break;
+    }
+    case "SELECT": { const c=evaluate(n.c,db,trace); const f=compileCond(n.cond,c); r={cols:c.cols,rows:c.rows.filter(f)}; break; }
+    case "PROJECT": {
+      const c=evaluate(n.c,db,trace); const idx=n.attrs.map(a=>resolve(c,a));
+      r={cols:idx.map(i=>c.cols[i]),rows:dedupe(c.rows.map(row=>idx.map(i=>row[i])))}; break;
+    }
+    case "RENAME": {
+      const c=evaluate(n.c,db,trace);
+      if (n.pairs){
+        const cols=c.cols.map(x=>({...x}));
+        for (const [o,nw] of n.pairs){ const i=resolve(c,o); cols[i]={...cols[i],n:nw}; }
+        r={cols,rows:c.rows};
+      } else {
+        if (n.names && n.names.length!==c.cols.length)
+          throw new RAError(`RENAME[${n.spec}] lists ${n.names.length} attribute name(s) but the relation has ${c.cols.length} (${colList(c)}).`);
+        r={cols:c.cols.map((x,i)=>({n:n.names?n.names[i]:x.n,q:n.rel?[n.rel]:x.q,t:x.t})),rows:c.rows};
+      }
+      break;
+    }
+    case "TIMES": { r=product(evaluate(n.l,db,trace),evaluate(n.r,db,trace)); break; }
+    case "JOIN": {
+      const p=product(evaluate(n.l,db,trace),evaluate(n.r,db,trace));
+      const f=compileCond(n.cond,p); r={cols:p.cols,rows:p.rows.filter(f)}; break;
+    }
+    case "NJOIN": {
+      const L=evaluate(n.l,db,trace), R=evaluate(n.r,db,trace);
+      const common=[];
+      L.cols.forEach((c,i)=>{
+        const js=[]; R.cols.forEach((d,j)=>{ if (lc(d.n)===lc(c.n)) js.push(j); });
+        if (js.length>1) throw new RAError(`Natural join: the right side has ${js.length} columns called "${c.n}", so it is unclear which to match. Rename them first.`);
+        if (js.length) common.push([i,js[0]]);
+      });
+      const rj=common.map(x=>x[1]);
+      if (new Set(rj).size!==rj.length) throw new RAError(`Natural join: the left side has more than one column with the same name as a column on the right. Rename them first.`);
+      const keepR=R.cols.map((_,j)=>j).filter(j=>!rj.includes(j));
+      const cols=L.cols.map((c,i)=>{ const m=common.find(x=>x[0]===i); return m?{n:c.n,q:[...new Set(c.q.concat(R.cols[m[1]].q))],t:c.t}:c; }).concat(keepR.map(j=>R.cols[j]));
+      const rows=[];
+      for (const a of L.rows) for (const b of R.rows) if (common.every(([i,j])=>compare(a[i],b[j],"="))) rows.push(a.concat(keepR.map(j=>b[j])));
+      n._common=common.map(([i])=>L.cols[i].n);
+      r={cols,rows:dedupe(rows)}; break;
+    }
+    case "UNION": case "INTERSECT": case "MINUS": {
+      const L=evaluate(n.l,db,trace), R=evaluate(n.r,db,trace);
+      checkCompat(L,R,n.k);
+      const rk=new Set(R.rows.map(x=>JSON.stringify(x)));
+      const rows = n.k==="UNION"?dedupe(L.rows.concat(R.rows))
+        : n.k==="INTERSECT"?L.rows.filter(x=>rk.has(JSON.stringify(x)))
+        : L.rows.filter(x=>!rk.has(JSON.stringify(x)));
+      r={cols:L.cols,rows}; break;
+    }
+    case "DIVIDE": {
+      const L=evaluate(n.l,db,trace), R=evaluate(n.r,db,trace);
+      const map=R.cols.map(sc=>{
+        const js=[]; L.cols.forEach((c,i)=>{ if (lc(c.n)===lc(sc.n)) js.push(i); });
+        if (!js.length) throw new RAError(`Division R ÷ S needs every attribute of the divisor S to also be in R. "${sc.n}" is in the divisor (${colList(R)}) but not in the dividend (${colList(L)}). Tip: PROJECT the divisor down to just the attribute(s) you want to match "for all".`);
+        if (js.length>1) throw new RAError(`Division: "${sc.n}" appears more than once in the dividend.`);
+        return js[0];
+      });
+      const keep=L.cols.map((_,i)=>i).filter(i=>!map.includes(i));
+      if (!keep.length) throw new RAError(`Division: the dividend (${colList(L)}) has no attributes left after removing the divisor's attributes (${colList(R)}), so the result would have no columns.`);
+      const need=R.rows.map(x=>JSON.stringify(x));
+      const groups=new Map();
+      for (const row of L.rows){
+        const a=keep.map(i=>row[i]), ka=JSON.stringify(a);
+        if (!groups.has(ka)) groups.set(ka,{a,set:new Set()});
+        groups.get(ka).set.add(JSON.stringify(map.map(i=>row[i])));
+      }
+      const rows=[...groups.values()].filter(g=>need.every(k=>g.set.has(k))).map(g=>g.a);
+      r={cols:keep.map(i=>L.cols[i]),rows}; break;
+    }
+    default: throw new RAError("Unknown node");
+  }
+  } catch(e){
+    if (e instanceof RAError && !e.where && n.k!=="REL"){ e.where=n; }
+    throw e;
+  }
+  n._rel=r;
+  if (trace && n.k!=="REL"){ n._step=++trace._k; trace.push(n); }
+  return r;
+}
+
+function runSrc(src,db=MAIN){ const ast=parse(src); const steps=[]; const rel=evaluate(ast,db,steps); return {ast,rel,steps}; }
+function rowsEqual(a,b){ if (a.length!==b.length) return false; const s=new Set(a.map(x=>JSON.stringify(x))); return b.every(x=>s.has(JSON.stringify(x))); }
+function sameRel(a,b){
+  if (a.cols.length!==b.cols.length) return false;
+  const an=a.cols.map(c=>lc(c.n)), bn=b.cols.map(c=>lc(c.n));
+  if (new Set(an).size===an.length && [...an].sort().join()===[...bn].sort().join()){
+    const perm=bn.map(n=>an.indexOf(n));
+    return rowsEqual(a.rows.map(r=>perm.map(i=>r[i])),b.rows);
+  }
+  return rowsEqual(a.rows,b.rows);
+}
+function opsOf(n,set=new Set()){ if (n.k!=="REL") set.add(n.k); if (n.c) opsOf(n.c,set); if (n.l){ opsOf(n.l,set); opsOf(n.r,set); } return set; }
+
+/* ---- printing ---- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const OPSYM={UNION:"∪",INTERSECT:"∩",MINUS:"−",TIMES:"×",NJOIN:"⋈",DIVIDE:"÷"};
+const CSYM={"<>":"≠","<=":"≤",">=":"≥"};
+const isBin=n=>!!n.l;
+function opd(o){ return o.k==="attr"?o.v:typeof o.v==="number"?String(o.v):`'${o.v}'`; }
+function condStr(c,sym,prec=0){
+  let s,p;
+  if (c.k==="or"){ p=1; s=condStr(c.l,sym,1)+(sym?" ∨ ":" OR ")+condStr(c.r,sym,2); }
+  else if (c.k==="and"){ p=2; s=condStr(c.l,sym,2)+(sym?" ∧ ":" AND ")+condStr(c.r,sym,3); }
+  else if (c.k==="not"){ p=3; s=(sym?"¬":"NOT ")+condStr(c.x,sym,3); }
+  else { p=4; s=opd(c.a)+" "+(sym?(CSYM[c.op]||c.op):c.op)+" "+opd(c.b); }
+  return p<prec?`(${s})`:s;
+}
+function plain(n){
+  const w=x=>isBin(x)?`(${plain(x)})`:plain(x);
+  switch(n.k){
+    case "REL": return n.name;
+    case "SELECT": return `SELECT[${condStr(n.cond,false)}](${plain(n.c)})`;
+    case "PROJECT": return `PROJECT[${n.attrs.join(", ")}](${plain(n.c)})`;
+    case "RENAME": return `RENAME[${n.spec}](${plain(n.c)})`;
+    case "JOIN": return `${w(n.l)} JOIN[${condStr(n.cond,false)}] ${w(n.r)}`;
+    default: return `${w(n.l)} ${n.k} ${w(n.r)}`;
+  }
+}
+function sym(n){
+  const w=x=>isBin(x)?`(${sym(x)})`:sym(x);
+  switch(n.k){
+    case "REL": return esc(n.name);
+    case "SELECT": return `σ<sub>${esc(condStr(n.cond,true))}</sub>(${sym(n.c)})`;
+    case "PROJECT": return `π<sub>${esc(n.attrs.join(", "))}</sub>(${sym(n.c)})`;
+    case "RENAME": return `ρ<sub>${esc(n.spec.replace(/->/g,"→"))}</sub>(${sym(n.c)})`;
+    case "JOIN": return `${w(n.l)} ⋈<sub>${esc(condStr(n.cond,true))}</sub> ${w(n.r)}`;
+    default: return `${w(n.l)} ${OPSYM[n.k]} ${w(n.r)}`;
+  }
+}
+function refOf(n){ return n.k==="REL"?`table <b>${esc(n.name)}</b>`:`the result of step ${n._step}`; }
+function describe(n){
+  const r=n._rel, R=r.rows.length, C=r.cols.length;
+  const out=`→ <b>${R}</b> row${R===1?"":"s"}, ${C} column${C===1?"":"s"}.`;
+  switch(n.k){
+    case "SELECT": return `<b>Selection σ</b>: go through ${refOf(n.c)} row by row and keep only the rows where <code>${esc(condStr(n.cond,false))}</code> is true. The columns stay the same. ${out}`;
+    case "PROJECT": return `<b>Projection π</b>: from ${refOf(n.c)} keep only the column${n.attrs.length>1?"s":""} <code>${esc(n.attrs.join(", "))}</code>, then remove duplicate rows. ${out}`;
+    case "RENAME": return n.pairs
+      ? `<b>Rename ρ</b>: in ${refOf(n.c)} rename ${n.pairs.map(p=>`<code>${esc(p[0])}</code> to <code>${esc(p[1])}</code>`).join(", ")}. The rows do not change. ${out}`
+      : `<b>Rename ρ</b>: give ${refOf(n.c)} ${n.rel?`the name <code>${esc(n.rel)}</code>`:""}${n.rel&&n.names?" and ":""}${n.names?`the attribute names <code>${esc(n.names.join(", "))}</code>`:""}. The rows do not change, but now you can write ${n.rel?`<code>${esc(n.rel)}.attribute</code>`:"the new names"} to tell copies apart. ${out}`;
+    case "TIMES": { const a=n.l._rel,b=n.r._rel; return `<b>Cartesian product ×</b>: pair every row of ${refOf(n.l)} (${a.rows.length} rows) with every row of ${refOf(n.r)} (${b.rows.length} rows): ${a.rows.length} × ${b.rows.length} = ${R} rows, and ${a.cols.length} + ${b.cols.length} = ${C} columns. ${out}`; }
+    case "JOIN": return `<b>Theta join ⋈</b>: combine every row of ${refOf(n.l)} with every row of ${refOf(n.r)} (like ×), but keep only the pairs where <code>${esc(condStr(n.cond,false))}</code> holds. Both copies of the join columns are kept. ${out}`;
+    case "NJOIN": return n._common&&n._common.length
+      ? `<b>Natural join ⋈</b>: ${refOf(n.l)} and ${refOf(n.r)} share the attribute${n._common.length>1?"s":""} <code>${esc(n._common.join(", "))}</code>. Combine rows that have equal values there; each shared attribute appears only once. ${out}`
+      : `<b>Natural join ⋈</b>: ${refOf(n.l)} and ${refOf(n.r)} have <i>no</i> attribute names in common, so this behaves exactly like a cartesian product ×. ${out}`;
+    case "UNION": return `<b>Union ∪</b>: every row that is in ${refOf(n.l)} or in ${refOf(n.r)} (or both). Rows in both appear only once. ${out}`;
+    case "INTERSECT": return `<b>Intersection ∩</b>: only the rows that are in both ${refOf(n.l)} and ${refOf(n.r)}. ${out}`;
+    case "MINUS": return `<b>Difference −</b>: the rows of ${refOf(n.l)} that are NOT in ${refOf(n.r)}. ${out}`;
+    case "DIVIDE": { const b=n.r._rel; return `<b>Division ÷</b>: ${refOf(n.r)} is the list of required values of <code>${esc(colList(b))}</code> (${b.rows.length} of them). From ${refOf(n.l)}, keep each value of <code>${esc(colList(r))}</code> that appears together with <i>every one</i> of those required values. ${out}`; }
+  }
+  return "";
+}
+
+/* =====================================================================
+   3. QUESTIONS  (opts[0] is always the correct option; they are shuffled on screen)
+   ===================================================================== */
+const QUESTIONS = [
+/* ---------------- EASY ---------------- */
+{id:"c1",t:"mc",lv:"easy",topics:["SELECT"],
+ q:"Which operator keeps only the <b>rows</b> (tuples) that satisfy a condition?",
+ opts:["SELECT[…] — σ (sigma)","PROJECT[…] — π (pi)","RENAME[…] — ρ (rho)","TIMES — × (cartesian product)"],
+ hint:"Rows are filtered, but every column stays.",
+ explain:"SELECT (σ) is a <i>horizontal</i> filter: it keeps all columns but only the rows for which the condition is true. PROJECT (π) is the <i>vertical</i> one (chooses columns).",
+ expr:"SELECT[age > 40](DRIVER)"},
+{id:"c2",t:"mc",lv:"easy",topics:["PROJECT"],
+ q:"Which operator keeps only some <b>columns</b> (attributes) and removes duplicate rows?",
+ opts:["PROJECT[…] — π (pi)","SELECT[…] — σ (sigma)","DIVIDE — ÷","RENAME[…] — ρ (rho)"],
+ hint:"Think of cutting the table vertically.",
+ explain:"PROJECT (π) keeps only the listed attributes. Because a relation is a <i>set</i>, rows that become identical are kept only once — PROJECT[make](BUS) gives 4 rows, not 6.",
+ expr:"PROJECT[make](BUS)"},
+{id:"c3",t:"mc",lv:"easy",topics:["SELECT","PROJECT","RENAME"],
+ q:"Which group contains <b>only unary</b> operators (operators that work on ONE relation)?",
+ opts:["σ, π, ρ  (SELECT, PROJECT, RENAME)","σ, ∪, ×  (SELECT, UNION, TIMES)","π, ⋈, ÷  (PROJECT, JOIN, DIVIDE)","∪, ∩, −  (UNION, INTERSECT, MINUS)"],
+ hint:"Unary operators are written OP[parameter](R) — with a single relation in the parentheses.",
+ explain:"Unary: σ SELECT, π PROJECT, ρ RENAME — each takes one relation. Binary: ∪ UNION, ∩ INTERSECT, − MINUS, × TIMES, ⋈ JOIN/NJOIN, ÷ DIVIDE — each needs a relation on the left and on the right."},
+{id:"c4",t:"mc",lv:"easy",topics:["UNION","INTERSECT","MINUS"],
+ q:"Two relations are <b>union-compatible</b> when…",
+ opts:["they have the same number of attributes and each pair of corresponding attributes has the same domain","they have the same number of rows","they share at least one attribute name","both have a primary key"],
+ hint:"It is about the shape of the columns, not the rows.",
+ explain:"UNION, INTERSECT and MINUS compare whole rows, so both sides must have the same degree (number of attributes) and matching domains, position by position. Example: PROJECT[driver_no](DRIVER) and PROJECT[driver_no](BUS_RIDE) are union-compatible; PROJECT[plate_no](BUS) and PROJECT[driver_no](DRIVER) are not (text vs numbers).",
+ expr:"PROJECT[driver_no](DRIVER) MINUS PROJECT[driver_no](BUS_RIDE)"},
+{id:"c5",t:"mc",lv:"easy",topics:["UNION"],
+ q:"A tuple appears in both R and S. How many times does it appear in <code>R UNION S</code>?",
+ opts:["Once — a relation is a set, so duplicates are removed","Twice","Zero — it is removed because it is in both","It depends on the primary key"],
+ hint:"Relational algebra works with sets.",
+ explain:"Union R ∪ S contains every tuple that is in R, in S, or in both — and like every relation it is a set, so each tuple appears once."},
+{id:"c6",t:"mc",lv:"easy",topics:["TIMES"],
+ q:"R has 4 tuples and 3 attributes; S has 5 tuples and 2 attributes. What is the size of <code>R TIMES S</code>?",
+ opts:["20 tuples, 5 attributes","9 tuples, 5 attributes","20 tuples, 6 attributes","9 tuples, 6 attributes"],
+ hint:"Rows multiply, columns add.",
+ explain:"The cartesian product R × S pairs every tuple of R with every tuple of S: 4 × 5 = 20 tuples. Each result tuple has all attributes of R followed by all of S: 3 + 2 = 5 attributes."},
+{id:"c7",t:"mc",lv:"easy",topics:["RENAME"],
+ q:"What does <code>RENAME[D](DRIVER)</code> produce?",
+ opts:["The same tuples and attributes, but the relation is now called D (so you can write D.salary)","An empty relation called D","DRIVER with an extra column called D","Only the column D of DRIVER"],
+ hint:"Renaming never changes the data.",
+ explain:"RENAME (ρ) only changes names. It is needed when the same table is used twice (a self-join), e.g. RENAME[D1](DRIVER) TIMES RENAME[D2](DRIVER), so that D1.salary and D2.salary can be told apart. RENAME[D(a, b, …)](R) also renames the attributes.",
+ expr:"RENAME[R2(r, cost)](ROUTE)"},
+{id:"c14",t:"mc",lv:"easy",topics:["MINUS"],
+ q:"Is <code>R MINUS S</code> always the same as <code>S MINUS R</code>?",
+ opts:["No — R MINUS S keeps tuples of R that are not in S; S MINUS R is the opposite","Yes, just like UNION","Yes, if R and S are union-compatible","Only when both are empty"],
+ hint:"Try it with drivers: all drivers minus drivers who drove a ride.",
+ explain:"∪ and ∩ are commutative; − is not. PROJECT[driver_no](DRIVER) MINUS PROJECT[driver_no](BUS_RIDE) gives driver 5 (never drove), while the reverse is empty (every driver in BUS_RIDE exists in DRIVER).",
+ expr:"PROJECT[driver_no](DRIVER) MINUS PROJECT[driver_no](BUS_RIDE)"},
+{id:"r1",t:"result",lv:"easy",q:"Which table is the result of this expression?",
+ expr:"SELECT[salary > 50000](DRIVER)",
+ wrong:["SELECT[salary < 50000](DRIVER)","SELECT[salary > 55000](DRIVER)","SELECT[age > 40](DRIVER)"],
+ hint:"Only look at the salary column, and keep every column.",
+ explain:"Selection keeps the whole row whenever salary is strictly greater than 50000."},
+{id:"r2",t:"result",lv:"easy",q:"Which table is the result of this expression?",
+ expr:"PROJECT[make](BUS)",
+ wrong:[{cols:["make"],rows:[["Mercedes"],["Volvo"],["MAN"],["Mercedes"],["Solaris"],["Volvo"]]},"PROJECT[make, model](BUS)","PROJECT[model](BUS)"],
+ hint:"What happens to rows that become identical?",
+ explain:"Projection keeps only the make column. Mercedes and Volvo each appear twice in BUS, but a relation is a set, so each appears once."},
+{id:"r3",t:"result",lv:"easy",q:"Which table is the result of this expression?",
+ expr:"SELECT[city = 'Riverton'](BUS_STOP)",
+ wrong:["SELECT[city = 'Springfield'](BUS_STOP)","PROJECT[name](SELECT[city = 'Riverton'](BUS_STOP))","SELECT[city <> 'Springfield'](BUS_STOP)"],
+ hint:"Selection does not remove columns.",
+ explain:"Keep the stops whose city is exactly 'Riverton'; all three columns stay."},
+{id:"w1",t:"write",lv:"easy",q:"Find all buses (all columns) built in <b>2020 or later</b>.",
+ expr:"SELECT[year >= 2020](BUS)",
+ hint:"One operator that filters rows. 'Or later' means the boundary year is included.",
+ explain:"We only filter rows, so a single selection is enough. '2020 or later' → year >= 2020 (σ<sub>year ≥ 2020</sub>)."},
+{id:"w2",t:"write",lv:"easy",q:"List the <b>first and last names</b> of all passengers.",
+ expr:"PROJECT[first_name, last_name](PASSENGER)",
+ hint:"You only need to choose columns — no condition.",
+ explain:"Choosing columns is a projection."},
+{id:"w3",t:"write",lv:"easy",q:"Find all rides (all columns) that took place on <b>2026-11-21</b>.",
+ expr:"SELECT[date = '2026-11-21'](BUS_RIDE)",
+ hint:"Dates are text values — put them in quotes: '2026-11-21'.",
+ explain:"Filter BUS_RIDE by its date attribute. Text and date constants must be quoted."},
+{id:"w4",t:"write",lv:"easy",q:"List the <b>name and city</b> of every bus stop.",
+ expr:"PROJECT[name, city](BUS_STOP)",
+ hint:"Which table holds stops? Keep two of its columns.",
+ explain:"A single projection on BUS_STOP."},
+{id:"w5",t:"write",lv:"easy",q:"Find all routes (all columns) whose price is <b>less than 2.00</b>.",
+ expr:"SELECT[price < 2](ROUTE)",
+ hint:"'Less than' is strict: a route that costs exactly 2.00 is not included.",
+ explain:"Selection with a strict comparison: price < 2."},
+{id:"w6",t:"write",lv:"easy",q:"Find all rides (all columns) that used <b>route 10 or route 30</b>.",
+ expr:"SELECT[route_no = 10 OR route_no = 30](BUS_RIDE)",
+ hint:"One selection; combine two comparisons with OR (∨).",
+ explain:"A ride can only have one route_no, so we need OR. (You could also write the UNION of two selections — both are accepted.)"},
+{id:"x1",t:"error",lv:"easy",topics:["SELECT"],q:"Goal: all Volvo buses. What is wrong with this expression?",
+ bad:"SELECT[make = Volvo](BUS)",
+ opts:["The text value must be in quotes: make = 'Volvo'","SELECT needs a list of columns, not a condition","BUS must be renamed first","Nothing is wrong"],
+ hint:"How does the system know Volvo is a value and not an attribute name?",
+ explain:"Without quotes, Volvo is read as an attribute name — and BUS has no attribute called Volvo. Text constants (and dates and times) go in quotes.",
+ fix:"SELECT[make = 'Volvo'](BUS)"},
+{id:"x2",t:"error",lv:"easy",topics:["PROJECT"],q:"Goal: the name and salary of each driver. What is wrong?",
+ bad:"PROJECT[name, salary](DRIVER)",
+ opts:["DRIVER has no attribute called name — it has first_name and last_name","PROJECT can only keep one attribute","salary must be in quotes","PROJECT must be written after SELECT"],
+ hint:"Check the schema of DRIVER in the sample database.",
+ explain:"You can only project attributes that exist: DRIVER(driver_no, first_name, last_name, age, salary).",
+ fix:"PROJECT[first_name, last_name, salary](DRIVER)"},
+{id:"x3",t:"error",lv:"easy",topics:["SELECT","PROJECT"],q:"Goal: drivers who earn more than 50000. What is wrong?",
+ bad:"PROJECT[salary > 50000](DRIVER)",
+ opts:["It uses PROJECT (π) to filter rows — filtering rows is SELECT (σ)","50000 must be in quotes","DRIVER must be in square brackets","The condition should use >= instead of >"],
+ hint:"Which operator works on rows, and which on columns?",
+ explain:"PROJECT takes a list of attributes; a condition belongs in SELECT.",
+ fix:"SELECT[salary > 50000](DRIVER)"},
+{id:"n1",t:"count",lv:"easy",what:"rows",q:"How many <b>rows</b> does this expression return?",
+ expr:"BUS TIMES ROUTE",hint:"Count the rows of BUS and of ROUTE, then multiply.",
+ explain:"|BUS × ROUTE| = |BUS| · |ROUTE| = 6 · 6 = 36."},
+{id:"n2",t:"count",lv:"easy",what:"cols",q:"How many <b>columns</b> (attributes) does this expression have?",
+ expr:"DRIVER TIMES ROUTE",hint:"Columns of a product add up.",
+ explain:"DRIVER has 5 attributes, ROUTE has 2: 5 + 2 = 7."},
+{id:"n3",t:"count",lv:"easy",what:"rows",q:"How many <b>rows</b> does this expression return?",
+ expr:"PROJECT[route_no](BUS_RIDE)",hint:"BUS_RIDE has 8 rows, but some routes are used several times.",
+ explain:"There are 8 rides but only 5 different route numbers (10, 12, 15, 21, 30). Projection removes duplicates."},
+
+/* ---------------- MEDIUM ---------------- */
+{id:"c8",t:"mc",lv:"medium",topics:["JOIN","NJOIN"],
+ q:"What is the main difference between <code>R JOIN[R.a = S.a] S</code> (theta/equi join) and <code>R NJOIN S</code> (natural join)?",
+ opts:["Natural join automatically matches ALL attributes with the same name and keeps one copy of each; the theta join uses your condition and keeps both columns","Natural join is always faster","Theta join removes duplicate columns, natural join keeps them","There is no difference"],
+ hint:"Compare the number of columns of BUS_RIDE NJOIN DRIVER and BUS_RIDE JOIN[BUS_RIDE.driver_no = DRIVER.driver_no] DRIVER.",
+ explain:"BUS_RIDE NJOIN DRIVER has 10 columns (driver_no once). The equi join BUS_RIDE JOIN[BUS_RIDE.driver_no = DRIVER.driver_no] DRIVER has 11 (driver_no twice). Natural join also matches <i>every</i> shared name — which can surprise you (see PASSENGER NJOIN DRIVER).",
+ expr:"BUS_RIDE NJOIN DRIVER"},
+{id:"c9",t:"mc",lv:"medium",topics:["INTERSECT","MINUS"],
+ q:"Which expression is always equal to <code>R INTERSECT S</code>?",
+ opts:["R MINUS (R MINUS S)","R MINUS S","(R UNION S) MINUS R","S MINUS R"],
+ hint:"R MINUS S is the part of R that is not in S. What is left of R if you remove that?",
+ explain:"R − S is the part of R that is NOT in S. Removing that part from R leaves exactly the tuples that are in both: R ∩ S = R − (R − S). So ∩ is not a basic operator — it can be built from −."},
+{id:"c10",t:"mc",lv:"medium",topics:["JOIN","TIMES","SELECT"],
+ q:"<code>R JOIN[cond] S</code> (theta join, ⋈<sub>cond</sub>) is a shortcut for…",
+ opts:["SELECT[cond](R TIMES S)","PROJECT[cond](R TIMES S)","SELECT[cond](R) TIMES S","(R UNION S) filtered by cond"],
+ hint:"First build all pairs, then filter.",
+ explain:"R ⋈<sub>θ</sub> S = σ<sub>θ</sub>(R × S). That is why both are accepted when you type answers here.",
+ expr:"SELECT[BUS_RIDE.route_no = ROUTE.route_no](BUS_RIDE TIMES ROUTE)"},
+{id:"r4",t:"result",lv:"medium",q:"Which table is the result of this expression?",
+ expr:"PROJECT[first_name](DRIVER NJOIN SELECT[route_no = 12](BUS_RIDE))",
+ wrong:["PROJECT[first_name](DRIVER NJOIN SELECT[route_no = 10](BUS_RIDE))","PROJECT[first_name](DRIVER)","PROJECT[first_name](DRIVER NJOIN SELECT[route_no = 15](BUS_RIDE))"],
+ hint:"First find the rides on route 12 and their driver_no; then look those drivers up.",
+ explain:"Rides on route 12 are 1, 4, 6 with drivers 1, 2, 3 → Adam, Elena, Omar."},
+{id:"r5",t:"result",lv:"medium",q:"Which table is the result of this expression?",
+ expr:"PROJECT[route_no](ROUTE) INTERSECT PROJECT[route_no](SELECT[stop_no = 1](ROUTE_STOP))",
+ wrong:["PROJECT[route_no](ROUTE) MINUS PROJECT[route_no](SELECT[stop_no = 1](ROUTE_STOP))","PROJECT[route_no](ROUTE)","PROJECT[route_no](ROUTE) INTERSECT PROJECT[route_no](SELECT[stop_no = 2](ROUTE_STOP))"],
+ hint:"Which routes stop at stop 1 (Central Station)?",
+ explain:"Routes that exist AND stop at stop 1: 10, 12, 21."},
+{id:"r6",t:"result",lv:"medium",q:"Which table is the result of this expression?",
+ expr:"PROJECT[plate_no](SELECT[route_no = 10](BUS_RIDE)) UNION PROJECT[plate_no](SELECT[route_no = 30](BUS_RIDE))",
+ wrong:["PROJECT[plate_no](SELECT[route_no = 10](BUS_RIDE)) INTERSECT PROJECT[plate_no](SELECT[route_no = 30](BUS_RIDE))",{cols:["plate_no"],rows:[["BUS-102"],["BUS-104"],["BUS-102"]]},"PROJECT[plate_no](SELECT[route_no = 12](BUS_RIDE))"],
+ hint:"Route 10 used BUS-102 and BUS-104; route 30 used BUS-102. Does BUS-102 appear twice?",
+ explain:"Union of {BUS-102, BUS-104} and {BUS-102} is {BUS-102, BUS-104} — duplicates removed."},
+{id:"w7",t:"write",lv:"medium",q:"First and last names of drivers who earn <b>more than 50000</b>.",
+ expr:"PROJECT[first_name, last_name](SELECT[salary > 50000](DRIVER))",
+ hint:"Filter the rows first (σ), then keep the two name columns (π). The projection goes on the outside.",
+ explain:"Select first, project last — if you project first, salary is gone and cannot be tested."},
+{id:"w8",t:"write",lv:"medium",q:"Plate numbers of buses used on <b>route 12</b>.",
+ expr:"PROJECT[plate_no](SELECT[route_no = 12](BUS_RIDE))",
+ hint:"BUS_RIDE already contains both plate_no and route_no — no join needed.",
+ explain:"Rides on route 12 are rides 1, 4, 6 with buses BUS-101, BUS-101, BUS-105 → two distinct plates."},
+{id:"w9",t:"write",lv:"medium",q:"Plate numbers of <b>Volvo</b> buses with <b>more than 45 seats</b>.",
+ expr:"PROJECT[plate_no](SELECT[make = 'Volvo' AND seating_capacity > 45](BUS))",
+ hint:"Two conditions that must both hold → AND (∧). Don't forget quotes around 'Volvo'.",
+ explain:"Both conditions in one selection (or two nested selections — also accepted), then project the plate."},
+{id:"w10",t:"write",lv:"medium",q:"<b>Make and model</b> of buses used on route 12.",
+ expr:"PROJECT[make, model](BUS NJOIN SELECT[route_no = 12](BUS_RIDE))",
+ hint:"Make and model are in BUS, the route is in BUS_RIDE. Join them on plate_no (NJOIN does this automatically).",
+ explain:"Select the route-12 rides, natural-join with BUS on plate_no, then keep make and model."},
+{id:"w11",t:"write",lv:"medium",q:"<b>Last names</b> of drivers who drove a ride on <b>2026-11-20</b>.",
+ expr:"PROJECT[last_name](DRIVER NJOIN SELECT[date = '2026-11-20'](BUS_RIDE))",
+ hint:"Rides have a date and a driver_no; names are in DRIVER.",
+ explain:"Rides 1, 2, 3 are on 2026-11-20, driven by drivers 1, 3, 1 → Novak and Haddad."},
+{id:"w12",t:"write",lv:"medium",q:"<b>Names of the stops</b> on route 15.",
+ expr:"PROJECT[name](BUS_STOP NJOIN SELECT[route_no = 15](ROUTE_STOP))",
+ hint:"ROUTE_STOP links routes to stop_no; the stop names are in BUS_STOP.",
+ explain:"Route 15 stops at stop 2 and 5 → City Hall and Harbor."},
+{id:"w13",t:"write",lv:"medium",q:"For every ride, show its <b>ride_id</b> and the <b>last name of its driver</b>.",
+ expr:"PROJECT[ride_id, last_name](BUS_RIDE NJOIN DRIVER)",
+ hint:"Join BUS_RIDE with DRIVER, then keep two columns.",
+ explain:"Natural join on driver_no gives each ride its driver row; then project."},
+{id:"w14",t:"write",lv:"medium",q:"The <b>price</b> of the route used by <b>ride 5</b>.",
+ expr:"PROJECT[price](ROUTE NJOIN SELECT[ride_id = 5](BUS_RIDE))",
+ hint:"Find ride 5 in BUS_RIDE, join with ROUTE on route_no, keep price.",
+ explain:"Ride 5 uses route 21, which costs 1.5."},
+{id:"w15",t:"write",lv:"medium",q:"<b>IDs of passengers</b> who rode on route 10 or route 30.",
+ expr:"PROJECT[passenger_id](RIDE_PASSENGER NJOIN SELECT[route_no = 10 OR route_no = 30](BUS_RIDE))",
+ hint:"Routes are in BUS_RIDE, passengers in RIDE_PASSENGER; they share ride_id.",
+ explain:"Rides on route 10 or 30 are 2, 7, 8. Their passengers: 101, 103, 104, 105, 106. (A UNION of two queries is also accepted.)"},
+{id:"w16",t:"write",lv:"medium",q:"The <b>makes</b> of buses that were driven by a driver <b>older than 40</b>.",
+ expr:"PROJECT[make](BUS NJOIN BUS_RIDE NJOIN SELECT[age > 40](DRIVER))",
+ hint:"You need three tables: BUS (make) – BUS_RIDE (plate_no, driver_no) – DRIVER (age).",
+ explain:"Drivers older than 40 are Adam (45) and Mira (52). They drove rides 1, 3, 5, 8 on buses BUS-101, BUS-104, BUS-103 → makes Mercedes and MAN."},
+{id:"w17",t:"write",lv:"medium",topics:["JOIN","PROJECT"],q:"List <b>ride_id and price</b> for every ride. (Try it with a theta join <code>JOIN[…]</code>.)",
+ expr:"PROJECT[ride_id, price](BUS_RIDE JOIN[BUS_RIDE.route_no = ROUTE.route_no] ROUTE)",
+ hint:"Both tables have route_no, so in the join condition write BUS_RIDE.route_no = ROUTE.route_no.",
+ explain:"A theta join keeps both route_no columns, so they must be qualified in the condition. NJOIN or SELECT over TIMES are equally correct."},
+{id:"w18",t:"write",lv:"medium",q:"<b>driver_no</b> of drivers who drove on route 12 <b>and</b> also on route 10.",
+ expr:"PROJECT[driver_no](SELECT[route_no = 12](BUS_RIDE)) INTERSECT PROJECT[driver_no](SELECT[route_no = 10](BUS_RIDE))",
+ hint:"SELECT[route_no = 12 AND route_no = 10] is always empty — one ride has one route! Find each set of drivers separately and combine them.",
+ explain:"Drivers on route 12: {1, 2, 3}. Drivers on route 10: {3, 4}. Both: {3}. The 'both' is across different rows, so it needs ∩ (INTERSECT), not AND."},
+{id:"x4",t:"error",lv:"medium",topics:["SELECT","PROJECT"],q:"Goal: names of drivers who earn more than 50000. What is wrong?",
+ bad:"SELECT[salary > 50000](PROJECT[first_name, last_name](DRIVER))",
+ opts:["The projection removes salary before the selection can test it — select first, then project","SELECT can't be the outer operator","The condition must be in quotes","first_name and last_name must be written as DRIVER.first_name"],
+ hint:"Evaluate from the inside out. Which columns exist after the inner PROJECT?",
+ explain:"Inner operators run first. After PROJECT[first_name, last_name] only those two columns exist, so salary is unknown.",
+ fix:"PROJECT[first_name, last_name](SELECT[salary > 50000](DRIVER))"},
+{id:"x5",t:"error",lv:"medium",topics:["UNION"],q:"What is wrong with this expression?",
+ bad:"PROJECT[plate_no](BUS) UNION PROJECT[driver_no](DRIVER)",
+ opts:["The two sides are not union-compatible: plate_no is text, driver_no is a number","UNION needs at least two attributes","PROJECT can't be used inside UNION","Nothing — UNION works on any two relations"],
+ hint:"Both sides have one column. Is that enough?",
+ explain:"Same degree is not enough: corresponding attributes must have the same domain. Mixing plates and driver numbers in one column is meaningless.",
+ fix:"PROJECT[plate_no](BUS) UNION PROJECT[plate_no](BUS_RIDE)"},
+{id:"x6",t:"error",lv:"medium",topics:["JOIN"],q:"Goal: each ride together with its driver. What is wrong?",
+ bad:"BUS_RIDE JOIN[driver_no = driver_no] DRIVER",
+ opts:["driver_no is ambiguous — both relations have it; write BUS_RIDE.driver_no = DRIVER.driver_no","A theta join cannot use =","DRIVER must come first","You must use TIMES instead"],
+ hint:"After R × S there are two columns called driver_no. Which is which?",
+ explain:"Inside a theta join both copies exist, so qualify them with the relation name. (Or use NJOIN, which matches same-named attributes automatically.)",
+ fix:"BUS_RIDE JOIN[BUS_RIDE.driver_no = DRIVER.driver_no] DRIVER"},
+{id:"x11",t:"error",lv:"medium",topics:["SELECT"],q:"Goal: all rides on route 12 or route 15. What is wrong?",
+ bad:"SELECT[route_no = 12 AND route_no = 15](BUS_RIDE)",
+ opts:["AND can never be true here (a ride has one route) — the result is always empty; use OR","route numbers must be in quotes","SELECT allows only one comparison","Nothing is wrong"],
+ hint:"Can one row have route_no 12 and 15 at the same time?",
+ explain:"The condition is checked for each row separately. 'Rides on 12 or 15' in English means OR in logic.",
+ fix:"SELECT[route_no = 12 OR route_no = 15](BUS_RIDE)"},
+{id:"n4",t:"count",lv:"medium",what:"cols",q:"How many <b>columns</b> does this expression have?",
+ expr:"BUS_RIDE NJOIN DRIVER",hint:"Natural join keeps the shared attribute only once.",
+ explain:"6 (BUS_RIDE) + 5 (DRIVER) − 1 shared (driver_no) = 10."},
+{id:"n5",t:"count",lv:"medium",what:"cols",q:"How many <b>columns</b> does this expression have?",
+ expr:"BUS JOIN[BUS.plate_no = BUS_RIDE.plate_no] BUS_RIDE",hint:"A theta join is σ over ×: nothing is removed.",
+ explain:"5 + 6 = 11 — unlike natural join, the theta join keeps both plate_no columns."},
+{id:"n6",t:"count",lv:"medium",what:"rows",q:"How many <b>rows</b> does this expression return?",
+ expr:"BUS_RIDE NJOIN DRIVER",hint:"Each ride has exactly one driver, and every driver_no in BUS_RIDE exists in DRIVER.",
+ explain:"Every one of the 8 rides matches exactly one driver → 8 rows. (Driver 5 has no rides, so he simply doesn't appear.)"},
+{id:"n9",t:"count",lv:"medium",what:"rows",q:"How many <b>rows</b> does this expression return?",
+ expr:"PROJECT[passenger_id](RIDE_PASSENGER)",hint:"Count the different passenger IDs in RIDE_PASSENGER.",
+ explain:"13 boardings but only 6 distinct passengers (101–106). Passenger 107 never rode."},
+{id:"n10",t:"count",lv:"medium",what:"rows",q:"How many <b>rows</b> does this expression return?",
+ expr:"ROUTE NJOIN ROUTE_STOP",hint:"Each ROUTE_STOP row finds its route. Is there a route with no stops?",
+ explain:"All 12 ROUTE_STOP rows match a route. Route 40 has no stops, so it disappears → 12 rows."},
+
+/* ---------------- HARD ---------------- */
+{id:"c11",t:"mc",lv:"hard",topics:["DIVIDE"],
+ q:"Why does relational algebra have a DIVIDE (÷) operator?",
+ opts:["To answer \"for all / every\" questions, e.g. passengers who took EVERY ride on a given day","To split a table into two smaller tables","To compute averages","To undo a cartesian product exactly"],
+ hint:"Think of the word 'every'.",
+ explain:"σ, π, ⋈ answer 'there exists' questions. Questions with 'every / all' need ÷ (or the longer equivalent with −). R ÷ S keeps the values in R that are paired with <i>all</i> tuples of S.",
+ expr:"PROJECT[ride_id, passenger_id](RIDE_PASSENGER) DIVIDE PROJECT[ride_id](SELECT[date = '2026-11-20'](BUS_RIDE))"},
+{id:"c12",t:"mc",lv:"hard",topics:["DIVIDE"],
+ q:"<code>R(passenger_id, ride_id) DIVIDE S(ride_id)</code> — which attributes does the result have?",
+ opts:["passenger_id","ride_id","passenger_id, ride_id","none — division returns a number"],
+ hint:"Result attributes = attributes of R that are not in S.",
+ explain:"For R(A, B) ÷ S(B) the result has attributes A = attrs(R) − attrs(S)."},
+{id:"c13",t:"mc",lv:"hard",topics:["DIVIDE","MINUS","TIMES","PROJECT"],
+ q:"Let A be the attributes only in R. Which sequence computes <code>R DIVIDE S</code> using only basic operators?",
+ opts:["T1 = PROJECT[A](R);  T2 = PROJECT[A]((T1 TIMES S) MINUS R);  result = T1 MINUS T2","T1 = PROJECT[A](R);  result = T1 TIMES S","T1 = R MINUS S;  result = PROJECT[A](T1)","T1 = PROJECT[A](R);  result = T1 INTERSECT S"],
+ hint:"Build all the pairs that SHOULD exist, find those that are missing, and remove their owners.",
+ explain:"T1 × S = every candidate paired with every required value. Subtracting R leaves the pairs that are missing. Their A-values (T2) are the candidates that failed. T1 − T2 = candidates with nothing missing."},
+{id:"r7",t:"result",lv:"hard",q:"Which table is the result of this expression?",
+ expr:"PROJECT[plate_no](BUS) MINUS PROJECT[plate_no](SELECT[date = '2026-11-20'](BUS_RIDE))",
+ wrong:["PROJECT[plate_no](SELECT[date = '2026-11-20'](BUS_RIDE))","PROJECT[plate_no](BUS) MINUS PROJECT[plate_no](BUS_RIDE)","PROJECT[plate_no](SELECT[date = '2026-11-21'](BUS_RIDE))"],
+ hint:"Which buses were used on 2026-11-20? Remove them from the list of all buses.",
+ explain:"Buses used on 2026-11-20: BUS-101, BUS-102, BUS-104. All buses minus those: BUS-103, BUS-105, BUS-106."},
+{id:"r8",t:"result",lv:"hard",q:"Which table is the result of this expression?",
+ expr:"PROJECT[ride_id, passenger_id](RIDE_PASSENGER) DIVIDE PROJECT[ride_id](SELECT[driver_no = 3](BUS_RIDE))",
+ wrong:["PROJECT[passenger_id](RIDE_PASSENGER NJOIN SELECT[driver_no = 3](BUS_RIDE))",{cols:["passenger_id"],rows:[]},"PROJECT[passenger_id](RIDE_PASSENGER)"],
+ hint:"Driver 3 drove rides 2 and 6. Which passenger was on BOTH of them?",
+ explain:"The divisor is {2, 6}. Passenger 104 took ride 2 and ride 6; 101 and 103 only took ride 2. So the result is {104}."},
+{id:"r9",t:"result",lv:"hard",q:"Which table is the result of this expression?",
+ expr:"PROJECT[D1.first_name](SELECT[D1.salary < D2.salary](RENAME[D1](DRIVER) TIMES RENAME[D2](DRIVER)))",
+ wrong:["PROJECT[D1.first_name](SELECT[D1.salary > D2.salary](RENAME[D1](DRIVER) TIMES RENAME[D2](DRIVER)))","PROJECT[first_name](SELECT[salary = 63000](DRIVER))","PROJECT[first_name](DRIVER)"],
+ hint:"A driver D1 is kept if SOME other driver D2 earns more. Who has nobody earning more?",
+ explain:"Every driver except the top earner (Mira, 63000) has someone earning more. This 'not the maximum' trick + MINUS is how you find a maximum in relational algebra."},
+{id:"w19",t:"write",lv:"hard",q:"<b>driver_no</b> of drivers who have <b>never</b> driven a ride.",
+ expr:"PROJECT[driver_no](DRIVER) MINUS PROJECT[driver_no](BUS_RIDE)",
+ hint:"All drivers − drivers that appear in BUS_RIDE. Make both sides union-compatible (one column: driver_no).",
+ explain:"'Never' → difference. All driver numbers {1..6} minus those in BUS_RIDE {1, 2, 3, 4, 6} = {5}."},
+{id:"w20",t:"write",lv:"hard",q:"<b>Plate numbers</b> of buses that were <b>never used</b> for a ride.",
+ expr:"PROJECT[plate_no](BUS) MINUS PROJECT[plate_no](BUS_RIDE)",
+ hint:"Same pattern: all plates − used plates.",
+ explain:"All six plates minus the five that appear in BUS_RIDE → BUS-106."},
+{id:"w21",t:"write",lv:"hard",q:"<b>Route numbers</b> of routes that have <b>no rides</b> at all.",
+ expr:"PROJECT[route_no](ROUTE) MINUS PROJECT[route_no](BUS_RIDE)",
+ hint:"All route numbers − route numbers that appear in BUS_RIDE.",
+ explain:"Routes {10, 12, 15, 21, 30, 40} − used {10, 12, 15, 21, 30} = {40}."},
+{id:"w22",t:"write",lv:"hard",q:"<b>First and last names</b> of passengers who <b>never boarded</b> a bus.",
+ expr:"PROJECT[first_name, last_name](PASSENGER NJOIN (PROJECT[passenger_id](PASSENGER) MINUS PROJECT[passenger_id](RIDE_PASSENGER)))",
+ hint:"Find the IDs with MINUS first, then join back to PASSENGER to get the names. (Subtracting names directly could go wrong if two people share a name.)",
+ explain:"IDs that never appear in RIDE_PASSENGER: {107}. Joining back with PASSENGER gives Leo Varga."},
+{id:"w23",t:"write",lv:"hard",q:"<b>IDs of passengers</b> who took <b>every</b> ride on <b>2026-11-20</b>.",
+ expr:"PROJECT[ride_id, passenger_id](RIDE_PASSENGER) DIVIDE PROJECT[ride_id](SELECT[date = '2026-11-20'](BUS_RIDE))",
+ hint:"'Every' → division. Dividend: (ride_id, passenger_id) pairs. Divisor: the ride_ids of that day (only that one column!).",
+ explain:"Rides on 2026-11-20: {1, 2, 3}. Passenger 101 took 1, 2, 3 ✓; 103 took 1, 2, 3 ✓; the others missed at least one."},
+{id:"w24",t:"write",lv:"hard",q:"<b>First and last names</b> of passengers who took <b>every</b> ride on <b>2026-11-20</b>.",
+ expr:"PROJECT[first_name, last_name](PASSENGER NJOIN (PROJECT[ride_id, passenger_id](RIDE_PASSENGER) DIVIDE PROJECT[ride_id](SELECT[date = '2026-11-20'](BUS_RIDE))))",
+ hint:"Do the division on IDs first (as in the previous question), then join with PASSENGER.",
+ explain:"Division gives {101, 103}; joining with PASSENGER gives Liam Brown and Noah Fischer."},
+{id:"w25",t:"write",lv:"hard",q:"<b>Route numbers</b> of routes that stop at <b>every</b> stop in <b>Springfield</b>.",
+ expr:"PROJECT[route_no, stop_no](ROUTE_STOP) DIVIDE PROJECT[stop_no](SELECT[city = 'Springfield'](BUS_STOP))",
+ hint:"Dividend: (route_no, stop_no). Divisor: stop_no of the Springfield stops.",
+ explain:"Springfield stops: {1, 2, 3}. Route 12 has 1, 2, 3 ✓; route 21 has 1, 2, 3, 4 ✓; route 10 misses 2 and 3; route 15 misses 1 and 3."},
+{id:"w26",t:"write",lv:"hard",q:"<b>driver_no</b> of the driver with the <b>highest salary</b>. (There is no MAX in basic relational algebra!)",
+ expr:"PROJECT[driver_no](DRIVER) MINUS PROJECT[D1.driver_no](SELECT[D1.salary < D2.salary](RENAME[D1](DRIVER) TIMES RENAME[D2](DRIVER)))",
+ hint:"Find the drivers for whom SOMEONE earns more (self-join with RENAME), then subtract them from all drivers.",
+ explain:"Compare DRIVER with a renamed copy of itself. Drivers with a higher-paid colleague are 'not the maximum'; all drivers minus those leaves the top earner: driver 4."},
+{id:"w27",t:"write",lv:"hard",q:"<b>IDs of passengers</b> who rode on 2026-11-20 but <b>never on any other day</b>.",
+ expr:"PROJECT[passenger_id](RIDE_PASSENGER NJOIN SELECT[date = '2026-11-20'](BUS_RIDE)) MINUS PROJECT[passenger_id](RIDE_PASSENGER NJOIN SELECT[date <> '2026-11-20'](BUS_RIDE))",
+ hint:"(passengers on 2026-11-20) − (passengers on any other date). Each part needs a join of RIDE_PASSENGER with BUS_RIDE.",
+ explain:"On 2026-11-20: {101, 102, 103, 104, 105}. On other days: {102, 104, 105, 106}. Difference: {101, 103}."},
+{id:"w28",t:"write",lv:"hard",q:"<b>Plate numbers</b> of buses that were driven by <b>every</b> driver older than 40.",
+ expr:"PROJECT[plate_no, driver_no](BUS_RIDE) DIVIDE PROJECT[driver_no](SELECT[age > 40](DRIVER))",
+ hint:"Dividend: (plate_no, driver_no) pairs from BUS_RIDE. Divisor: driver_no of drivers older than 40.",
+ explain:"Drivers older than 40: {1, 4}. BUS-104 was driven by 1 (ride 3) and 4 (ride 8) ✓. BUS-101 only by 1 and 2; BUS-103 only by 4."},
+{id:"x7",t:"error",lv:"hard",topics:["NJOIN","RENAME"],q:"Goal: for each boarding, the ride_id, the passenger's name and the driver's name. Why does this return (almost) nothing?",
+ bad:"PROJECT[ride_id, first_name, last_name](RIDE_PASSENGER NJOIN PASSENGER NJOIN BUS_RIDE NJOIN DRIVER)",
+ opts:["PASSENGER and DRIVER both have first_name and last_name, so the natural join also forces passenger name = driver name","NJOIN can only join two tables","RIDE_PASSENGER must come last","PROJECT cannot keep three attributes"],
+ hint:"Natural join matches EVERY attribute name the two sides share. Which names does the left side share with DRIVER?",
+ explain:"The last NJOIN matches on driver_no, first_name AND last_name. Fix: rename DRIVER's attributes so only driver_no is shared.",
+ fix:"PROJECT[ride_id, first_name, last_name, d_first, d_last](RIDE_PASSENGER NJOIN PASSENGER NJOIN BUS_RIDE NJOIN RENAME[D(driver_no, d_first, d_last, d_age, d_salary)](DRIVER))"},
+{id:"x8",t:"error",lv:"hard",topics:["DIVIDE"],q:"Goal: passengers who took every ride on 2026-11-20. What is wrong?",
+ bad:"PROJECT[passenger_id](RIDE_PASSENGER) DIVIDE PROJECT[ride_id](SELECT[date = '2026-11-20'](BUS_RIDE))",
+ opts:["The dividend lost ride_id — it must keep (ride_id, passenger_id) so the divisor's attribute is in it","The divisor must keep all columns of BUS_RIDE","DIVIDE must be written before PROJECT","The date must not be in quotes"],
+ hint:"In R ÷ S, every attribute of S must also be an attribute of R.",
+ explain:"The divisor has ride_id, so the dividend must contain ride_id too; the result is what is left (passenger_id).",
+ fix:"PROJECT[ride_id, passenger_id](RIDE_PASSENGER) DIVIDE PROJECT[ride_id](SELECT[date = '2026-11-20'](BUS_RIDE))"},
+{id:"x10",t:"error",lv:"hard",topics:["DIVIDE","PROJECT"],q:"Goal: passengers who took every ride on 2026-11-20. What is wrong?",
+ bad:"PROJECT[ride_id, passenger_id](RIDE_PASSENGER) DIVIDE SELECT[date = '2026-11-20'](BUS_RIDE)",
+ opts:["The divisor still has all BUS_RIDE columns (date, plate_no, …) — project it to ride_id","The dividend has too many columns","You cannot use SELECT inside DIVIDE","Nothing is wrong"],
+ hint:"What are the attributes of the divisor? Are they all in the dividend?",
+ explain:"Division needs attrs(divisor) ⊆ attrs(dividend). Here the divisor has six attributes, five of which are not in the dividend.",
+ fix:"PROJECT[ride_id, passenger_id](RIDE_PASSENGER) DIVIDE PROJECT[ride_id](SELECT[date = '2026-11-20'](BUS_RIDE))"},
+{id:"x9",t:"error",lv:"hard",topics:["MINUS"],q:"Goal: drivers who never drove. What is wrong?",
+ bad:"PROJECT[driver_no](DRIVER) MINUS PROJECT[driver_no, date](BUS_RIDE)",
+ opts:["The sides are not union-compatible: 1 attribute on the left, 2 on the right","MINUS should be UNION","DRIVER has no driver_no","date must be in quotes"],
+ hint:"Count the attributes on each side.",
+ explain:"MINUS compares whole tuples, so both sides need the same attributes.",
+ fix:"PROJECT[driver_no](DRIVER) MINUS PROJECT[driver_no](BUS_RIDE)"},
+{id:"n7",t:"count",lv:"hard",what:"rows",q:"How many <b>rows</b> does this expression return?",
+ expr:"DRIVER TIMES RENAME[D2](DRIVER)",hint:"Renaming doesn't change the number of rows.",
+ explain:"6 × 6 = 36 — every driver paired with every driver (including themselves)."},
+{id:"n8",t:"count",lv:"hard",what:"rows",q:"How many <b>rows</b> does this expression return?",
+ expr:"PASSENGER NJOIN DRIVER",hint:"Which attributes do PASSENGER and DRIVER have in common? Do any values match?",
+ explain:"The shared attributes are first_name and last_name, so the natural join looks for a passenger with exactly the same full name as a driver. There is none → 0 rows. A classic natural-join trap!"}
+];
+const TOPIC_LABEL={SELECT:"σ Selection",PROJECT:"π Projection",RENAME:"ρ Rename",UNION:"∪ Union",INTERSECT:"∩ Intersection",MINUS:"− Difference",TIMES:"× Cartesian product",JOIN:"⋈θ Theta join",NJOIN:"⋈ Natural join",DIVIDE:"÷ Division"};
+const TYPE_LABEL={mc:"Concept",result:"Read & evaluate",write:"Write the expression",error:"Find the error",count:"Count"};
+for (const q of QUESTIONS){
+  if (!q.topics) q.topics=[...opsOf(parse(q.expr))];
+}
+
+/* =====================================================================
+   4. STORAGE
+   ===================================================================== */
+const SKEY="cai105-ra-trainer-v1";
+function freshStats(){ return {points:0,answered:0,first:0,streak:0,best:0,topics:{},exams:[]}; }
+let ST=freshStats();
+try { const s=JSON.parse(localStorage.getItem(SKEY)); if (s&&typeof s==="object") ST=Object.assign(freshStats(),s); } catch(e){}
+function save(){ try { localStorage.setItem(SKEY,JSON.stringify(ST)); } catch(e){} }
+function recordTopics(q,firstTry){ for (const t of q.topics){ const o=ST.topics[t]||(ST.topics[t]={a:0,m:0}); o.a++; if (!firstTry) o.m++; } }
+function record(q,firstTry,eventually){
+  ST.answered++; ST.points+=firstTry?1:(eventually?0.5:0);
+  if (firstTry){ ST.first++; ST.streak++; ST.best=Math.max(ST.best,ST.streak); } else ST.streak=0;
+  recordTopics(q,firstTry); save(); renderStats();
+}
+function renderStats(){
+  const acc=ST.answered?Math.round(100*ST.first/ST.answered):0;
+  document.getElementById("stats").innerHTML=
+    `<span class="stat">Score <b>${+ST.points.toFixed(1)}</b></span>`+
+    `<span class="stat">Streak <b>${ST.streak}</b> · best ${ST.best}</span>`+
+    `<span class="stat">First-try <b>${acc}%</b> of ${ST.answered}</span>`;
+}
+
+/* =====================================================================
+   5. RENDER HELPERS
+   ===================================================================== */
+const $=(s,r=document)=>r.querySelector(s);
+const shuffle=a=>{ a=a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const fmt=v=>typeof v==="number"?String(v):esc(v);
+function tableHTML(rel,max=12){
+  const C=rel.cols.length,R=rel.rows.length;
+  const head=rel.cols.map((_,i)=>`<th>${esc(dispName(rel,i))}</th>`).join("");
+  if (!R) return `<div class="tw"><table class="rel"><tr>${head}</tr></table></div><div class="empty">(empty — 0 rows)</div>`;
+  const body=rel.rows.slice(0,max).map(r=>`<tr>${r.map(v=>`<td>${fmt(v)}</td>`).join("")}</tr>`).join("");
+  return `<div class="tw"><table class="rel"><tr>${head}</tr>${body}</table></div><div class="relcap">${R} row${R===1?"":"s"} × ${C} column${C===1?"":"s"}${R>max?` — showing first ${max}`:""}</div>`;
+}
+function litRel(w){ return {cols:w.cols.map(n=>({n,q:[],t:"str"})),rows:w.rows}; }
+function relSig(rel){ return rel.cols.map((_,i)=>dispName(rel,i)).join("|")+"#"+rel.rows.map(r=>JSON.stringify(r)).sort().join(";"); }
+function exprBlock(src){
+  let g="";
+  try { const a=parse(src); g=`<span class="greek">${sym(a)}</span>`; } catch(e){}
+  return `<div class="expr"><code>${esc(src)}</code>${g}</div>`;
+}
+function walk(src,title){
+  const {ast,steps}=runSrc(src);
+  if (!steps.length) return `<p>${esc(plain(ast))} is a base table.</p>`;
+  return `${title?`<h4>${title}</h4>`:""}
+   <h4>Step by step (in words)</h4><ol>${steps.map(n=>`<li>${describe(n)}</li>`).join("")}</ol>
+   <h4>Formal expression</h4><div class="formal"><div><span class="lbl">Plain text</span><code>${esc(plain(ast))}</code></div><div><span class="lbl">Symbols</span><span class="greek">${sym(ast)}</span></div></div>
+   <h4>Intermediate tables</h4>${steps.map(n=>`<div class="step"><div class="steph"><b>Step ${n._step}:</b> <span class="greek">${sym(n)}</span></div>${tableHTML(n._rel)}</div>`).join("")}`;
+}
+function explainHTML(inst){
+  const q=inst.q; let h=`<div class="explain">`;
+  if (q.explain) h+=`<h4>Explanation</h4><p>${q.explain}</p>`;
+  if (q.t==="mc"){
+    if (q.expr) h+=`<details class="panel"><summary>See an example on the sample data</summary><div class="inner">${walk(q.expr)}</div></details>`;
+  } else if (q.t==="error"){
+    let msg; try { const r=runSrc(q.bad); msg=`It runs, but gives the wrong answer:</p>${tableHTML(r.rel)}<p>`; } catch(e){ msg=`The evaluator rejects it: <i>${esc(e.message)}</i>`; }
+    h+=`<h4>The broken expression</h4>${exprBlock(q.bad)}<p>${msg}</p><h4>Corrected expression</h4>${exprBlock(q.fix)}${walk(q.fix)}`;
+  } else {
+    if (q.t==="count") h+=`<p><b>Answer: ${inst.expected}</b></p>`;
+    h+=walk(q.expr);
+  }
+  return h+`</div>`;
+}
+function makeInst(q){
+  const inst={q,attempt:0,done:false,disabled:new Set()};
+  if (q.t==="mc"||q.t==="error") inst.opts=shuffle(q.opts.map((o,i)=>({text:o,ok:i===0})));
+  if (q.t==="result"){
+    const correct=runSrc(q.expr).rel, seen=new Set([relSig(correct)]), opts=[{rel:correct,ok:true}];
+    for (const w of q.wrong){
+      const rel=typeof w==="string"?runSrc(w).rel:litRel(w), s=relSig(rel);
+      if (!seen.has(s)){ seen.add(s); opts.push({rel,ok:false}); }
+    }
+    inst.opts=shuffle(opts);
+  }
+  if (q.t==="count"){ const r=runSrc(q.expr).rel; inst.expected=q.what==="cols"?r.cols.length:r.rows.length; }
+  return inst;
+}
+function checkExpr(refSrc,userSrc){
+  let ast; try { ast=parse(userSrc); } catch(e){ return {status:"syntax",msg:e.message}; }
+  let user; try { user=evaluate(ast,MAIN); } catch(e){ return {status:"error",msg:e.message,where:e.where}; }
+  const ref=runSrc(refSrc).rel;
+  if (!sameRel(user,ref)){
+    let why;
+    if (user.cols.length!==ref.cols.length) why=`Your result has ${user.cols.length} column(s) (${colList(user)}), but the answer needs ${ref.cols.length}.`;
+    else if (user.rows.length!==ref.rows.length) why=`Your result has the right number of columns but ${user.rows.length} row(s) — the correct result has a different number of rows.`;
+    else why=`Your result has the right size, but different rows (or columns in an unexpected order/name).`;
+    return {status:"wrong",user,why};
+  }
+  const refAst=parse(refSrc);
+  for (let i=1;i<DBS.length;i++){
+    let u; try { u=evaluate(ast,DBS[i]); } catch(e){ return {status:"variant",user}; }
+    if (!sameRel(u,evaluate(refAst,DBS[i]))) return {status:"variant",user};
+  }
+  return {status:"ok",user};
+}
+const VARIANT_MSG="Your expression gives the right table for the sample data, but on a slightly different database state (for example a driver earning exactly 50000, an extra ride, an extra stop) it no longer matches the correct query. A query must be correct for <i>every</i> database state — check boundaries (&gt; vs &gt;=), AND vs OR, and that you didn't rely on the particular rows shown.";
+
+/* =====================================================================
+   6. QUESTION CARD (shared by practice + exam)
+   ===================================================================== */
+function qHeader(q,num){
+  return `<div>${num?`<span class="badge">${num}</span>`:""}<span class="badge lv-${q.lv}">${q.lv}</span><span class="badge">${TYPE_LABEL[q.t]}</span>
+   ${q.topics.map(t=>`<span class="badge">${esc(TOPIC_LABEL[t])}</span>`).join("")}</div>`;
+}
+const TOOLBAR=[["σ SELECT","SELECT[]()",7],["π PROJECT","PROJECT[]()",8],["ρ RENAME","RENAME[]()",7],["∪ UNION"," UNION "],["∩ INTERSECT"," INTERSECT "],["− MINUS"," MINUS "],["× TIMES"," TIMES "],["⋈θ JOIN[ ]"," JOIN[] ",6],["⋈ NJOIN"," NJOIN "],["÷ DIVIDE"," DIVIDE "],["( )","()",1],["' '","''",1],["AND"," AND "],["OR"," OR "]];
+function bodyHTML(inst,mode,value){
+  const q=inst.q; let h=`<div class="qtext">${q.q}</div>`;
+  if (q.t==="result"||q.t==="count") h+=exprBlock(q.expr);
+  if (q.t==="error") h+=exprBlock(q.bad);
+  if (q.t==="mc"||q.t==="error"){
+    h+=`<div class="opts">${inst.opts.map((o,i)=>`<button class="opt${value===i?" sel":""}" data-i="${i}">${esc(o.text)}</button>`).join("")}</div>`;
+  } else if (q.t==="result"){
+    h+=`<div class="opts tables">${inst.opts.map((o,i)=>`<button class="opt${value===i?" sel":""}" data-i="${i}"><div class="olabel">Option ${"ABCD"[i]}</div>${tableHTML(o.rel,20)}</button>`).join("")}</div>`;
+  } else if (q.t==="count"){
+    h+=`<input type="number" inputmode="numeric" class="ans" placeholder="Type a number" value="${value!=null?esc(value):""}">`;
+  } else if (q.t==="write"){
+    h+=`<div class="toolbar">${TOOLBAR.map((b,i)=>`<button class="tb" data-ins="${i}">${esc(b[0])}</button>`).join("")}</div>
+      <div class="toolbar">${Object.keys(TABLES).map(t=>`<button class="tb t" data-tbl="${t}">${t}</button>`).join("")}</div>
+      <textarea class="ans" rows="3" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="e.g. PROJECT[first_name](SELECT[age > 40](DRIVER))">${value!=null?esc(value):""}</textarea>
+      <div class="preview"></div><div class="small muted">Enter = check · Shift+Enter = new line</div>`;
+  }
+  return h;
+}
+function wireBody(el,inst,{onPick,onText,onSubmit}){
+  el.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>onPick(+b.dataset.i)));
+  const ans=el.querySelector(".ans");
+  if (!ans) return;
+  ans.addEventListener("input",()=>{ onText&&onText(ans.value); if (inst.q.t==="write") preview(); });
+  ans.addEventListener("keydown",e=>{ if (e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); onSubmit&&onSubmit(); } });
+  const pv=el.querySelector(".preview"); let tmr;
+  function preview(){ clearTimeout(tmr); tmr=setTimeout(()=>{
+    if (!pv) return; const v=ans.value.trim(); if (!v){ pv.innerHTML=""; return; }
+    try { const a=parse(v); pv.innerHTML=`Reads as: <span class="greek">${sym(a)}</span>`; }
+    catch(e){ pv.innerHTML=`<span>… ${esc(e.message)}</span>`; }
+  },200); }
+  function insert(text,caret){
+    const s=ans.selectionStart??ans.value.length, e2=ans.selectionEnd??s;
+    ans.value=ans.value.slice(0,s)+text+ans.value.slice(e2);
+    const pos=s+(caret!=null?caret:text.length);
+    ans.focus(); ans.setSelectionRange(pos,pos);
+    ans.dispatchEvent(new Event("input"));
+  }
+  el.querySelectorAll("[data-ins]").forEach(b=>b.addEventListener("click",()=>{ const t=TOOLBAR[+b.dataset.ins]; insert(t[1],t[2]); }));
+  el.querySelectorAll("[data-tbl]").forEach(b=>b.addEventListener("click",()=>insert(b.dataset.tbl)));
+  if (inst.q.t==="write") preview();
+}
+
+/* =====================================================================
+   7. PRACTICE MODE
+   ===================================================================== */
+const P={level:"mixed",topic:"ALL",queue:[],inst:null,lastId:null};
+function poolFor(level,topic){ return QUESTIONS.filter(q=>(level==="mixed"||q.lv===level)&&(topic==="ALL"||q.topics.includes(topic))); }
+function renderPracticeShell(){
+  const el=$("#tab-practice");
+  el.innerHTML=`<div class="card">
+    <div class="row" style="justify-content:space-between">
+      <div class="chips" id="lvchips">${["easy","medium","hard","mixed"].map(l=>`<button class="chip${P.level===l?" on":""}" data-lv="${l}">${l[0].toUpperCase()+l.slice(1)}</button>`).join("")}</div>
+      <select id="topicsel"><option value="ALL">All operators</option>${Object.keys(TOPIC_LABEL).map(t=>`<option value="${t}"${P.topic===t?" selected":""}>${TOPIC_LABEL[t]}</option>`).join("")}</select>
+    </div>
+    <div class="small muted" id="poolinfo" style="margin-top:6px"></div>
+  </div><div class="card" id="qcard"></div>`;
+  el.querySelectorAll("[data-lv]").forEach(b=>b.addEventListener("click",()=>{ P.level=b.dataset.lv; P.queue=[]; renderPracticeShell(); nextQ(); }));
+  $("#topicsel").addEventListener("change",e=>{ P.topic=e.target.value; P.queue=[]; nextQ(); });
+}
+function nextQ(){
+  const pool=poolFor(P.level,P.topic);
+  $("#poolinfo").textContent=`${pool.length} question${pool.length===1?"":"s"} in this selection · answered questions come back after the whole set has been seen`;
+  if (!pool.length){ $("#qcard").innerHTML=`<p>No questions for this level + operator. Choose "Mixed" or another operator.</p>`; return; }
+  if (!P.queue.length){ P.queue=shuffle(pool.map(q=>q.id)); if (P.queue.length>1&&P.queue[0]===P.lastId) P.queue.push(P.queue.shift()); }
+  const id=P.queue.shift();
+  const q=QUESTIONS.find(x=>x.id===id);
+  P.lastId=q.id; P.inst=makeInst(q); renderQ();
+}
+function renderQ(){
+  const inst=P.inst, q=inst.q, card=$("#qcard");
+  card.innerHTML=qHeader(q)+bodyHTML(inst,"practice",null)+
+    `<div class="fbwrap"></div><div class="actions">${["count","write"].includes(q.t)?`<button class="btn" id="checkbtn">Check</button>`:""}<button class="btn ghost" id="nextbtn">Skip →</button></div><div class="expwrap"></div>`;
+  let text="";
+  wireBody(card,inst,{onPick:i=>answer(i),onText:v=>text=v,onSubmit:()=>answer(text)});
+  const cb=$("#checkbtn"); if (cb) cb.addEventListener("click",()=>answer(card.querySelector(".ans").value));
+  $("#nextbtn").addEventListener("click",nextQ);
+  const ta=card.querySelector("textarea.ans"); if (ta&&window.matchMedia("(min-width:700px)").matches) ta.focus();
+}
+function fb(cls,title,html){ return `<div class="fb ${cls}"><b class="t">${title}</b>${html||""}</div>`; }
+function answer(ans){
+  const inst=P.inst, q=inst.q, card=$("#qcard"); if (inst.done) return;
+  const fbw=card.querySelector(".fbwrap");
+  let ok, extra="";
+  if (q.t==="mc"||q.t==="error"||q.t==="result"){
+    if (inst.disabled.has(ans)) return;
+    ok=inst.opts[ans].ok;
+    const btn=card.querySelector(`.opt[data-i="${ans}"]`);
+    btn.classList.add(ok?"right":"wrong");
+    if (!ok){ inst.disabled.add(ans); btn.disabled=true; }
+  } else if (q.t==="count"){
+    const v=String(ans).trim(); if (v===""||isNaN(+v)){ fbw.innerHTML=fb("info","Type a whole number."); return; }
+    ok=+v===inst.expected;
+  } else {
+    const r=checkExpr(q.expr,ans);
+    if (r.status==="syntax"||r.status==="error"){
+      fbw.innerHTML=fb("info",r.status==="syntax"?"I can't read that expression yet (this doesn't count as an attempt)":"Your expression can't be evaluated (this doesn't count as an attempt)",
+        `<div>${esc(r.msg)}</div>${r.where?`<div class="small muted">Problem in: <code>${esc(plain(r.where))}</code></div>`:""}`);
+      return;
+    }
+    ok=r.status==="ok";
+    if (r.status==="wrong") extra=`<div>${esc(r.why)}</div><div class="small muted" style="margin-top:6px">Your expression evaluates to:</div>${tableHTML(r.user)}`;
+    if (r.status==="variant") extra=`<div>${VARIANT_MSG}</div>`;
+    if (ok){
+      let same=false; try { same=plain(parse(ans))===plain(parse(q.expr)); } catch(e){}
+      extra=same?"":`<div>Your expression is different from the model answer but gives the same result — on the sample data and on hidden test data. Both are correct.</div>`;
+    }
+  }
+  if (ok){
+    inst.done=true; record(q,inst.attempt===0,true);
+    fbw.innerHTML=fb("ok",inst.attempt===0?"✓ Correct!":"✓ Correct on the second try (½ point).",extra);
+    finishQ();
+  } else if (inst.attempt===0){
+    inst.attempt=1;
+    fbw.innerHTML=fb("hint","Not quite — here is a hint. Try once more.",`<div>💡 ${q.hint}</div>${extra}`);
+  } else {
+    inst.done=true; record(q,false,false);
+    let correct="";
+    if (q.t==="count") correct=`The answer is <b>${inst.expected}</b>.`;
+    if (q.t==="write") correct=`A correct answer:`+exprBlock(q.expr);
+    fbw.innerHTML=fb("bad","✗ Not correct. Here is the full answer.",extra+correct);
+    finishQ();
+  }
+}
+function finishQ(){
+  const card=$("#qcard"), inst=P.inst;
+  card.querySelectorAll(".opt").forEach(b=>{ b.disabled=true; if (inst.opts&&inst.opts[+b.dataset.i].ok) b.classList.add("right"); });
+  card.querySelectorAll(".ans").forEach(a=>a.readOnly=true);
+  const cb=$("#checkbtn"); if (cb) cb.remove();
+  const nb=$("#nextbtn"); nb.textContent="Next question →"; nb.classList.remove("ghost");
+  card.querySelector(".expwrap").innerHTML=explainHTML(inst);
+  nb.focus({preventScroll:true});
+}
+
+/* =====================================================================
+   8. EXAM MODE
+   ===================================================================== */
+const EXAM_N=10, EXAM_SEC=15*60;
+let EX=null;
+function renderExamSetup(){
+  const last=ST.exams.slice(-5).reverse();
+  $("#tab-exam").innerHTML=`<div class="card">
+   <h2 style="margin:0 0 6px;font-size:18px">Exam mode</h2>
+   <p class="muted" style="margin:0 0 12px">${EXAM_N} random questions · ${EXAM_SEC/60}-minute timer · no hints, no feedback until you submit · full answer key at the end.</p>
+   <div class="chips" id="exlv">${["easy","medium","hard","mixed"].map(l=>`<button class="chip${l==="mixed"?" on":""}" data-lv="${l}">${l[0].toUpperCase()+l.slice(1)}</button>`).join("")}</div>
+   <div class="actions"><button class="btn" id="exstart">Start exam</button></div>
+   ${last.length?`<h4 style="margin:18px 0 4px">Recent exams</h4><div class="small">${last.map(e=>`<div>${esc(e.date)} · ${esc(e.level)} · <b>${e.score}/${e.n}</b> · ${Math.floor(e.secs/60)}m ${e.secs%60}s</div>`).join("")}</div>`:""}
+  </div>`;
+  let lv="mixed";
+  $("#exlv").querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{ lv=b.dataset.lv; $("#exlv").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on",x===b)); }));
+  $("#exstart").addEventListener("click",()=>startExam(lv));
+}
+function startExam(level){
+  const pool=shuffle(poolFor(level,"ALL")).slice(0,EXAM_N);
+  EX={level,insts:pool.map(makeInst),answers:pool.map(()=>null),idx:0,start:Date.now(),left:EXAM_SEC};
+  EX.timer=setInterval(()=>{ EX.left=EXAM_SEC-Math.floor((Date.now()-EX.start)/1000); updTimer(); if (EX.left<=0) submitExam(true); },1000);
+  renderExamQ();
+}
+function updTimer(){ const t=$("#extimer"); if (!t||!EX) return; const s=Math.max(0,EX.left); t.textContent=`⏱ ${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`; t.classList.toggle("low",s<=60); }
+function renderExamQ(){
+  const i=EX.idx, inst=EX.insts[i], el=$("#tab-exam");
+  el.innerHTML=`<div class="card">
+    <div class="row" style="justify-content:space-between"><b>Question ${i+1} of ${EX.insts.length}</b><span class="timer" id="extimer"></span></div>
+    <div class="dots">${EX.insts.map((_,k)=>`<button class="dot${EX.answers[k]!=null&&EX.answers[k]!==""?" ans":""}${k===i?" cur":""}" data-k="${k}">${k+1}</button>`).join("")}</div>
+  </div><div class="card" id="exq">${qHeader(inst.q)}${bodyHTML(inst,"exam",EX.answers[i])}
+    <div class="actions"><button class="btn ghost" id="exprev"${i===0?" disabled":""}>← Previous</button>
+    ${i<EX.insts.length-1?`<button class="btn" id="exnext">Next →</button>`:""}
+    <button class="btn danger" id="exsubmit">Submit exam</button></div></div>`;
+  updTimer();
+  const q=$("#exq");
+  wireBody(q,inst,{
+    onPick:k=>{ EX.answers[i]=k; q.querySelectorAll(".opt").forEach(b=>b.classList.toggle("sel",+b.dataset.i===k)); markDot(i); },
+    onText:v=>{ EX.answers[i]=v; markDot(i); },
+    onSubmit:()=>{ if (EX.idx<EX.insts.length-1){ EX.idx++; renderExamQ(); } }
+  });
+  el.querySelectorAll(".dot").forEach(b=>b.addEventListener("click",()=>{ EX.idx=+b.dataset.k; renderExamQ(); }));
+  $("#exprev").addEventListener("click",()=>{ EX.idx--; renderExamQ(); });
+  const n=$("#exnext"); if (n) n.addEventListener("click",()=>{ EX.idx++; renderExamQ(); });
+  $("#exsubmit").addEventListener("click",()=>{
+    const open=EX.answers.filter(a=>a==null||a==="").length;
+    if (confirm(open?`${open} question(s) are unanswered. Submit anyway?`:"Submit the exam?")) submitExam(false);
+  });
+}
+function markDot(i){ const d=document.querySelector(`.dot[data-k="${i}"]`); if (d) d.classList.toggle("ans",EX.answers[i]!=null&&EX.answers[i]!==""); }
+function submitExam(timeUp){
+  if (!EX) return; clearInterval(EX.timer);
+  const secs=Math.min(EXAM_SEC,Math.floor((Date.now()-EX.start)/1000));
+  let score=0;
+  const items=EX.insts.map((inst,i)=>{
+    const q=inst.q, a=EX.answers[i]; let ok=false, yours="<i>no answer</i>", note="";
+    if (a!=null&&a!==""){
+      if (inst.opts){ ok=inst.opts[a].ok; yours=q.t==="result"?tableHTML(inst.opts[a].rel):esc(inst.opts[a].text); }
+      else if (q.t==="count"){ ok=+a===inst.expected; yours=esc(a); }
+      else {
+        const r=checkExpr(q.expr,a); ok=r.status==="ok"; yours=exprBlock(a);
+        if (r.status==="syntax"||r.status==="error") note=`Evaluator: ${esc(r.msg)}`;
+        else if (r.status==="wrong") note=esc(r.why);
+        else if (r.status==="variant") note="Right on the sample data, but not on the hidden test data (see the boundaries / AND vs OR).";
+      }
+    }
+    if (ok) score++;
+    recordTopics(q,ok);
+    let correct;
+    if (inst.opts){ const c=inst.opts.find(o=>o.ok); correct=q.t==="result"?tableHTML(c.rel):esc(c.text); }
+    else if (q.t==="count") correct=`<b>${inst.expected}</b>`;
+    else correct=exprBlock(q.expr);
+    return {inst,ok,yours,note,correct};
+  });
+  ST.exams.push({date:new Date().toLocaleString(),level:EX.level,score,n:EX.insts.length,secs}); ST.exams=ST.exams.slice(-20);
+  save(); renderStats();
+  const pct=Math.round(100*score/items.length);
+  $("#tab-exam").innerHTML=`<div class="card">
+    ${timeUp?`<div class="fb hint"><b class="t">Time is up — the exam was submitted automatically.</b></div>`:""}
+    <div class="row" style="justify-content:space-between;margin-top:6px"><div><div class="big">${score} / ${items.length}</div><div class="muted">${pct}% · time used ${Math.floor(secs/60)}m ${secs%60}s · level: ${esc(EX.level)}</div></div>
+    <button class="btn" id="exagain">New exam</button></div></div>
+    <div class="card"><h3 style="margin:0 0 4px">Answer key</h3>
+    ${items.map((it,i)=>`<div class="keyitem">
+      <div class="row" style="justify-content:space-between"><b>Question ${i+1}</b><span class="pill ${it.ok?"ok":"bad"}">${it.ok?"✓ correct":"✗ wrong"}</span></div>
+      ${qHeader(it.inst.q)}<div class="qtext" style="font-size:15px">${it.inst.q.q}</div>
+      ${it.inst.q.t==="result"||it.inst.q.t==="count"?exprBlock(it.inst.q.expr):""}${it.inst.q.t==="error"?exprBlock(it.inst.q.bad):""}
+      <div class="small muted" style="margin-top:6px">Your answer</div><div>${it.yours}</div>${it.note?`<div class="small" style="color:var(--bad)">${it.note}</div>`:""}
+      <div class="small muted" style="margin-top:6px">Correct answer</div><div>${it.correct}</div>
+      <details class="panel"><summary>Explanation</summary><div class="inner">${explainHTML(it.inst)}</div></details>
+    </div>`).join("")}</div>`;
+  $("#exagain").addEventListener("click",()=>{ EX=null; renderExamSetup(); });
+  EX=null; window.scrollTo(0,0);
+}
+
+/* =====================================================================
+   9. CHEAT SHEET, PROGRESS, DATABASE PANEL
+   ===================================================================== */
+const CHEAT=[
+ ["SELECT","σ","sigma","unary","SELECT[condition](R)","Keeps the rows that satisfy the condition. Columns unchanged.","SELECT[age > 40](DRIVER)"],
+ ["PROJECT","π","pi","unary","PROJECT[a, b](R)","Keeps only the listed columns; duplicate rows are removed.","PROJECT[make](BUS)"],
+ ["RENAME","ρ","rho","unary","RENAME[S](R) · RENAME[S(a, b)](R) · RENAME[a -> b](R)","Renames the relation and/or its attributes. Needed for self-joins.","RENAME[R2(r, cost)](ROUTE)"],
+ ["UNION","∪","union","binary","R UNION S","Tuples in R or S (or both). Needs union-compatible inputs.","PROJECT[driver_no](SELECT[route_no = 12](BUS_RIDE)) UNION PROJECT[driver_no](SELECT[route_no = 10](BUS_RIDE))"],
+ ["INTERSECT","∩","intersection","binary","R INTERSECT S","Tuples in both R and S. Equals R − (R − S).","PROJECT[driver_no](SELECT[route_no = 12](BUS_RIDE)) INTERSECT PROJECT[driver_no](SELECT[route_no = 10](BUS_RIDE))"],
+ ["MINUS","−","difference","binary","R MINUS S","Tuples in R that are not in S. Not commutative. Use it for 'never / not'.","PROJECT[driver_no](DRIVER) MINUS PROJECT[driver_no](BUS_RIDE)"],
+ ["TIMES","×","cartesian product","binary","R TIMES S","Every tuple of R combined with every tuple of S: |R|·|S| rows, deg(R)+deg(S) columns.","PROJECT[make](SELECT[year > 2019](BUS)) TIMES PROJECT[city](BUS_STOP)"],
+ ["JOIN","⋈θ","theta join","binary","R JOIN[condition] S","σ<sub>condition</sub>(R × S). Keeps both copies of the join columns.","BUS_RIDE JOIN[BUS_RIDE.route_no = ROUTE.route_no AND price > 2] ROUTE"],
+ ["NJOIN","⋈","natural join","binary","R NJOIN S","Equi-join on ALL attributes with the same name; each appears once.","ROUTE NJOIN SELECT[stop_no = 1](ROUTE_STOP)"],
+ ["DIVIDE","÷","division","binary","R DIVIDE S","Values of R's other attributes that are paired with EVERY tuple of S. For 'every / all' questions.","PROJECT[route_no, stop_no](ROUTE_STOP) DIVIDE PROJECT[stop_no](SELECT[city = 'Springfield'](BUS_STOP))"]
+];
+const SYNTAX_HELP=`<ul style="padding-left:18px;margin:4px 0">
+ <li>Unary: <code>SELECT[cond](R)</code> σ · <code>PROJECT[a, b](R)</code> π · <code>RENAME[S](R)</code> ρ — also <code>RENAME[S(a, b)](R)</code> and <code>RENAME[old -> new](R)</code></li>
+ <li>Binary: <code>R UNION S</code> ∪ · <code>R INTERSECT S</code> ∩ · <code>R MINUS S</code> − · <code>R TIMES S</code> × · <code>R JOIN[cond] S</code> ⋈<sub>θ</sub> · <code>R NJOIN S</code> ⋈ · <code>R DIVIDE S</code> ÷</li>
+ <li>Conditions: <code>= &lt;&gt; != &lt; &gt; &lt;= &gt;=</code>, combined with <code>AND</code> <code>OR</code> <code>NOT</code> and parentheses.</li>
+ <li>Text, dates and times go in quotes: <code>make = 'Volvo'</code>, <code>date = '2026-11-20'</code>. Numbers don't: <code>salary &gt; 50000</code>.</li>
+ <li>If two columns have the same name, qualify them: <code>BUS_RIDE.driver_no = DRIVER.driver_no</code>.</li>
+ <li>Upper/lower case and spaces don't matter. You may also type the real symbols (σ π ρ ∪ ∩ − × ⋈ ÷).</li>
+ <li>Precedence: TIMES / JOIN / NJOIN / DIVIDE bind tighter than UNION / INTERSECT / MINUS (like × before +). Operators of the same level go left to right. When in doubt, use parentheses.</li>
+ <li>Typed answers are checked by <b>running</b> your expression on the sample data (and on hidden test data), so any equivalent correct expression is accepted.</li></ul>`;
+function renderCheat(){
+  $("#tab-cheat").innerHTML=`<div class="card"><h2 style="margin:0 0 4px;font-size:18px">Cheat sheet — all operators</h2>
+   <p class="muted small" style="margin:0 0 10px">Each example runs on the sample database. Tap "result" to see the output.</p>
+   <div class="cheat">${CHEAT.map(c=>`<div class="op"><span class="sym">${c[1]}</span><h3>${c[0]} <span class="muted" style="font-weight:400">· ${c[2]}</span></h3>
+     <div class="ar">${c[3]}</div><p><code>${esc(c[4])}</code></p><p>${c[5]}</p>${exprBlock(c[6])}
+     <details><summary class="small" style="cursor:pointer">result</summary>${tableHTML(runSrc(c[6]).rel,10)}</details></div>`).join("")}</div>
+   <h3 style="margin:16px 0 4px;font-size:15px">Handy patterns</h3>
+   <ul class="small" style="padding-left:18px;margin:0">
+    <li><b>“… who never …”</b> → all IDs <code>MINUS</code> the IDs that appear.</li>
+    <li><b>“… every / all …”</b> → <code>DIVIDE</code>: dividend (result attrs + matching attrs), divisor (only the matching attrs).</li>
+    <li><b>“both A and B”</b> over different rows → two queries combined with <code>INTERSECT</code>, not <code>AND</code>.</li>
+    <li><b>Maximum</b> → all <code>MINUS</code> those for which someone is bigger (self-join with <code>RENAME</code>).</li>
+    <li><b>Order of operators</b>: SELECT early, PROJECT last (don't project away an attribute you still need).</li>
+   </ul></div>
+   <div class="card"><h2 style="margin:0 0 4px;font-size:18px">Playground</h2>
+    <p class="muted small" style="margin:0 0 8px">Type any expression and run it on the sample database.</p>
+    <textarea id="pg" rows="3" spellcheck="false" autocapitalize="off">PROJECT[first_name, last_name](SELECT[salary > 50000](DRIVER))</textarea>
+    <div class="actions"><button class="btn" id="pgrun">Run</button></div><div id="pgout"></div></div>`;
+  const run=()=>{ const out=$("#pgout"); try { out.innerHTML=`<div class="explain">${walk($("#pg").value)}</div><h4 class="muted">Final result</h4>${tableHTML(runSrc($("#pg").value).rel,50)}`; } catch(e){ out.innerHTML=fb("bad","Error",`<div>${esc(e.message)}</div>${e.where?`<div class="small">In: <code>${esc(plain(e.where))}</code></div>`:""}`); } };
+  $("#pgrun").addEventListener("click",run);
+  $("#pg").addEventListener("keydown",e=>{ if (e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); run(); } });
+}
+function renderProgress(){
+  const rows=Object.keys(TOPIC_LABEL).map(t=>{ const o=ST.topics[t]||{a:0,m:0}; return {t,a:o.a,m:o.m,rate:o.a?o.m/o.a:0}; })
+    .sort((x,y)=>(y.a?1:0)-(x.a?1:0)||y.rate-x.rate||y.m-x.m);
+  const acc=ST.answered?Math.round(100*ST.first/ST.answered):0;
+  $("#tab-progress").innerHTML=`<div class="card"><h2 style="margin:0 0 8px;font-size:18px">Your progress</h2>
+    <div class="row small"><span class="stat">Score <b>${+ST.points.toFixed(1)}</b></span><span class="stat">Answered <b>${ST.answered}</b></span><span class="stat">First-try correct <b>${acc}%</b></span><span class="stat">Best streak <b>${ST.best}</b></span><span class="stat">Exams <b>${ST.exams.length}</b></span></div>
+    <h3 style="margin:16px 0 2px;font-size:15px">Weak topics</h3><p class="small muted" style="margin:0 0 6px">Miss rate per operator (a question counts as missed if it wasn't right on the first try). Worst first.</p>
+    ${rows.map(r=>`<div class="topicrow"><span class="nm">${esc(TOPIC_LABEL[r.t])}</span><span class="bar"><i style="width:${Math.round(r.rate*100)}%"></i></span>
+      <span class="pc">${r.a?`${Math.round(r.rate*100)}% missed (${r.m}/${r.a})`:"not tried yet"}</span>
+      <button class="chip" data-train="${r.t}">Practice</button></div>`).join("")}
+    <div class="actions"><button class="btn ghost" id="reset">Reset all progress</button></div></div>`;
+  document.querySelectorAll("[data-train]").forEach(b=>b.addEventListener("click",()=>{ P.topic=b.dataset.train; P.level="mixed"; P.queue=[]; show("practice"); renderPracticeShell(); nextQ(); }));
+  $("#reset").addEventListener("click",()=>{ if (confirm("Reset score, streak, weak topics and exam history?")){ ST=freshStats(); save(); renderStats(); renderProgress(); } });
+}
+function renderDB(){
+  $("#dbinner").innerHTML=`<div class="dbgrid">${Object.entries(TABLES).map(([n,t])=>`<div><div class="tname">${n}<span>(${t.cols.join(", ")})</span></div>${tableHTML({cols:t.cols.map(c=>({n:c,q:[n]})),rows:t.rows},20)}</div>`).join("")}</div>`;
+  $("#syntaxhelp").innerHTML=SYNTAX_HELP;
+}
+function show(tab){
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  for (const t of ["practice","exam","cheat","progress"]) $("#tab-"+t).classList.toggle("hidden",t!==tab);
+  if (tab==="progress") renderProgress();
+  if (tab==="exam"&&!EX) renderExamSetup();
+}
+document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click",()=>show(b.dataset.tab)));
+
+renderStats(); renderDB(); renderCheat(); renderPracticeShell(); nextQ();
+</script>
+</body>
+</html>
