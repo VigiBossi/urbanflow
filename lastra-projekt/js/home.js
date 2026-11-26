@@ -110,7 +110,7 @@
     const shown = { v: 0 };
     const calc = () => {
       const d = new FormData(f), m2 = +size.value, floors = +d.get("floors"), tier = d.get("tier"), T = E.tiers[tier];
-      const months = T.base + m2 * T.perM2 + (floors === 2 ? T.extraFloor : 0), lo = Math.max(2, Math.round(months - E.range)), hi = Math.round(months + E.range);
+      const months = T.base + m2 * T.perM2 + Math.max(0, floors - 1) * T.extraFloor, lo = Math.max(2, Math.round(months - E.range)), hi = Math.round(months + E.range);
       return { m2, floors, tier, T, months, lo, hi };
     };
     const msg = r => [t("est_msg_intro"), "", `${t("est_size")}: ${r.m2} m²`, `${t("est_floors")}: ${r.floors}`, `${t("est_tier")}: ${t("tier_" + r.tier)}`, `${t("est_dur")}: ${r.lo}–${r.hi} ${t("est_months")}`, "", `${t("est_incl")}:`, ...r.T.items.map(k => "• " + t(k)), "", t("est_msg_outro")].join("\n");

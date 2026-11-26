@@ -33,7 +33,7 @@
   const PH = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>';
   const MARK = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M11 7v18h11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="square"/></svg>';
 
-  const nav = [["index.html", "nav_home"], ["projects.html", "nav_projects"], ["services.html", "nav_services"], ["process.html", "nav_process"], ["about.html", "nav_about"], ["contact.html", "nav_contact"]];
+  const nav = [["index.html", "nav_home"], ["projects.html", "nav_projects"], ["services.html", "nav_services"], ["process.html", "nav_process"], ["architect.html", "nav_architect"], ["about.html", "nav_about"], ["contact.html", "nav_contact"]];
   const cur = location.pathname.split("/").pop() || "index.html";
   const active = cur === "project.html" ? "projects.html" : (cur.endsWith(".html") ? cur : "index.html");
   const langBtns = () => LANGS.map(l => `<button type="button" data-lang="${l}" lang="${l}">${l.toUpperCase()}</button>`).join("");
@@ -212,10 +212,15 @@
     set("role", L(A.role)); set("quote", L(A.quote)); set("bio", L(A.bio));
     const yrs = qs('[data-arch="years"]', sec);
     if (yrs) { yrs.hidden = !(+A.experienceYears > 0); qs("b", yrs).textContent = (+A.experienceYears || 0) + "+"; qs("span", yrs).textContent = t("arch_years"); }
-    const fig = qs(".arch-portrait", sec), img = qs("img", fig), hasPhoto = isSet(A.photo);
-    fig.classList.toggle("has-photo", hasPhoto);
-    if (hasPhoto && img.getAttribute("src") !== A.photo) { img.src = A.photo; img.hidden = false; img.onerror = () => { img.hidden = true; fig.classList.remove("has-photo"); }; }
-    if (hasPhoto) img.alt = `${isSet(A.name) ? A.name : t("arch_fallback")} – ${L(A.role)}`;
+    /* optional portrait: a small round avatar next to the name (home) or a framed portrait (architect.html) */
+    const hasPhoto = isSet(A.photo), alt = `${isSet(A.name) ? A.name : t("arch_fallback")} – ${L(A.role)}`;
+    qsa(".arch-avatar, .arch-portrait", sec.ownerDocument).forEach(fig => {
+      const img = qs("img", fig); if (!img) return;
+      fig.hidden = fig.classList.contains("arch-avatar") ? !hasPhoto : false;
+      fig.classList.toggle("has-photo", hasPhoto);
+      if (hasPhoto && img.getAttribute("src") !== A.photo) { img.src = A.photo; img.hidden = false; img.onerror = () => { img.hidden = true; fig.classList.remove("has-photo"); if (fig.classList.contains("arch-avatar")) fig.hidden = true; }; }
+      if (hasPhoto) img.alt = alt;
+    });
     const list = qs('[data-arch="specs"]', sec), specs = (A.specialties && (A.specialties[lang] || A.specialties.sq)) || [];
     if (list) list.innerHTML = specs.map((x, i) => `<li><span class="as-n mono">${pad(i + 1)}</span><span class="as-t">${x.t}</span><span class="as-d">${x.d}</span></li>`).join("");
   }

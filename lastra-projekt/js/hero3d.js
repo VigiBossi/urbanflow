@@ -186,19 +186,27 @@ function init() {
   /* Reveal: a clipping plane sweeps along `axis`, with a glowing bronze edge at the cut.
      Visible where dot(axis, p) <= edge. Shadows are clipped too. */
   const REVEAL_COLOR = new THREE.Color("#ff9d52").multiplyScalar(2.6);
-  function reveal(mat, axis) {
+  /* section cut (cutaway): one shared vertical plane, keeps z <= constant; 1e4 = off */
+  const CUT = new THREE.Plane(new THREE.Vector3(0, 0, -1), 1e4);
+  const SECTION_COLOR = new THREE.Color("#2b2724");
+  function reveal(mat, axis, opt = {}) {
+    const cut = opt.cut !== false, caps = cut && opt.caps !== false && !mat.transparent && mat.side !== THREE.BackSide;
     const ax = axis.clone().normalize();
     const plane = new THREE.Plane(ax.clone().negate(), 1e4);
-    const u = { uRAxis: { value: ax }, uREdge: { value: 1e4 }, uRAmt: { value: 0 }, uRCol: { value: REVEAL_COLOR } };
-    mat.clippingPlanes = [plane]; mat.clipShadows = true;
+    const u = { uRAxis: { value: ax }, uREdge: { value: 1e4 }, uRAmt: { value: 0 }, uRCol: { value: REVEAL_COLOR }, uSec: { value: SECTION_COLOR } };
+    mat.clippingPlanes = cut ? [plane, CUT] : [plane]; mat.clipShadows = true;
+    /* solid "poché" on cut faces: back faces revealed by the cut are painted as an architectural section */
+    if (caps) mat.side = THREE.DoubleSide;
     mat.onBeforeCompile = sh => {
       Object.assign(sh.uniforms, u);
       sh.vertexShader = "varying vec3 vRW;\n" + sh.vertexShader.replace("#include <project_vertex>",
         "#include <project_vertex>\n#ifdef USE_INSTANCING\n vRW = (modelMatrix * instanceMatrix * vec4(transformed,1.0)).xyz;\n#else\n vRW = (modelMatrix * vec4(transformed,1.0)).xyz;\n#endif");
       sh.fragmentShader = "uniform vec3 uRAxis; uniform float uREdge; uniform float uRAmt; uniform vec3 uRCol; varying vec3 vRW;\n" +
         sh.fragmentShader.replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\n totalEmissiveRadiance += uRCol * uRAmt * (1.0 - smoothstep(0.0, 0.085, abs(dot(vRW, uRAxis) - uREdge)));");
+      sh.fragmentShader = "uniform vec3 uSec;\n" + sh.fragmentShader;
+      if (caps) sh.fragmentShader = sh.fragmentShader.replace("#include <dithering_fragment>", "#include <dithering_fragment>\n if (!gl_FrontFacing) gl_FragColor = vec4(uSec, 1.0);");
     };
-    mat.customProgramCacheKey = () => "reveal";
+    mat.customProgramCacheKey = () => "reveal" + (caps ? "c" : "");
     mat.userData.edge = (e, amt) => { plane.constant = e; u.uREdge.value = e; u.uRAmt.value = amt; };
     return mat;
   }
@@ -298,6 +306,17 @@ function init() {
   }
   const geoBox = (w, h, d, x, y, z) => planarUV(new THREE.BoxGeometry(w, h, d).translate(x, y + h / 2, z));   // y = bottom
   const geoCyl = (r, h, x, y, z, seg = 8) => planarUV(new THREE.CylinderGeometry(r, r, h, seg).translate(x, y + h / 2, z));
+  /* rectangle minus an axis-aligned hole → up to 4 rectangles (stair openings in slabs, floors, ceilings) */
+  function rectMinus(r, h) {
+    const x0 = Math.max(r.x0, h.x0), x1 = Math.min(r.x1, h.x1), z0 = Math.max(r.z0, h.z0), z1 = Math.min(r.z1, h.z1);
+    if (x0 >= x1 || z0 >= z1) return [r];
+    const out = [];
+    if (z0 > r.z0) out.push({ x0: r.x0, x1: r.x1, z0: r.z0, z1: z0 });
+    if (z1 < r.z1) out.push({ x0: r.x0, x1: r.x1, z0: z1, z1: r.z1 });
+    if (x0 > r.x0) out.push({ x0: r.x0, x1: x0, z0, z1 });
+    if (x1 < r.x1) out.push({ x0: x1, x1: r.x1, z0, z1 });
+    return out;
+  }
   /* merge helper: mixes indexed + non-indexed geometries safely */
   const merge = list => {
     const mixed = list.some(g => g.index) && list.some(g => !g.index);
@@ -330,13 +349,14 @@ function init() {
 
     /* walls → pieces along each side, openings cut out */
     const sideInfo = (v, s) => {
-      if (s === "S") return { len: v.x1 - v.x0, o: [v.x0, v.z1], d: [1, 0] };
-      if (s === "N") return { len: v.x1 - v.x0, o: [v.x0, v.z0], d: [1, 0] };
-      if (s === "W") return { len: v.z1 - v.z0, o: [v.x0, v.z0], d: [0, 1] };
-      return { len: v.z1 - v.z0, o: [v.x1, v.z0], d: [0, 1] };
+      /* n = inward normal (towards the room) */
+      if (s === "S") return { len: v.x1 - v.x0, o: [v.x0, v.z1], d: [1, 0], n: [0, -1] };
+      if (s === "N") return { len: v.x1 - v.x0, o: [v.x0, v.z0], d: [1, 0], n: [0, 1] };
+      if (s === "W") return { len: v.z1 - v.z0, o: [v.x0, v.z0], d: [0, 1], n: [1, 0] };
+      return { len: v.z1 - v.z0, o: [v.x1, v.z0], d: [0, 1], n: [-1, 0] };
     };
-    const piece = (k, info, a, b, y0, h, thick) => {
-      const c = (a + b) / 2, L = b - a, x = info.o[0] + info.d[0] * c, z = info.o[1] + info.d[1] * c;
+    const piece = (k, info, a, b, y0, h, thick, off = 0) => {
+      const c = (a + b) / 2, L = b - a, x = info.o[0] + info.d[0] * c + (info.n ? info.n[0] * off : 0), z = info.o[1] + info.d[1] * c + (info.n ? info.n[1] * off : 0);
       add(k, info.d[0] ? geoBox(L, h, thick, x, y0, z) : geoBox(thick, h, L, x, y0, z));
     };
     const at = (info, t) => [info.o[0] + info.d[0] * t, info.o[1] + info.d[1] * t];
@@ -354,14 +374,15 @@ function init() {
           const [a, b] = ext(a0, b0);
           piece("brick", info, a, b, y0, h, T);
           piece(clad, info, a - (a0 > 0 ? .02 : 0), b + (b0 < info.len ? .02 : 0), y0 - .02, h + .04, TC);
+          if (v.room !== false) piece("lining", info, a, b, y0, h, .02, T / 2 + .012);
           if (v.lv === 0 && b0 - a0 > 1.1 && s !== "N" && v.uplights !== false) {           // façade uplight on each solid pier
             const [x, z] = at(info, (a0 + b0) / 2), nrm = s === "S" ? [0, 1] : s === "W" ? [-1, 0] : s === "E" ? [1, 0] : [0, -1];
             uplights.push({ x: x + nrm[0] * (TC / 2 + .04), z: z + nrm[1] * (TC / 2 + .04), nx: nrm[0], nz: nrm[1], top: y0 + h });
           }
         }
         for (const o of ops) {
-          if (o.sill > 0) { piece("brick", info, o.a, o.b, y0, o.sill, T); piece(clad, info, o.a - .02, o.b + .02, y0 - .02, o.sill + .04, TC); }
-          if (o.head < h) { piece("brick", info, o.a, o.b, y0 + o.head, h - o.head, T); piece(clad, info, o.a - .02, o.b + .02, y0 + o.head - .02, h - o.head + .04, TC); }
+          if (o.sill > 0) { piece("brick", info, o.a, o.b, y0, o.sill, T); piece(clad, info, o.a - .02, o.b + .02, y0 - .02, o.sill + .04, TC); if (v.room !== false) piece("lining", info, o.a, o.b, y0, o.sill, .02, T / 2 + .012); }
+          if (o.head < h) { piece("brick", info, o.a, o.b, y0 + o.head, h - o.head, T); piece(clad, info, o.a - .02, o.b + .02, y0 + o.head - .02, h - o.head + .04, TC); if (v.room !== false) piece("lining", info, o.a, o.b, y0 + o.head, h - o.head, .02, T / 2 + .012); }
           /* aluminium frame + glass (or a solid door leaf) in the wall plane */
           const w = o.b - o.a, hh = o.head - o.sill, fp = .06, fd = .12, yb = y0 + o.sill;
           piece("frame", info, o.a, o.b, yb, fp, fd); piece("frame", info, o.a, o.b, yb + hh - fp, fp, fd);
@@ -376,8 +397,6 @@ function init() {
           }
         }
       }
-      /* interior "room" glow box (seen through the glass) */
-      if (v.room !== false) add("room", new THREE.BoxGeometry(v.x1 - v.x0 - .4, F - SLAB - .02, v.z1 - v.z0 - .4).translate((v.x0 + v.x1) / 2, y0 + (F - SLAB) / 2, (v.z0 + v.z1) / 2));
     }
 
     /* columns (+ rebar cages and pad footings at ground level) */
@@ -392,7 +411,7 @@ function init() {
     }
     for (const c of colPts.values()) {
       const y0 = level(c.lv);
-      add(c.lv === 0 ? "col0" : "col1", geoBox(COL, F - SLAB, COL, c.x, y0, c.z));
+      add("col" + c.lv, geoBox(COL, F - SLAB, COL, c.x, y0, c.z));
       if (c.lv === 0) {
         add("foot", geoBox(1.3, .5, 1.3, c.x, PD, c.z));
         for (const [dx, dz] of [[-.09, -.09], [.09, -.09], [-.09, .09], [.09, .09]]) add("rebar", geoCyl(.013, 2.75, c.x + dx, PD + .05, c.z + dz, 6));
@@ -411,11 +430,12 @@ function init() {
       add("cladA", geoBox(v.x1 - v.x0 + TC, .2, v.z1 - v.z0 + TC, (v.x0 + v.x1) / 2, -.06, (v.z0 + v.z1) / 2));  // plinth band
     }
     /* intermediate slabs (cantilevers, terraces) + balconies */
+    const boxR = (k, r, h, y, grow = 0) => add(k, geoBox(r.x1 - r.x0 + grow, h, r.z1 - r.z0 + grow, (r.x0 + r.x1) / 2, y, (r.z0 + r.z1) / 2));
     for (const s of spec.slabs || []) {
-      const y = level(s.lv) - SLAB;
-      add("slab1", geoBox(s.x1 - s.x0, SLAB, s.z1 - s.z0, (s.x0 + s.x1) / 2, y, (s.z0 + s.z1) / 2));
-      add("cladP", geoBox(s.x1 - s.x0 + .06, SLAB + .05, s.z1 - s.z0 + .06, (s.x0 + s.x1) / 2, y - .02, (s.z0 + s.z1) / 2));
-      if (s.deck) add("deck", geoBox(s.x1 - s.x0 - .04, .05, s.z1 - s.z0 - .04, (s.x0 + s.x1) / 2, y + SLAB + .03, (s.z0 + s.z1) / 2));
+      const y = level(s.lv) - SLAB, rects = s.hole ? rectMinus(s, s.hole) : [s];
+      for (const r of rects) { boxR("slab" + s.lv, r, SLAB, y); boxR("cladP", r, SLAB + .05, y - .02, .06); }
+      if (s.deck) boxR("deck", s, .05, y + SLAB + .03, -.04);
+      for (const d of s.decks || []) boxR("deck", d, .05, y + SLAB + .03, -.04);
       for (const r of s.rails || []) {
         const yb = y + SLAB + .06, inset = .12;
         if (r === "S" || r === "N") { const z = r === "S" ? s.z1 - inset : s.z0 + inset; add("rail", geoBox(s.x1 - s.x0 - .2, 1.05, .02, (s.x0 + s.x1) / 2, yb + .06, z)); add("frame", geoBox(s.x1 - s.x0 - .2, .08, .1, (s.x0 + s.x1) / 2, yb, z)); }
@@ -435,7 +455,31 @@ function init() {
       if (o.S > .6) add("led", geoBox(w - .6, .025, .05, cx, y - .06, z1 - .28));
     }
     /* interiors: oak floors, partitions, furniture (seen through glass and in cutaway) */
-    for (const v of spec.vols) if (v.room !== false) add("intFloor", geoBox(v.x1 - v.x0 - .3, .03, v.z1 - v.z0 - .3, (v.x0 + v.x1) / 2, level(v.lv) + .002, (v.z0 + v.z1) / 2));
+    const holeAt = lv => (spec.slabs || []).filter(s => s.lv === lv && s.hole).map(s => s.hole);
+    const minusAll = (r, holes) => holes.reduce((acc, h) => acc.flatMap(x => rectMinus(x, h)), [r]);
+    for (const v of spec.vols) {
+      if (v.room === false) continue;
+      const inner = { x0: v.x0 + .15, x1: v.x1 - .15, z0: v.z0 + .15, z1: v.z1 - .15 };
+      for (const r of minusAll(inner, holeAt(v.lv))) boxR("intFloor", r, .03, level(v.lv) + .002);
+      const ceil = level(v.lv + 1) - SLAB - .025;
+      for (const r of minusAll(inner, holeAt(v.lv + 1))) boxR("lining", r, .02, ceil);
+      /* recessed ceiling downlights on a ~2.4 m grid, never inside a stair opening */
+      const holes = holeAt(v.lv + 1), nx = Math.max(1, Math.round((inner.x1 - inner.x0) / 2.4)), nz = Math.max(1, Math.round((inner.z1 - inner.z0) / 2.4));
+      for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) {
+        const x = inner.x0 + (inner.x1 - inner.x0) * (i + .5) / nx, z = inner.z0 + (inner.z1 - inner.z0) * (j + .5) / nz;
+        if (holes.some(h => x > h.x0 - .3 && x < h.x1 + .3 && z > h.z0 - .3 && z < h.z1 + .3)) continue;
+        add("ceilLight", new THREE.CylinderGeometry(.11, .11, .012, 16).translate(x, ceil - .006, z));
+      }
+    }
+    /* straight concrete flights with oak treads, one per storey (switchback) */
+    for (const st of spec.stairs || []) {
+      const n = 18, y0 = level(st.lv), rise = F / n, run = (st.x1 - st.x0) / n, w = st.z1 - st.z0, zc = (st.z0 + st.z1) / 2;
+      for (let i = 0; i < n; i++) {
+        const k = st.dir > 0 ? i : n - 1 - i, x = st.x0 + run * (k + .5), hgt = rise * (i + 1);
+        add("stair", geoBox(run + .002, hgt, w, x, y0 - .01, zc));
+        add("tread", geoBox(run + .03, .03, w - .04, x, y0 + hgt - .01, zc));
+      }
+    }
     for (const it of spec.interior || []) add(it[0], geoBox(it[1], it[2], it[3], it[4], level(it[7] || 0) + it[5], it[6]));
     /* excavation pit + backfill (paved surround) */
     add("pit", geoBox(PIT.x1 - PIT.x0, .1, PIT.z1 - PIT.z0, (PIT.x0 + PIT.x1) / 2, PD - .1, (PIT.z0 + PIT.z1) / 2));
@@ -454,14 +498,18 @@ function init() {
     /* ---- parts: material, timing window (in build-stage units 0–4) and animation mode */
     const Hmax = level(top) + .5;
     const P = {
-      pit: { mat: BASE.soil, mode: "static" },
+      pit: { mat: BASE.soil, mode: "static", cut: false },
       foot: { mat: BASE.concrete, mode: "rise", w: [.05, .42], lo: PD - .02, hi: PD + .52 },
       rebar: { mat: BASE.rebar, mode: "rise", w: [.18, .62], lo: PD, hi: 1.75, cast: true },
       stem: { mat: BASE.concrete, mode: "rise", w: [.36, .6], lo: PD + .48, hi: -.28 },
       slab0: { mat: BASE.concrete, mode: "sweep", w: [.55, .98], lo: bb.x0 - .5, hi: bb.x1 + .5 },
       col0: { mat: BASE.concrete, mode: "rise", w: [1.0, 1.38], lo: FL0, hi: level(1) - SLAB },
-      slab1: { mat: BASE.concrete, mode: "sweep", w: [1.3, 1.58], lo: -14, hi: 14 },
-      col1: { mat: BASE.concrete, mode: "rise", w: [1.5, 1.78], lo: level(1), hi: level(2) - SLAB },
+      slab1: { mat: BASE.concrete, mode: "sweep", w: [1.3, 1.52], lo: -14, hi: 14 },
+      col1: { mat: BASE.concrete, mode: "rise", w: [1.48, 1.7], lo: level(1), hi: level(2) - SLAB },
+      slab2: { mat: BASE.concrete, mode: "sweep", w: [1.62, 1.84], lo: -14, hi: 14 },
+      col2: { mat: BASE.concrete, mode: "rise", w: [1.72, 1.9], lo: level(2), hi: level(3) - SLAB },
+      stair: { mat: BASE.raw, mode: "rise", w: [1.2, 1.9], lo: FL0 - .02, hi: level(top) },
+      tread: { mat: BASE.wood, mode: "show", at: 3.3, cast: false },
       brick: { mat: BASE.brick, mode: "rise", w: [1.12, 1.96], lo: FL0, hi: level(top) - SLAB },
       roof: { mat: BASE.concrete, mode: "sweep", w: [2.0, 2.34], lo: -16, hi: 16 },
       membrane: { mat: BASE.membrane, mode: "rise", w: [2.3, 2.45], lo: level(1) - 1, hi: Hmax },
@@ -473,18 +521,20 @@ function init() {
       cladP: { mat: null, mode: "down", w: [3.0, 3.58], lo: -.4, hi: Hmax, clad: "P" },
       cladA: { mat: null, mode: "down", w: [3.12, 3.66], lo: -.4, hi: Hmax, clad: "A" },
       deck: { mat: BASE.wood, mode: "rise", w: [3.3, 3.5], lo: 0, hi: Hmax },
-      backfill: { mat: BASE.paving, mode: "rise", w: [3.05, 3.42], lo: PD, hi: -.02 },
-      room: { mat: () => new THREE.MeshStandardMaterial({ color: "#d8cdbd", roughness: .92, side: THREE.BackSide, emissive: "#ffb36b", emissiveIntensity: 0, envMapIntensity: .5 }), mode: "show", at: 2.45, cast: false },
+      backfill: { mat: BASE.paving, mode: "rise", w: [3.05, 3.42], lo: PD, hi: -.02, cut: false },
+      /* interior wall + ceiling lining: warm plaster that glows softly at dusk (seen through the glass) */
+      lining: { mat: () => std("plaster", { map: null, color: "#ece6dc", roughness: .95, envMapIntensity: .8, emissive: "#ffb36b", emissiveIntensity: 0, normalScale: new THREE.Vector2(.4, .4) }), mode: "show", at: 2.45, cast: false },
+      ceilLight: { mat: () => new THREE.MeshStandardMaterial({ color: "#f3efe8", emissive: "#ffd9ab", emissiveIntensity: 0, roughness: .4 }), mode: "show", at: 3.3, cast: false },
       intFloor: { mat: BASE.wood, mode: "show", at: 2.45, cast: false },
       intWall: { mat: BASE.plaster, mode: "show", at: 2.45, cast: false },
       intFab: { mat: () => new THREE.MeshStandardMaterial({ color: "#b5a691", roughness: 1 }), mode: "show", at: 2.6, cast: false },
       intDark: { mat: () => new THREE.MeshStandardMaterial({ color: "#2b2522", roughness: .6 }), mode: "show", at: 2.6, cast: false },
       led: { mat: () => new THREE.MeshStandardMaterial({ color: "#000000", emissive: "#ffd2a0", emissiveIntensity: 0 }), mode: "show", at: 3.4, cast: false },
       fixture: { mat: BASE.bronze, mode: "grow", w: [3.4, 3.7], cast: false },
-      planter: { mat: BASE.raw, mode: "grow", w: [3.38, 3.8] },
-      leaf: { mat: () => std(null, { color: "#4c6a34", roughness: .9, flatShading: true }), mode: "grow", w: [3.45, 3.95] },
-      leafDark: { mat: () => std(null, { color: "#22351f", roughness: .95, flatShading: true }), mode: "grow", w: [3.5, 3.98] },
-      trunk: { mat: () => std(null, { color: "#5c4a3a", roughness: 1 }), mode: "grow", w: [3.45, 3.9] }
+      planter: { mat: BASE.raw, mode: "grow", w: [3.38, 3.8], cut: false },
+      leaf: { mat: () => std(null, { color: "#4c6a34", roughness: .9, flatShading: true }), mode: "grow", w: [3.45, 3.95], cut: false },
+      leafDark: { mat: () => std(null, { color: "#22351f", roughness: .95, flatShading: true }), mode: "grow", w: [3.5, 3.98], cut: false },
+      trunk: { mat: () => std(null, { color: "#5c4a3a", roughness: 1 }), mode: "grow", w: [3.45, 3.9], cut: false }
     };
     const group = new THREE.Group(); group.name = spec.id;
     const parts = [];
@@ -493,7 +543,7 @@ function init() {
       const g = track(merge(list)); list.forEach(x => x.dispose());
       let mat;
       if (def.clad) mat = null;
-      else { mat = track(def.mat()); if (["rise", "sweep"].includes(def.mode)) reveal(mat, def.mode === "sweep" ? XAX : UP); }
+      else { mat = track(def.mat()); reveal(mat, def.mode === "sweep" ? XAX : UP, { cut: def.cut !== false }); }
       const mesh = new THREE.Mesh(g, mat || undefined);
       mesh.castShadow = def.cast !== false; mesh.receiveShadow = def.mode !== "fade";
       if (def.order) mesh.renderOrder = def.order;
@@ -557,9 +607,9 @@ function init() {
         { t: "cypress", x: -16, z: -12, h: 7, r: .8 }, { t: "cypress", x: -12.5, z: -13, h: 6.2, r: .75 }, { t: "cypress", x: 16, z: -12.5, h: 7.4, r: .85 }
       ],
       drive: { x0: -12.2, x1: -9.2 },
-      cutY: 2.2,
+      cutZ: .5,
       keys: [[24, 9.5, 30, 0, 1.2, 0], [12, 5.8, 13.5, 0, -.6, 0], [-16, 6.4, 13, 0, 1.7, -1], [-5, 18.5, 18, 0, 1.6, -1.2], [14.5, 2.7, 19.5, -.6, 1.75, 0]],
-      presets: { front: [14.5, 2.8, 19.5, -.6, 1.75, 0], terrace: [8.6, 1.9, 11.2, -2.4, 1.5, 3.4], aerial: [17, 24, 20, 0, 0, -1], cutaway: [11, 19, 15, 0, 0, -1] },
+      presets: { front: [14.5, 2.8, 19.5, -.6, 1.75, 0], terrace: [8.6, 1.9, 11.2, -2.4, 1.5, 3.4], aerial: [17, 24, 20, 0, 0, -1], cutaway: [5, 4.2, 22, 0, 1.7, -1] },
       hotspots: [
         { id: "seismic", p: [6.05, 2.95, 5.05], n: [.7, 0, .7] },
         { id: "thermal", p: [9.2, 2.0, -5.2], n: [1, 0, .2] },
@@ -568,41 +618,68 @@ function init() {
       ],
       warm: [[-2, 1.2, 7.2], [6.5, 1.0, -1.5]]
     },
+    /* three full storeys: ground (living + kitchen), 1st (master suite + balcony), 2nd (penthouse + roof terrace) */
     residence: {
-      id: "residence", area: 300,
+      id: "residence", area: 320,
       vols: [
-        { x0: -6, x1: 6, z0: -4, z1: 5, lv: 0, clad: "A", open: { S: [open(.8, 6.2, 0, 2.75), open(7.2, 8.4, 0, 2.55, "door"), open(9.3, 11.2, .9, 2.75)], W: [open(2, 7, 0, 2.75)], E: [open(5.5, 8, .9, 2.6)], N: [open(2, 4, 1.4, 2.6), open(6, 10, 0, 2.75)] } },
+        { x0: -6, x1: 6, z0: -4, z1: 5, lv: 0, clad: "A", open: { S: [open(.8, 6.2, 0, 2.75), open(7.2, 8.4, 0, 2.6), open(9.3, 11.2, .9, 2.75)], W: [open(2, 7, 0, 2.75)], E: [open(6.8, 8.4, .9, 2.6)], N: [open(2, 4, 1.4, 2.6), open(6, 10, 0, 2.75)] } },
         { x0: 6, x1: 11, z0: -4, z1: 2.5, lv: 0, clad: "P", skip: ["W"], room: false, uplights: false, open: { S: [open(.6, 4.4, 0, 2.5, "door")] } },
-        { x0: -8, x1: 4.5, z0: -4.5, z1: 5.5, lv: 1, clad: "P", open: { S: [open(1, 5.5, 0, 2.7), open(7, 11.5, .9, 2.7)], W: [open(2, 8, .9, 2.4)], E: [open(3, 8, 0, 2.7)], N: [open(2, 5, 1.2, 2.6), open(7, 10, 1.2, 2.6)] } }
+        { x0: -8, x1: 4.5, z0: -4.5, z1: 5.5, lv: 1, clad: "P", open: { S: [open(1, 5.5, 0, 2.7), open(7, 11.5, .9, 2.7)], W: [open(2, 8, .9, 2.4)], E: [open(3, 8, 0, 2.7)], N: [open(2, 5, 1.2, 2.6), open(7.5, 10, 1.2, 2.6)] } },
+        { x0: -6, x1: 2, z0: -4.5, z1: 2.5, lv: 2, clad: "A", open: { S: [open(.5, 7.5, 0, 2.7)], E: [open(1.5, 5.5, 0, 2.7)], W: [open(2, 5, .9, 2.6)], N: [open(1.5, 3.5, 1.2, 2.6)] } }
       ],
       slabs: [
-        { x0: -8, x1: 6, z0: -4.5, z1: 5.5, lv: 1, deck: false, rails: [] },
+        { x0: -8, x1: 6, z0: -4.5, z1: 5.5, lv: 1, hole: { x0: -3.6, x1: 1.4, z0: -3.85, z1: -2.55 }, decks: [{ x0: 4.5, x1: 6, z0: -4.5, z1: 5.5 }], rails: [] },
         { x0: 6, x1: 11, z0: -4, z1: 2.5, lv: 1, deck: true, rails: ["S", "E", "N"] },
-        { x0: -6.5, x1: 0, z0: 5.5, z1: 7.2, lv: 1, deck: true, rails: ["S", "W", "E"] }
+        { x0: -6.5, x1: 0, z0: 5.5, z1: 7.2, lv: 1, deck: true, rails: ["S", "W", "E"] },
+        { x0: -8, x1: 4.5, z0: -4.5, z1: 5.5, lv: 2, hole: { x0: -3.6, x1: 1.4, z0: -2.45, z1: -1.15 }, decks: [{ x0: -8, x1: 4.5, z0: 2.5, z1: 5.5 }, { x0: 2, x1: 4.5, z0: -4.5, z1: 2.5 }, { x0: -8, x1: -6, z0: -4.5, z1: 2.5 }], rails: ["S", "W", "E"] }
       ],
-      roofs: [{ x0: -8, x1: 4.5, z0: -4.5, z1: 5.5, lv: 1, over: { S: 1.6, N: .5, E: .5, W: .5 } }],
+      stairs: [{ x0: -3.5, x1: 1.3, z0: -3.8, z1: -2.6, lv: 0, dir: 1 }, { x0: -3.5, x1: 1.3, z0: -2.4, z1: -1.2, lv: 1, dir: -1 }],
+      roofs: [{ x0: -6, x1: 2, z0: -4.5, z1: 2.5, lv: 2, over: { S: 1.4, N: .4, E: .6, W: .6 } }],
+      /* [part, w, h, d, cx, y (above floor), cz, storey] */
       interior: [
-        ["intWall", .12, H, 5, 1.5, 0, -1.4], ["intFab", 2.8, .42, .95, -3.6, 0, 2.8], ["intFab", .95, .42, 2, -1.8, 0, 2.4],
-        ["intDark", 1.2, .3, .7, -3.4, 0, 3.9], ["intDark", 2.2, .76, 1, 3.4, 0, 2.4], ["intWall", 2.8, .92, .9, 3.6, 0, -2.6],
-        ["intFab", 1.8, .5, 2.1, -5.5, 0, -1.8, 1], ["intWall", .12, H, 9, -2, 0, .5, 1]
+        /* ground floor: open-plan living, kitchen island, dining */
+        ["intFab", 2.8, .42, .95, -4.0, 0, -.75], ["intFab", 2.8, .4, .22, -4.0, .42, -1.12], ["intFab", .95, .42, 1.7, -5.15, 0, -.1], ["intDark", 1.2, .32, .7, -4.0, 0, .55],
+        ["intWall", 2.8, .9, .9, 2.0, 0, .05], ["intDark", 2.95, .04, 1.0, 2.0, .9, .05], ["intDark", .62, 2.3, 4.0, 5.5, 0, -1.6],
+        ["intDark", .22, .72, .6, 3.9, 0, 2.6], ["intDark", 2.0, .05, .95, 3.9, .72, 2.6], ["intFab", .45, .46, .45, 3.3, 0, 1.85], ["intFab", .45, .46, .45, 4.5, 0, 1.85], ["intFab", .45, .46, .45, 3.3, 0, 3.35], ["intFab", .45, .46, .45, 4.5, 0, 3.35],
+        /* 1st floor: master suite */
+        ["intFab", 2.0, .5, 2.1, -6.6, 0, -.5, 1], ["intDark", .12, 1.15, 2.4, -7.7, 0, -.5, 1], ["intDark", .45, .5, .45, -7.3, 0, -2.0, 1], ["intDark", .45, .5, .45, -7.3, 0, 1.0, 1],
+        ["intWall", 3.4, 2.4, .6, -5.8, 0, -3.95, 1], ["intFab", .85, .45, .85, -3.2, 0, 2.6, 1], ["intDark", 1.6, .74, .7, 3.2, 0, 1.8, 1],
+        /* 2nd floor: penthouse lounge, bar, roof terrace seating */
+        ["intFab", 2.6, .42, .95, -3.2, 0, .9, 2], ["intFab", 2.6, .4, .22, -3.2, .42, .5, 2], ["intDark", 1.0, .3, .6, -3.2, 0, 1.95, 2],
+        ["intDark", 1.7, 1.05, .6, -4.8, 0, -3.85, 2], ["intFab", .85, .45, .85, .6, 0, 1.4, 2], ["intFab", 2.4, .4, .9, -3.0, .08, 4.7, 2], ["intDark", .9, .3, .6, -3.0, .08, 3.7, 2]
       ],
       land: [
         { t: "hedge", x: -13.5, z: 21.5, w: 8, h: 1.0, d: .9 }, { t: "hedge", x: 3, z: 21.5, w: 9, h: 1.0, d: .9 },
-        { t: "planter", x: -8.2, z: 7.4, w: 2.6, d: 1.0 }, { t: "planter", x: 2.6, z: 7.2, w: 1.0, d: 1.0 },
+        { t: "planter", x: -8.2, z: 7.4, w: 2.6, d: 1.0 }, { t: "planter", x: 2.9, z: 7.3, w: 1.0, d: 1.0 },
         { t: "tree", x: -13, z: 9, h: 5.2, r: 1.5 }, { t: "tree", x: 14.5, z: 10, h: 4.8, r: 1.35 }, { t: "tree", x: -14.5, z: -6, h: 6, r: 1.7 },
         { t: "cypress", x: -16, z: -12, h: 7.4, r: .85 }, { t: "cypress", x: -12.5, z: -13, h: 6.4, r: .75 }, { t: "cypress", x: 16, z: -12.5, h: 7.8, r: .85 }
       ],
       drive: { x0: 6.6, x1: 10.4 },
-      cutY: 2.4,
-      keys: [[26, 11, 32, 0, 2.2, 0], [13, 6.5, 15, 0, -.5, 0], [-17.5, 7.5, 15, 0, 3.0, 0], [-6, 21, 21, 0, 3.6, 0], [16, 3.4, 23, -.6, 3.1, 0]],
-      presets: { front: [16, 3.4, 23, -.6, 3.1, 0], terrace: [19, 8.6, 11, 6.5, 3.6, -1], aerial: [20, 28, 23, 0, 0, 0], cutaway: [12, 22, 16, 0, 0, .5] },
+      cutZ: .8,
+      keys: [[28, 13, 34, 0, 3.2, 0], [13, 6.5, 15, 0, -.5, 0], [-19, 9.5, 17, 0, 4.6, 0], [-7, 26, 23, 0, 5, 0], [17, 4.6, 26, -.6, 4.4, 0]],
+      presets: { front: [17, 4.6, 26, -.6, 4.4, 0], terrace: [13, 13.5, 16, -2.5, 7.2, 2.5], aerial: [22, 33, 26, 0, 2, 0], cutaway: [4.5, 6.6, 27.5, 0, 4.9, 0] },
       hotspots: [
         { id: "seismic", p: [6.05, 2.9, 5.05], n: [.7, 0, .7] },
-        { id: "thermal", p: [-2.0, 5.0, 5.75], n: [0, 0, 1] },
+        { id: "thermal", p: [-1.75, 5.0, 5.75], n: [0, 0, 1] },
         { id: "glazing", p: [-2.5, 1.5, 5.08], n: [0, 0, 1] },
         { id: "turnkey", p: [1.8, 1.25, 5.1], n: [.2, 0, 1] }
       ],
-      warm: [[-1, 1.1, 7.8], [2.5, 4.3, 8.6]]
+      warm: [[-1, 1.1, 7.8], [2.5, 4.3, 8.6]],
+      /* guided tour: camera path (position + look-at) through the house; stops sit on nodes 0/3/6/9/12 */
+      tour: {
+        nodes: [
+          [15, 3.4, 21, -1, 4.6, 0], [3.5, 1.7, 10.5, 1.8, 1.6, 0], [1.8, 1.65, 5.6, 0, 1.5, -2],
+          [.6, 1.6, 3.2, -4.5, 1.15, -1.2],
+          [-4.4, 1.7, -3.2, 1.3, 4.6, -3.2], [1.8, 4.95, -3.2, 3, 4.9, -1],
+          [-1.6, 4.95, -.6, -5.4, 4.3, 4.4],
+          [2.0, 4.95, -1.8, -3.5, 7.9, -1.8], [-4.2, 8.15, -1.8, -4, 8, 1],
+          [-.4, 8.15, -2.8, -3, 7.75, 6],
+          [-2.2, 8.2, 4.2, -2, 7.8, 10], [4, 9.5, 15, 0, 5, 0],
+          [4.5, 6.6, 27.5, 0, 4.9, 0]
+        ],
+        stops: [0, 3, 6, 9, 12], floors: [-1, 0, 1, 2, -2],
+        marks: [[1.8, .1, 9], [-1, .16, 1.6], [-3.6, 3.36, 1.8], [-2, 6.56, .3], [-2.5, 6.62, 4.6]]
+      }
     }
   };
 
@@ -711,7 +788,9 @@ function init() {
     mode: "story", model: null, modelId: SITE.defaultModel || "residence", facade: "plaster",
     xStage: 4, xDusk: true, hotspots: true, engaged: false, cut: 60, cutT: 60,
     parX: 0, parY: 0, parTX: 0, parTY: 0, film: 0, filmT: 0,
-    flight: null, pendingModel: null, swap: null, visible: true
+    flight: null, pendingModel: null, swap: null, visible: true,
+    fov: 34, fovT: 34, light: 0,
+    tour: { on: false, k: 0, u: 0, stop: 0, yaw: 0, pitch: 0, yawT: 0, pitchT: 0, dolly: 0, dollyT: 0 }
   };
   const built = {};
   const getModel = id => built[id] || (built[id] = buildModel(MODELS[id]));
@@ -823,7 +902,7 @@ function init() {
   }
   engageBtn && engageBtn.addEventListener("click", () => engage(true));
   doneBtn && doneBtn.addEventListener("click", () => { engage(false); engageBtn && engageBtn.focus({ preventScroll: true }); });
-  addEventListener("keydown", e => { if (e.key === "Escape") { if (S.engaged) engage(false); closeCard(); } });
+  addEventListener("keydown", e => { if (e.key === "Escape") { if (S.tour.on) return exitTour(); if (S.engaged) engage(false); closeCard(); } });
 
   const look = new THREE.Vector3(), lookCur = new THREE.Vector3(0, 1.5, 0), basePos = camera.position.clone();
   const _v = new THREE.Vector3(), _w = new THREE.Vector3();
@@ -833,7 +912,7 @@ function init() {
     /* portrait: aim below the house so it sits in the upper half, clear of the control sheet */
     const dy = innerWidth / innerHeight < 1 ? -2.6 : 0;
     S.flight = { pos: new THREE.Vector3(p[3] + (p[0] - p[3]) * k, p[4] + (p[1] - p[4]) * k + dy, p[5] + (p[2] - p[5]) * k), look: new THREE.Vector3(p[3], p[4] + dy, p[5]) };
-    S.cutT = name === "cutaway" ? S.model.spec.cutY : 60;
+    S.cutT = name === "cutaway" ? S.model.spec.cutZ : 60;
     if (reduce) { camera.position.copy(S.flight.pos); controls.target.copy(S.flight.look); S.cut = S.cutT; S.flight = null; controls.update(); requestStill(); }
   }
   controls.addEventListener("start", () => { S.flight = null; closeCard(); });
@@ -887,7 +966,7 @@ function init() {
 
   function updateHotspots(dt) {
     if (!hsLayer) return;
-    const show = S.mode === "explore" && S.hotspots && S.stage > 3.6 && S.cut > 30;
+    const show = S.mode === "explore" && !S.tour.on && S.hotspots && S.stage > 3.6 && S.cut > 30;
     const W = innerWidth, Hh = innerHeight, rel = exploreTop - window.scrollY;
     camera.getWorldPosition(_w);
     for (const h of hotspotDefs) {
@@ -902,6 +981,124 @@ function init() {
       const o = h.o < .01 ? 0 : h.o; el.style.opacity = o.toFixed(3); el.style.visibility = o > .02 ? "visible" : "hidden";
       if (cardFor === h.id && card) { card.style.transform = `translate3d(${Math.min(W - 340, x + 26).toFixed(1)}px,${(y - 20).toFixed(1)}px,0)`; if (o < .05) closeCard(); }
     }
+  }
+
+  /* ------------------------------------------------------------ 3D house tour (residence) */
+  const tourBtns = qa("[data-tour-start]"), hud = q(".tour-hud");
+  const tourEls = hud ? { exit: q("[data-tour-exit]"), prev: q("[data-tour-prev]"), next: q("[data-tour-next]"), step: q(".tour-step"), title: q(".tour-title"), spec: q(".tour-spec"), floors: qa(".tour-floors li"), pills: qa("[data-tour-go]"), marks: qa(".tour-mk") } : null;
+  let tourCurve = null, tourDrag = null;
+  const tourLook = new THREE.Vector3(), tourPos = new THREE.Vector3(), _d = new THREE.Vector3(), _r = new THREE.Vector3();
+  const tourSpec = () => MODELS.residence.tour;
+  function buildTourCurve() {
+    const n = tourSpec().nodes;
+    tourCurve = { pos: new THREE.CatmullRomCurve3(n.map(a => new THREE.Vector3(a[0], a[1], a[2])), false, "centripetal", .5), look: new THREE.CatmullRomCurve3(n.map(a => new THREE.Vector3(a[3], a[4], a[5])), false, "centripetal", .5) };
+  }
+  function startTour() {
+    if (S.tour.on || reduce || !hud) return;
+    buildTourCurve();
+    /* the tour walks the finished 3-floor residence: switch to it instantly if needed */
+    if (S.modelId !== "residence" || S.pendingModel) { S.pendingModel = null; useModel("residence"); }
+    S.xStage = 4; S.stage = Math.max(S.stage, 3.98);
+    const top = exploreTop;
+    if (LP.lenis) LP.lenis.scrollTo(top, { immediate: true, force: true }); else scrollTo(0, top);
+    LP.stopScroll && LP.stopScroll(); document.documentElement.classList.add("tour-lock");
+    S.tour.on = true; S.flight = null; closeCard(); engage(false); LP.stopScroll && LP.stopScroll();
+    controls.enabled = false; canvas.style.touchAction = "none";
+    document.body.classList.add("tour-on"); hud.hidden = false;
+    tourPos.copy(camera.position); camera.getWorldDirection(_d); tourLook.copy(camera.position).add(_d.multiplyScalar(10));
+    S.tour.u = 0; goStop(0, true);
+    syncUI();
+    window.gsap.delayedCall(.05, () => tourEls.next && tourEls.next.focus({ preventScroll: true }));
+  }
+  function exitTour() {
+    if (!S.tour.on) return;
+    window.gsap.killTweensOf(S.tour);
+    S.tour.on = false; S.cutT = 60;
+    document.body.classList.remove("tour-on"); hud.hidden = true; document.documentElement.classList.remove("tour-lock");
+    controls.target.copy(tourLook); flyTo("front");
+    controls.enabled = !coarse; canvas.style.touchAction = "pan-y";
+    LP.startScroll && LP.startScroll();
+    syncUI();
+    tourBtns[0] && tourBtns[0].focus({ preventScroll: true });
+  }
+  function goStop(i, first) {
+    const T = tourSpec(); i = Math.max(0, Math.min(T.stops.length - 1, i));
+    const target = T.stops[i] / (T.nodes.length - 1), segs = Math.abs(target - S.tour.u) * (T.nodes.length - 1);
+    S.tour.stop = i; S.tour.yawT = 0; S.tour.pitchT = 0; S.tour.dollyT = 0;
+    window.gsap.to(S.tour, { u: target, duration: first ? .01 : 1.3 + segs * .55, ease: "power2.inOut", overwrite: true });
+    S.cutT = i === T.stops.length - 1 ? MODELS.residence.cutZ : 60;
+    tourHUD();
+  }
+  function tourHUD() {
+    if (!tourEls) return;
+    const T = tourSpec(), i = S.tour.stop, n = T.stops.length, f = T.floors[i];
+    tourEls.step.textContent = `${String(i + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")}`;
+    tourEls.title.textContent = tr(`tour_s${i + 1}_t`); tourEls.spec.textContent = tr(`tour_s${i + 1}_d`);
+    tourEls.floors.forEach((li, k) => { const on = f === -2 || f === k; li.classList.toggle("on", on); li.setAttribute("aria-current", on && f === k ? "true" : "false"); });
+    tourEls.pills.forEach(b => b.setAttribute("aria-current", +b.dataset.tourGo === i ? "step" : "false"));
+    tourEls.prev.disabled = i === 0; tourEls.next.disabled = i === n - 1;
+    const live = q("#tour-live"); if (live) live.textContent = `${tourEls.step.textContent} · ${tourEls.title.textContent}`;
+  }
+  document.addEventListener("lp:lang", () => { if (S.tour.on) tourHUD(); });
+  function tourCamera(dt) {
+    const T = S.tour, a = kdt(.1, dt);
+    T.yaw = lerp(T.yaw, T.yawT, kdt(DAMP.pointer * 1.5, dt)); T.pitch = lerp(T.pitch, T.pitchT, kdt(DAMP.pointer * 1.5, dt)); T.dolly = lerp(T.dolly, T.dollyT, kdt(DAMP.cam, dt));
+    const p = tourCurve.pos.getPoint(clamp01(T.u)), l = tourCurve.look.getPoint(clamp01(T.u));
+    _d.copy(l).sub(p).normalize();
+    _d.applyAxisAngle(UP, T.yaw);
+    _r.crossVectors(_d, UP).normalize(); _d.applyAxisAngle(_r, T.pitch);
+    _v.set(_d.x, 0, _d.z).normalize().multiplyScalar(T.dolly);          // walk forward / back on the floor plane
+    tourPos.lerp(_w.copy(p).add(_v), a);
+    tourLook.lerp(_w.copy(tourPos).add(_d.multiplyScalar(6)), a);
+    camera.position.copy(tourPos); camera.lookAt(tourLook);
+  }
+  /* glowing room markers: the neighbouring stops, projected onto the screen */
+  const markState = (tourEls ? tourEls.marks : []).map(() => ({ o: 0, x: -1, y: -1 }));
+  const _m = new THREE.Vector3();
+  function updateMarks(dt) {
+    const T = tourSpec(), W = innerWidth, Hh = innerHeight;
+    tourEls.marks.forEach((el, i) => {
+      const st = markState[i]; _m.set(...T.marks[i]);
+      const near = Math.abs(i - S.tour.stop) === 1, dist = _m.distanceTo(camera.position);
+      _m.project(camera);
+      const vis = near && _m.z < 1 && Math.abs(_m.x) < .95 && Math.abs(_m.y) < .95 && dist < 30;
+      st.o = lerp(st.o, vis ? 1 : 0, kdt(DAMP.ui, dt));
+      const x = (_m.x * .5 + .5) * W, y = (-_m.y * .5 + .5) * Hh;
+      if (Math.abs(x - st.x) > .3 || Math.abs(y - st.y) > .3) { st.x = x; st.y = y; el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`; }
+      el.style.opacity = st.o < .01 ? "0" : st.o.toFixed(3); el.style.visibility = st.o > .05 ? "visible" : "hidden";
+    });
+  }
+  tourBtns.forEach(b => b.addEventListener("click", startTour));
+  if (tourEls) {
+    tourEls.exit.addEventListener("click", exitTour);
+    tourEls.prev.addEventListener("click", () => goStop(S.tour.stop - 1));
+    tourEls.next.addEventListener("click", () => goStop(S.tour.stop + 1));
+    tourEls.pills.forEach(b => b.addEventListener("click", () => goStop(+b.dataset.tourGo)));
+    tourEls.marks.forEach((b, i) => b.addEventListener("click", () => goStop(i)));
+    /* free look: drag (mouse or one finger) */
+    canvas.addEventListener("pointerdown", e => { if (!S.tour.on) return; tourDrag = { x: e.clientX, y: e.clientY, yaw: S.tour.yawT, pitch: S.tour.pitchT, id: e.pointerId }; canvas.setPointerCapture(e.pointerId); });
+    canvas.addEventListener("pointermove", e => {
+      if (!S.tour.on || !tourDrag || e.pointerId !== tourDrag.id) return;
+      const s = (e.pointerType === "touch" ? 1.5 : 1) * Math.PI / Math.max(600, innerWidth);
+      S.tour.yawT = tourDrag.yaw + (e.clientX - tourDrag.x) * s * 1.6;
+      S.tour.pitchT = THREE.MathUtils.clamp(tourDrag.pitch + (e.clientY - tourDrag.y) * s, -.7, .55);
+    });
+    const endDrag = () => { tourDrag = null; };
+    canvas.addEventListener("pointerup", endDrag); canvas.addEventListener("pointercancel", endDrag);
+    /* keyboard: WASD / arrows look + walk a few steps, Page Up / Down = next / previous stop */
+    addEventListener("keydown", e => {
+      if (!S.tour.on || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+      const k = e.key.toLowerCase(); let used = true;
+      if (k === "arrowleft" || k === "a") S.tour.yawT += .22;
+      else if (k === "arrowright" || k === "d") S.tour.yawT -= .22;
+      else if (k === "arrowup" || k === "w") S.tour.dollyT = Math.min(1.6, S.tour.dollyT + .45);
+      else if (k === "arrowdown" || k === "s") S.tour.dollyT = Math.max(-1.4, S.tour.dollyT - .45);
+      else if (k === "pagedown" || k === "n") goStop(S.tour.stop + 1);
+      else if (k === "pageup" || k === "p") goStop(S.tour.stop - 1);
+      else used = false;
+      if (used) e.preventDefault();
+    });
   }
 
   /* ------------------------------------------------------------ pointer parallax (story only) */
@@ -922,7 +1119,7 @@ function init() {
     const w = innerWidth, h = innerHeight;
     if (!force && w === lastW && Math.abs(h - lastH) < 120) return;     // ignore mobile URL-bar jitter
     lastW = w; lastH = h;
-    camera.aspect = w / h; camera.fov = w < 768 ? 44 : w / h < 1 ? 42 : 34; camera.updateProjectionMatrix();
+    camera.aspect = w / h; camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
     if (composer) { composer.setSize(w, h); bloom.resolution.set(w, h); }
     curve = makeCurves(S.model.spec.keys);
@@ -949,11 +1146,19 @@ function init() {
       if (d.mode === "rise" || d.mode === "sweep") part.mat.userData.edge(lerp(d.lo, d.hi, k), amt);
       else if (d.mode === "down") part.mat.userData.edge(-lerp(d.hi, d.lo, k), amt);   // visible y >= edge
     }
-    /* interior glow, LEDs, façade washes */
+    applyLights(model);
+  }
+  /* interior lining glow, recessed downlights, soffit LEDs, façade washes.
+     S.light: dusk glow, but also on in the section view and inside the tour so every floor reads warm */
+  function applyLights(model) {
+    const L = S.light, cutK = clamp01((50 - S.cut) / 40);
     for (const part of model.parts) {
-      if (part.k === "room") part.mat.emissiveIntensity = glow * 1.7;
-      if (part.k === "led") part.mat.emissiveIntensity = glow * 5;
+      if (part.k === "lining") part.mat.emissiveIntensity = L * .32;
+      else if (part.k === "ceilLight") part.mat.emissiveIntensity = .2 + L * 7;
+      else if (part.k === "led") part.mat.emissiveIntensity = S.glow * 5;
+      else if (part.k === "wash") part.mesh.visible = S.glow > .01 && cutK < .01 && !S.tour.on;
     }
+    washMat.uniforms.uI.value = S.glow;
   }
 
   function frame(t, dtMs) {
@@ -961,7 +1166,7 @@ function init() {
     const dt = Math.min(.05, (dtMs || 16.7) / 1000);
     time += dt;
     const vh = innerHeight, y = window.scrollY;
-    setMode(y >= exploreTop - vh * .38 && explore ? "explore" : "story");
+    if (!S.tour.on) setMode(y >= exploreTop - vh * .38 && explore ? "explore" : "story");
 
     /* ---- targets */
     if (S.mode === "story") {
@@ -984,16 +1189,14 @@ function init() {
     S.dusk = lerp(S.dusk, S.duskT, kdt(DAMP.light * .55, dt));
     const glowT = S.dusk * sstep(3.35, 3.9, S.stage);
     S.glow = lerp(S.glow, glowT, kdt(DAMP.light, dt));
-    S.cut = lerp(S.cut, S.cutT, kdt(DAMP.cam, dt));
+    S.cut = lerp(S.cut, S.cutT, kdt(DAMP.cam * .8, dt));
+    S.tour.k = lerp(S.tour.k, S.tour.on ? 1 : 0, kdt(DAMP.light, dt));
+    const lightT = Math.max(glowT, clamp01((50 - S.cut) / 40) * .85, S.tour.k * (S.stage > 3.3 ? .7 : 0));
+    S.light = lerp(S.light, lightT, kdt(DAMP.light, dt));
 
     /* ---- build stage → parts */
     if (Math.abs(S.stage - lastStageApplied) > 1e-5 || firstFrame || S.force) { S.force = false; applyStage(S.model, S.stage, S.dusk, S.glow, dt); lastStageApplied = S.stage; shadowDirty = true; }
-    for (const part of S.model.parts) {
-      if (part.k === "room") part.mat.emissiveIntensity = S.glow * 1.7;
-      else if (part.k === "led") part.mat.emissiveIntensity = S.glow * 5;
-      else if (part.k === "wash") part.mesh.visible = S.glow > .01;
-    }
-    washMat.uniforms.uI.value = S.glow;
+    applyLights(S.model);
     if (S.swap) {
       const e = lerp(S.swap.hi, S.swap.lo, S.swap.k), amt = Math.sin(S.swap.k * Math.PI) * 1.1;
       for (const set of [swapMats[S.swap.name]]) { set.P.userData.edge(-e, amt); set.A.userData.edge(-e, amt); }
@@ -1020,7 +1223,9 @@ function init() {
     if (motes) { motes.material.uniforms.uTime.value = time; motes.material.uniforms.uO.value = lerp(.42, .85, d) * (S.mode === "explore" ? .7 : 1) * lerp(.7, 1, sstep(3.3, 4, S.stage)); }
 
     /* ---- camera */
-    if (S.mode === "story") {
+    if (S.tour.on) {
+      tourCamera(dt);
+    } else if (S.mode === "story") {
       const u = clamp01(S.stage / 4);
       const pT = curve.pos.getPoint(u), lT = curve.look.getPoint(u);
       basePos.lerp(pT, kdt(DAMP.cam, dt)); lookCur.lerp(lT, kdt(DAMP.look, dt));
@@ -1043,12 +1248,18 @@ function init() {
     }
     /* frame the house beside the copy on wide screens (film offset), centred on phones */
     const wide = innerWidth >= 900;
-    S.filmT = !wide ? 0 : S.mode === "story" ? (chapter < 0 ? -4.2 : -3.4) : -3.6;
+    S.filmT = !wide || S.tour.on ? 0 : S.mode === "story" ? (chapter < 0 ? -4.2 : -3.4) : -3.6;
+    /* field of view: wider inside the tour */
+    const portrait = innerWidth / innerHeight < 1;
+    S.fovT = S.tour.on ? (portrait ? 68 : 58) : innerWidth < 768 ? 44 : portrait ? 42 : 34;
+    S.fov = lerp(S.fov, S.fovT, kdt(DAMP.cam, dt));
+    if (Math.abs(camera.fov - S.fov) > .01) { camera.fov = S.fov; camera.updateProjectionMatrix(); }
     S.film = lerp(S.film, S.filmT, kdt(DAMP.cam, dt));
     if (Math.abs(camera.filmOffset - S.film) > .001) { camera.filmOffset = S.film; camera.updateProjectionMatrix(); }
 
-    /* ---- cutaway: global clipping plane */
-    if (S.cut < 50) { cutPlane.constant = S.cut; renderer.clippingPlanes = cutPlanes; } else if (renderer.clippingPlanes.length) renderer.clippingPlanes = [];
+    /* ---- section cut (house materials only; site + landscaping stay whole) */
+    const cutC = S.cut > 50 ? 1e4 : S.cut;
+    if (CUT.constant !== cutC) { CUT.constant = cutC; shadowDirty = true; }
 
     story.classList.toggle("is-dusk", S.dusk > .55);
     if (explore) explore.classList.toggle("is-dusk", S.dusk > .55);
@@ -1059,9 +1270,9 @@ function init() {
     if (grain) grain.uniforms.uTime.value = time;
     if (composer) composer.render(dt); else renderer.render(scene, camera);
     updateHotspots(dt);                       // after render: camera matrices are current
+    if (S.tour.on) updateMarks(dt);
     if (firstFrame) { firstFrame = false; document.body.classList.add("gl-ready"); window.__heroReady = true; }
   }
-  const cutPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 60), cutPlanes = [cutPlane];
 
   /* ------------------------------------------------------------ reduced motion: crisp still frame */
   let stillQueued = false;
@@ -1075,9 +1286,8 @@ function init() {
     S.stage = S.stageT = inExplore ? S.xStage : 4;
     S.dusk = S.duskT = inExplore ? (S.xDusk ? 1 : 0) : .35;
     S.glow = S.dusk * sstep(3.35, 3.9, S.stage); S.cut = S.cutT;
+    S.light = Math.max(S.glow, clamp01((50 - S.cut) / 40) * .85);
     applyStage(S.model, S.stage, S.dusk, S.glow, 0);
-    for (const part of S.model.parts) { if (part.k === "room") part.mat.emissiveIntensity = S.glow * 1.7; if (part.k === "led") part.mat.emissiveIntensity = S.glow * 5; }
-    washMat.uniforms.uI.value = S.glow;
     const d = S.dusk;
     key.position.copy(_v.copy(sunDay).lerp(sunDusk, d).normalize()).multiplyScalar(60);
     key.intensity = lerp(3.1, .75, d); key.color.copy(KEY_DAY).lerp(KEY_DUSK, d);
@@ -1087,7 +1297,8 @@ function init() {
     if (!inExplore) { const k = S.model.spec.keys[4]; camera.position.set(k[0], k[1], k[2]); camera.lookAt(k[3], k[4], k[5]); controls.target.set(k[3], k[4], k[5]); }
     else controls.update();
     camera.filmOffset = innerWidth >= 900 ? -3.4 : 0; camera.updateProjectionMatrix();
-    if (S.cut < 50) { cutPlane.constant = S.cut; renderer.clippingPlanes = cutPlanes; } else renderer.clippingPlanes = [];
+    CUT.constant = S.cut > 50 ? 1e4 : S.cut;
+    camera.fov = innerWidth < 768 ? 44 : innerWidth / innerHeight < 1 ? 42 : 34; camera.updateProjectionMatrix();
     renderer.shadowMap.needsUpdate = true;
     if (composer) composer.render(0); else renderer.render(scene, camera);
     if (!document.body.classList.contains("gl-ready")) document.body.classList.add("gl-ready");

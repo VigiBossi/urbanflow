@@ -95,6 +95,7 @@
   <p class="eyebrow eyebrow-light"><span class="idx">3D</span><span data-i18n="x_kicker">Konfiguratori 3D</span></p>
   <h2 id="x-h" class="display" data-i18n="x_title">Shëtisni rreth shtëpisë suaj.</h2>
   <p class="x-sub" data-i18n="x_sub">Rrotulloni modelin, ndërroni fasadën, ndizni muzgun dhe ndiqni çdo fazë të ndërtimit.</p>
+  <button type="button" class="btn btn-primary x-tour" data-tour-start><i class="x-tour-ic" aria-hidden="true"></i><span data-i18n="tour_start">Nis turin 3D</span></button>
  </div>
  <div class="hotspots" aria-label="Detaje arkitektonike" data-i18n-aria="x_hs">
   <button type="button" class="hs" data-hs="seismic" aria-expanded="false"><span class="hs-dot mono">01</span><span class="hs-l" data-i18n="hs_seismic_t">Beton i armuar antisizmik</span></button>
@@ -112,7 +113,7 @@
   <div class="x-row"><span class="x-l mono" data-i18n="x_light">Drita</span>
    <div class="seg"><button type="button" data-x-light="day" aria-pressed="false" data-i18n="x_day">Ditë</button><button type="button" data-x-light="dusk" aria-pressed="true" data-i18n="x_dusk">Muzg</button></div></div>
   <div class="x-row"><span class="x-l mono" data-i18n="x_model">Modeli</span>
-   <div class="seg seg-wrap"><button type="button" data-x-model="villa" aria-pressed="false"><span data-i18n="x_villa">Vilë minimaliste</span> <b class="mono">180 m²</b></button><button type="button" data-x-model="residence" aria-pressed="true"><span data-i18n="x_res">Rezidencë me dy kate</span> <b class="mono">300 m²</b></button><button type="button" data-x-model="glb" aria-pressed="false" hidden><span data-i18n="x_glb">Modeli juaj</span></button></div></div>
+   <div class="seg seg-wrap"><button type="button" data-x-model="villa" aria-pressed="false"><span data-i18n="x_villa">Vilë minimaliste</span> <b class="mono">180 m²</b></button><button type="button" data-x-model="residence" aria-pressed="true"><span data-i18n="x_res">Rezidencë me tre kate</span> <b class="mono">320 m²</b></button><button type="button" data-x-model="glb" aria-pressed="false" hidden><span data-i18n="x_glb">Modeli juaj</span></button></div></div>
   <div class="x-row"><span class="x-l mono" data-i18n="x_facade">Fasada</span>
    <div class="seg seg-wrap"><button type="button" data-x-facade="plaster" aria-pressed="true"><i class="sw sw-plaster" aria-hidden="true"></i><span data-i18n="x_f_plaster">Suva e bardhë</span></button><button type="button" data-x-facade="stone" aria-pressed="false"><i class="sw sw-stone" aria-hidden="true"></i><span data-i18n="x_f_stone">Gur natyral</span></button><button type="button" data-x-facade="concrete" aria-pressed="false"><i class="sw sw-concrete" aria-hidden="true"></i><span data-i18n="x_f_concrete">Beton + dru</span></button></div></div>
   <div class="x-row"><span class="x-l mono" data-i18n="x_view">Kamera</span>
@@ -124,11 +125,45 @@
  <button type="button" class="btn btn-light x-done"><span data-i18n="x_done">Mbaro</span> ✕</button>
 </section>
 
+<!-- ============ THE ARCHITECT (profile: SITE.architect in js/config.js · 3D: js/architect3d.js) ============ -->
+<section class="arch section-pad" id="architect" aria-labelledby="arch-h">
+ <div class="container arch-grid">
+  <div class="arch-model reveal">
+   <div class="a3d" data-arch3d>
+    <canvas class="a3d-canvas" aria-hidden="true"></canvas>
+    <span class="arch-hair arch-hair-t" aria-hidden="true"></span><span class="arch-hair arch-hair-l" aria-hidden="true"></span>
+    <p class="a3d-hint mono" data-i18n="a3d_hint">Tërhiqni për ta rrotulluar maketën</p>
+    <div class="a3d-modes seg" role="group" data-i18n-aria="a3d_modes" aria-label="Pamja e maketës">
+     <button type="button" data-a3d-mode="solid" aria-pressed="true" data-i18n="a3d_solid">Maketë e plotë</button>
+     <button type="button" data-a3d-mode="wire" aria-pressed="false" data-i18n="a3d_wire">Skicë teknike</button>
+     <button type="button" data-a3d-mode="explode" aria-pressed="false" data-i18n="a3d_explode">3 kate të ndara</button>
+    </div>
+   </div>
+   <div class="arch-actions">
+    <a class="btn btn-primary magnetic" href="architect.html"><span data-i18n="arch_studio_cta">Eksploro studion e arkitekturës</span><i class="arr" aria-hidden="true"></i></a>
+    <a class="btn btn-outline" href="#contact" data-focus-form="#f-name"><span data-i18n="arch_book">Rezervo një konsultë</span></a>
+   </div>
+  </div>
+  <div class="arch-copy">
+   <p class="eyebrow reveal"><span class="idx">01</span><span data-i18n="arch_k">Arkitekti Kryesor</span></p>
+   <div class="arch-id">
+    <figure class="arch-avatar" hidden><img alt="" width="160" height="160" loading="lazy" decoding="async"></figure>
+    <div><h2 id="arch-h" class="display arch-name" data-split data-arch="name">Arkitekti i Lastra Projekt</h2>
+    <p class="arch-role mono reveal"><span data-arch="role"></span><span class="arch-years" data-arch="years" hidden> · <b></b> <span></span></span></p></div>
+   </div>
+   <blockquote class="arch-quote reveal"><p data-arch="quote"></p></blockquote>
+   <p class="arch-bio reveal" data-arch="bio"></p>
+   <h3 class="sr-only" data-i18n="arch_specs">Specializimet</h3>
+   <ol class="arch-specs reveal" data-arch="specs"></ol>
+  </div>
+ </div>
+</section>
+
 <!-- ============ BEFORE / AFTER ============ -->
 <section class="ba section-pad" id="before-after" aria-labelledby="ba-h">
  <div class="container">
   <header class="sec-head">
-   <p class="eyebrow reveal"><span class="idx">01</span><span data-i18n="ba_k">Projekt real · Çellopek, Gostivar</span></p>
+   <p class="eyebrow reveal"><span class="idx">02</span><span data-i18n="ba_k">Projekt real · Çellopek, Gostivar</span></p>
    <h2 id="ba-h" class="display" data-split data-i18n="ba_t">Gjatë ndërtimit. Pas çelësave.</h2>
    <p class="lead reveal" data-i18n="ba_d">E njëjta shtëpi, e fotografuar në kantier dhe pas dorëzimit. Tërhiqni dorezën.</p>
   </header>
@@ -146,7 +181,7 @@
 <section class="projects section-pad" id="projects" aria-labelledby="pj-h">
  <div class="container">
   <header class="sec-head sec-head-row2">
-   <div><p class="eyebrow reveal"><span class="idx">02</span><span data-i18n="feat_title">Projekte të zgjedhura</span></p>
+   <div><p class="eyebrow reveal"><span class="idx">03</span><span data-i18n="feat_title">Projekte të zgjedhura</span></p>
    <h2 id="pj-h" class="display" data-split data-i18n="pj_t">Shtëpi që kemi ndërtuar – dhe që po ndërtojmë.</h2></div>
    <div class="filters reveal" role="group" data-i18n-aria="filter" aria-label="Filtro">
     <button type="button" data-filter="all" aria-pressed="true" class="on"><span data-i18n="f_all">Të gjitha</span></button><button type="button" data-filter="finished" aria-pressed="false"><span data-i18n="f_finished">Të përfunduara</span></button><button type="button" data-filter="progress" aria-pressed="false"><span data-i18n="f_progress">Në ndërtim</span></button>
@@ -161,7 +196,7 @@
 <section class="est section-pad" id="estimator" aria-labelledby="est-h">
  <div class="container est-grid">
   <header class="est-head">
-   <p class="eyebrow eyebrow-light reveal"><span class="idx">03</span><span data-i18n="est_k">Kalkulatori çelës në dorë</span></p>
+   <p class="eyebrow eyebrow-light reveal"><span class="idx">04</span><span data-i18n="est_k">Kalkulatori çelës në dorë</span></p>
    <h2 id="est-h" class="display" data-split data-i18n="est_t">Sa kohë do t'ju duhet deri te çelësat?</h2>
    <p class="lead reveal" data-i18n="est_d">Zgjidhni madhësinë, katet dhe nivelin e përfundimit. Specifikat ua dërgoni me një prekje.</p>
   </header>
@@ -172,7 +207,7 @@
     <div class="est-scale mono" aria-hidden="true"><span>120 m²</span><span>400 m²</span></div>
    </div>
    <fieldset class="est-field"><legend class="mono" data-i18n="est_floors">Katet</legend>
-    <div class="seg seg-light"><label><input type="radio" name="floors" value="1"><span data-i18n="est_f1">1 kat</span></label><label><input type="radio" name="floors" value="2" checked><span data-i18n="est_f2">2 kate</span></label></div>
+    <div class="seg seg-light"><label><input type="radio" name="floors" value="1"><span data-i18n="est_f1">1 kat</span></label><label><input type="radio" name="floors" value="2" checked><span data-i18n="est_f2">2 kate</span></label><label><input type="radio" name="floors" value="3"><span data-i18n="est_f3">3 kate</span></label></div>
    </fieldset>
    <fieldset class="est-field"><legend class="mono" data-i18n="est_tier">Niveli i përfundimit</legend>
     <div class="tiers">
@@ -199,7 +234,7 @@
 <section class="process section-pad" id="process" aria-labelledby="pr-h">
  <div class="container">
   <header class="sec-head">
-   <p class="eyebrow reveal"><span class="idx">04</span><span data-i18n="story_kicker">Si punojmë</span></p>
+   <p class="eyebrow reveal"><span class="idx">05</span><span data-i18n="story_kicker">Si punojmë</span></p>
    <h2 id="pr-h" class="display" data-split data-i18n="pr_t">Katër hapa. Një partner.</h2>
   </header>
   <ol class="steps">
@@ -208,40 +243,6 @@
    <li class="step reveal" style="--d:180ms"><span class="step-n mono">03</span><h3 data-i18n="st3_t">Çatia & fasada</h3><p data-i18n="st3_d">Çatia me hidroizolim, dritaret, izolimi termik dhe fasada e zgjedhur.</p><span class="step-line" aria-hidden="true"></span></li>
    <li class="step reveal" style="--d:270ms"><span class="step-n mono">04</span><h3 data-i18n="st4_t">Çelësat në dorë</h3><p data-i18n="st4_d">Instalimet, dyshemetë, përfundimet e brendshme, kontrolli final – dhe dorëzimi i çelësave.</p><span class="step-line" aria-hidden="true"></span></li>
   </ol>
- </div>
-</section>
-
-<!-- ============ THE ARCHITECT (content: SITE.architect in js/config.js) ============ -->
-<section class="arch section-pad" id="architect" aria-labelledby="arch-h">
- <div class="container arch-grid">
-  <figure class="arch-portrait reveal-clip">
-   <img alt="" width="800" height="1000" loading="lazy" decoding="async" hidden>
-   <div class="arch-fallback" aria-hidden="true">
-    <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
-     <defs><pattern id="arch-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="currentColor" stroke-width=".5" opacity=".35"/></pattern></defs>
-     <rect width="400" height="500" fill="url(#arch-grid)"/>
-     <g fill="none" stroke="currentColor" stroke-width="1.4">
-      <path d="M40 360H360"/><path d="M70 360V250H230V360"/><path d="M50 250H250"/><path d="M110 250V160H330V250"/><path d="M90 160H350"/><path d="M230 250H330V360H230"/>
-      <path d="M90 360V280H160V360M180 280H215V330H180Z"/><path d="M135 225V180H220V225M245 225V180H310V225"/><path d="M250 275H310V340H250Z"/><path d="M95 160V150H345V160"/>
-     </g>
-     <g fill="none" stroke="currentColor" stroke-width=".8" opacity=".6"><path d="M40 400H360M40 394V406M360 394V406"/><path d="M380 160V360M374 160H386M374 360H386"/></g>
-     <text x="200" y="422" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="2" fill="currentColor" opacity=".7">ELEVATION · 1:100</text>
-    </svg>
-    <span class="arch-mono">L</span>
-   </div>
-   <span class="arch-hair arch-hair-t" aria-hidden="true"></span><span class="arch-hair arch-hair-l" aria-hidden="true"></span>
-   <figcaption class="arch-cap mono"><span data-i18n="arch_studio">Studio · Gostivar</span><span class="arch-years" data-arch="years" hidden><b></b> <span></span></span></figcaption>
-  </figure>
-  <div class="arch-copy">
-   <p class="eyebrow reveal"><span class="idx">05</span><span data-i18n="arch_k">Arkitekti Kryesor</span></p>
-   <h2 id="arch-h" class="display arch-name" data-split data-arch="name">Arkitekti i Lastra Projekt</h2>
-   <p class="arch-role mono reveal" data-arch="role"></p>
-   <blockquote class="arch-quote reveal"><p data-arch="quote"></p></blockquote>
-   <p class="arch-bio reveal" data-arch="bio"></p>
-   <h3 class="sr-only" data-i18n="arch_specs">Specializimet</h3>
-   <ol class="arch-specs reveal" data-arch="specs"></ol>
-   <a class="btn btn-primary magnetic arch-cta reveal" href="#contact" data-focus-form="#f-name"><span data-i18n="arch_cta">Konsultohu me arkitektin</span><i class="arr" aria-hidden="true"></i></a>
-  </div>
  </div>
 </section>
 
@@ -278,6 +279,35 @@
 </main>
 <footer id="site-footer"></footer>
 
+<!-- 3D house tour HUD (driven by js/hero3d.js) -->
+<div class="tour-hud" role="region" data-i18n-aria="tour_region" aria-label="Turi 3D i shtëpisë" hidden>
+ <div class="tour-marks">
+  <button type="button" class="tour-mk" tabindex="-1"><i aria-hidden="true"></i><span data-i18n="tour_s1_k">Oborri</span></button>
+  <button type="button" class="tour-mk" tabindex="-1"><i aria-hidden="true"></i><span data-i18n="tour_s2_k">Përdhesa</span></button>
+  <button type="button" class="tour-mk" tabindex="-1"><i aria-hidden="true"></i><span data-i18n="tour_s3_k">Kati 1</span></button>
+  <button type="button" class="tour-mk" tabindex="-1"><i aria-hidden="true"></i><span data-i18n="tour_s4_k">Kati 2</span></button>
+  <button type="button" class="tour-mk" tabindex="-1"><i aria-hidden="true"></i><span data-i18n="tour_s5_k">Prerja</span></button>
+ </div>
+ <button type="button" class="tour-exit btn btn-light" data-tour-exit><span data-i18n="tour_exit">Dil nga turi</span> <kbd class="mono">Esc</kbd></button>
+ <nav class="tour-pills" data-i18n-aria="tour_rooms" aria-label="Hapësirat">
+  <button type="button" data-tour-go="0"><span class="mono">01</span><span data-i18n="tour_s1_k">Oborri</span></button>
+  <button type="button" data-tour-go="1"><span class="mono">02</span><span data-i18n="tour_s2_k">Përdhesa</span></button>
+  <button type="button" data-tour-go="2"><span class="mono">03</span><span data-i18n="tour_s3_k">Kati 1</span></button>
+  <button type="button" data-tour-go="3"><span class="mono">04</span><span data-i18n="tour_s4_k">Kati 2</span></button>
+  <button type="button" data-tour-go="4"><span class="mono">05</span><span data-i18n="tour_s5_k">Prerja</span></button>
+ </nav>
+ <div class="tour-bar">
+  <div class="tour-floor"><span class="mono" data-i18n="tour_floor">Kati</span><ol class="tour-floors"><li class="mono">0</li><li class="mono">1</li><li class="mono">2</li></ol></div>
+  <div class="tour-info"><p class="tour-step mono">01 / 05</p><h2 class="tour-title"></h2><p class="tour-spec"></p></div>
+  <div class="tour-ctrl">
+   <div class="seg seg-dark"><button type="button" data-x-light="day" aria-pressed="false" data-i18n="x_day">Ditë</button><button type="button" data-x-light="dusk" aria-pressed="true" data-i18n="x_dusk">Muzg</button></div>
+   <div class="tour-nav"><button type="button" class="tour-arrow" data-tour-prev data-i18n-aria="tour_prev" aria-label="Mbrapa">←</button><button type="button" class="tour-arrow tour-next" data-tour-next data-i18n-aria="tour_next" aria-label="Para">→</button></div>
+  </div>
+ </div>
+ <p class="tour-hint mono" data-i18n="tour_hint">Tërhiqni për të parë përreth · WASD / shigjetat</p>
+ <p id="tour-live" class="sr-only" aria-live="polite"></p>
+</div>
+
 <!-- project modal -->
 <div class="pmodal" id="pmodal" role="dialog" aria-modal="true" aria-labelledby="pm-title" hidden>
  <div class="pm-scrim" data-close></div>
@@ -297,5 +327,6 @@
 <script src="js/main.js"></script>
 <script src="js/home.js"></script>
 <script type="module" src="js/hero3d.js"></script>
+<script type="module" src="js/architect3d.js"></script>
 </body>
 </html>

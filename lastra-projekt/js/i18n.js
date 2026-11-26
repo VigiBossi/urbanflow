@@ -180,3 +180,61 @@ Object.assign(window.I18N.en, {
   arch_k:"Lead Architect", arch_fallback:"Lastra Projekt's architect", arch_years:"years of experience", arch_cta:"Consult with our Architect",
   arch_studio:"Studio · Gostivar", arch_specs:"Specialties"
 });
+/* ---- 3-floor house, 3D tour, scale model, architecture studio page ---- */
+Object.assign(window.I18N.sq, {
+  nav_architect:"Arkitektura", t_architect:"Arkitektura | Lastra Projekt", x_res:"Rezidencë me tre kate", est_f3:"3 kate",
+  tour_start:"Nis turin 3D", tour_exit:"Dil nga turi", tour_region:"Turi 3D i shtëpisë", tour_rooms:"Hapësirat", tour_floor:"Kati", tour_prev:"Hapësira e mëparshme", tour_next:"Hapësira e radhës",
+  tour_hint:"Tërhiqni për të parë përreth · WASD / shigjetat",
+  tour_s1_k:"Oborri", tour_s1_t:"Hyrja & oborri", tour_s1_d:"Tre kate mbi një bazë guri: përdhesa, suita kryesore dhe penthausi me tarracë në çati.",
+  tour_s2_k:"Përdhesa", tour_s2_t:"Përdhesa · Dhoma e ndenjes & kuzhina", tour_s2_d:"Hapësirë e hapur me ishull kuzhine, tryezë ngrënieje, ndriçim i futur në tavan dhe xhama nga dyshemeja te tavani.",
+  tour_s3_k:"Kati 1", tour_s3_t:"Kati 1 · Suita kryesore & ballkoni", tour_s3_d:"Dhomë gjumi me gardërobë, ballkon me parmak xhami pa kornizë dhe pamje drejt oborrit.",
+  tour_s4_k:"Kati 2", tour_s4_t:"Kati 2 · Penthausi & tarraca", tour_s4_d:"Sallon studio me bar, që hapet plotësisht drejt një tarrace panoramike në çati.",
+  tour_s5_k:"Prerja", tour_s5_t:"Prerje arkitektonike e 3 kateve", tour_s5_d:"Tre pllaka të armuara, shkallë që lidhin katet dhe drita e ngrohtë në çdo nivel.",
+  a3d_hint:"Tërhiqni për ta rrotulluar maketën", a3d_modes:"Pamja e maketës", a3d_solid:"Maketë e plotë", a3d_wire:"Skicë teknike", a3d_explode:"3 kate të ndara",
+  arch_studio_cta:"Eksploro studion e arkitekturës", arch_book:"Rezervo një konsultë",
+  ah_k:"Studio arkitekture · Gostivar", ah_t:"Arkitekturë e projektuar për t'u ndërtuar.", ah_d:"Te Lastra Projekt e njëjta ekipë e vizaton dhe e ndërton shtëpinë tuaj. Rrotulloni maketën, shikojeni si skicë teknike ose ndajini tre katet.", ah_profile:"Njihuni me arkitektin",
+  ap_k:"Procesi arkitektonik", ap_t:"Nga skica e parë te çelësat.",
+  ap1_t:"Koncept & masa 3D", ap1_d:"Vizitë në truall, program hapësinor dhe studime 3D të masës, orientimit dhe dritës.",
+  ap2_t:"Projekte teknike & leje", ap2_d:"Planimetri, prerje, fasada dhe dokumentacioni i plotë për lejen e ndërtimit.",
+  ap3_t:"Konstruksion & materiale", ap3_d:"Koordinim me inxhinierin konstruktiv dhe specifikimi i materialeve, dritareve dhe fasadës.",
+  ap4_t:"Mbikëqyrje deri te çelësi", ap4_d:"Arkitekti ndjek punimet në kantier – nga themeli deri te dorëzimi i çelësave.",
+  ahc_t:"Le ta vizatojmë shtëpinë tuaj së bashku.", ahc_d:"Një konsultë falas me arkitektin: dëgjojmë planin tuaj, shohim truallin dhe ju tregojmë hapat e ardhshëm."
+});
+Object.assign(window.I18N.mk, {
+  nav_architect:"Архитектура", t_architect:"Архитектура | Lastra Projekt", x_res:"Трикатна резиденција", est_f3:"3 ката",
+  tour_start:"Започни 3D тура", tour_exit:"Излези од турата", tour_region:"3D тура низ куќата", tour_rooms:"Простории", tour_floor:"Кат", tour_prev:"Претходен простор", tour_next:"Следен простор",
+  tour_hint:"Повлечете за да погледнете околу · WASD / стрелки",
+  tour_s1_k:"Двор", tour_s1_t:"Влез и двор", tour_s1_d:"Три ката на камена основа: приземје, главен апартман и пентхаус со тераса на покривот.",
+  tour_s2_k:"Приземје", tour_s2_t:"Приземје · Дневна и кујна", tour_s2_d:"Отворен простор со кујнски остров, трпезариска маса, вградени светла во таванот и стакла од под до таван.",
+  tour_s3_k:"Кат 1", tour_s3_t:"Кат 1 · Главна спална и балкон", tour_s3_d:"Спална со гардероба, балкон со стаклена ограда без рамка и поглед кон дворот.",
+  tour_s4_k:"Кат 2", tour_s4_t:"Кат 2 · Пентхаус и тераса", tour_s4_d:"Студио-салон со бар што целосно се отвора кон панорамска тераса на покривот.",
+  tour_s5_k:"Пресек", tour_s5_t:"Архитектонски пресек на 3 ката", tour_s5_d:"Три армирани плочи, скали што ги поврзуваат катовите и топло светло на секое ниво.",
+  a3d_hint:"Повлечете за да ја ротирате макетата", a3d_modes:"Приказ на макетата", a3d_solid:"Цела макета", a3d_wire:"Технички цртеж", a3d_explode:"3 одвоени ката",
+  arch_studio_cta:"Истражете го архитектонското студио", arch_book:"Закажете консултација",
+  ah_k:"Архитектонско студио · Гостивар", ah_t:"Архитектура проектирана за да се изгради.", ah_d:"Во Lastra Projekt истиот тим ја црта и ја гради вашата куќа. Ротирајте ја макетата, погледнете ја како технички цртеж или раздвојте ги трите ката.", ah_profile:"Запознајте го архитектот",
+  ap_k:"Архитектонски процес", ap_t:"Од првата скица до клучевите.",
+  ap1_t:"Концепт и 3D маса", ap1_d:"Посета на плацот, просторна програма и 3D студии на масата, ориентацијата и светлината.",
+  ap2_t:"Технички проект и дозволи", ap2_d:"Основи, пресеци, фасади и целосна документација за градежна дозвола.",
+  ap3_t:"Конструкција и материјали", ap3_d:"Координација со градежниот инженер и спецификација на материјали, прозорци и фасада.",
+  ap4_t:"Надзор до клуч на рака", ap4_d:"Архитектот ги следи работите на градилиштето – од темелот до предавањето на клучевите.",
+  ahc_t:"Ајде заедно да ја нацртаме вашата куќа.", ahc_d:"Бесплатна консултација со архитектот: го слушаме вашиот план, го гледаме плацот и ви ги покажуваме следните чекори."
+});
+Object.assign(window.I18N.en, {
+  nav_architect:"Architecture", t_architect:"Architecture | Lastra Projekt", x_res:"Three-storey residence", est_f3:"3 floors",
+  tour_start:"Start 3D Tour", tour_exit:"Exit Tour", tour_region:"3D house tour", tour_rooms:"Spaces", tour_floor:"Floor", tour_prev:"Previous space", tour_next:"Next space",
+  tour_hint:"Drag to look around · WASD / arrow keys",
+  tour_s1_k:"Courtyard", tour_s1_t:"Arrival & courtyard", tour_s1_d:"Three storeys on a stone base: ground floor, master suite and a penthouse with a roof terrace.",
+  tour_s2_k:"Ground floor", tour_s2_t:"Ground floor · Living & kitchen", tour_s2_d:"Open plan with a kitchen island, dining table, recessed ceiling lights and floor-to-ceiling glazing.",
+  tour_s3_k:"1st floor", tour_s3_t:"1st floor · Master suite & balcony", tour_s3_d:"Bedroom with walk-in storage, a frameless glass balustrade and views over the courtyard.",
+  tour_s4_k:"2nd floor", tour_s4_t:"2nd floor · Penthouse & roof terrace", tour_s4_d:"A studio lounge with a bar that opens fully onto a panoramic rooftop terrace.",
+  tour_s5_k:"Section", tour_s5_t:"3-floor architectural section", tour_s5_d:"Three reinforced slabs, the stair that links every level and warm light on each floor.",
+  a3d_hint:"Drag to rotate the model", a3d_modes:"Model view", a3d_solid:"Solid model", a3d_wire:"Blueprint wireframe", a3d_explode:"3-floor exploded",
+  arch_studio_cta:"Explore Architecture Studio", arch_book:"Book a Consultation",
+  ah_k:"Architecture studio · Gostivar", ah_t:"Architecture designed to be built.", ah_d:"At Lastra Projekt the same team draws and builds your house. Rotate the model, view it as a blueprint or pull the three floors apart.", ah_profile:"Meet the architect",
+  ap_k:"Architectural process", ap_t:"From the first sketch to the keys.",
+  ap1_t:"Concept & 3D massing", ap1_d:"A site visit, the room programme and 3D studies of massing, orientation and light.",
+  ap2_t:"Technical drawings & permits", ap2_d:"Plans, sections, elevations and the full documentation for the building permit.",
+  ap3_t:"Structural & material specs", ap3_d:"Coordination with the structural engineer and the specification of materials, windows and façade.",
+  ap4_t:"On-site supervision to turnkey", ap4_d:"The architect follows the works on site – from the foundation to the key handover.",
+  ahc_t:"Let's draw your house together.", ahc_d:"A free consultation with the architect: we listen to your plan, look at the plot and show you the next steps."
+});
