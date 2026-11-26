@@ -90,10 +90,26 @@
           </ul>
         </div>
 
-        <div class="hero__stage reveal">
-          <div class="stage3d" id="hero-3d" role="img" data-i18n-attr="aria-label:hero.model">
-            <div class="stage3d__fallback" data-i18n="hero.noWebgl">Your browser can’t display 3D here — the full collection is just below.</div>
-            <span class="stage3d__hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3" fill="none" stroke="currentColor" stroke-width="1.3" /><path d="M18 3v4h-4M6 21v-4h4" fill="none" stroke="currentColor" stroke-width="1.3" /></svg><span data-i18n="hero.drag">Drag to orbit</span></span>
+        <div class="hero__stage reveal" id="showcase">
+          <div class="sc-products" id="sc-products" role="tablist" data-i18n-attr="aria-label:sc.products"></div>
+          <div class="showcase">
+            <div class="stage3d stage3d--showcase" id="hero-3d" role="region" data-i18n-attr="aria-label:sc.label">
+              <div class="stage3d__fallback" data-i18n="hero.noWebgl">Your browser can’t display 3D here — the full collection is just below.</div>
+            </div>
+            <div class="sc-ui">
+              <div class="sc-ui__top">
+                <div class="seg-mini" id="sc-light" role="radiogroup" data-i18n-attr="aria-label:ctl.light"></div>
+                <span class="stage3d__hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3" fill="none" stroke="currentColor" stroke-width="1.3" /><path d="M18 3v4h-4M6 21v-4h4" fill="none" stroke="currentColor" stroke-width="1.3" /></svg><span data-i18n="ctl.hint">Drag to orbit</span></span>
+              </div>
+              <div class="sc-ui__side" id="sc-toggles"></div>
+              <div class="sc-ui__bottom">
+                <div class="seg-mini" id="sc-views" role="group" data-i18n-attr="aria-label:ctl.camera"></div>
+                <div class="sc-zoom">
+                  <button type="button" id="sc-zoom-out" data-i18n-attr="aria-label:ctl.zoomOut;title:ctl.zoomOut">−</button>
+                  <button type="button" id="sc-zoom-in" data-i18n-attr="aria-label:ctl.zoomIn;title:ctl.zoomIn">+</button>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="finish-bar" aria-label="Finish">
             <span class="finish-bar__label" data-i18n="hero.finish">Live finish</span>

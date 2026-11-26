@@ -195,3 +195,27 @@ export const PRODUCTS = [
 ];
 
 export const byId = (id) => PRODUCTS.find((p) => p.id === id);
+
+// "View in 3D": which showcase model opens for each product, with its finishes
+// preselected (and, for tiles, the matching stone on the feature wall).
+export const VIEW_3D = {
+  'wc-lumen': { model: 'wc', metal: 'chrome', ceramic: 'white' },
+  'wc-arco': { model: 'wc', metal: 'gold', ceramic: 'white' },
+  'wc-noir': { model: 'wc', metal: 'black', ceramic: 'white' },
+  'bs-monolith': { model: 'basin', metal: 'gold', ceramic: 'travertine' },
+  'bs-ellipse': { model: 'basin', metal: 'chrome', ceramic: 'white' },
+  'bs-cove': { model: 'basin', metal: 'gold', ceramic: 'white' },
+  'vn-atelier': { model: 'vanity', metal: 'gold', ceramic: 'travertine' },
+  'vn-linea': { model: 'vanity', metal: 'black', ceramic: 'white' },
+  'fc-arch': { model: 'basin', metal: 'gold' },
+  'fc-linea': { model: 'basin', metal: 'black' },
+  'fc-riva': { model: 'bathtub', metal: 'chrome' },
+  'sh-halo': { model: 'shower', metal: 'gold' },
+  'sh-column': { model: 'shower', metal: 'black' },
+  'sh-screen': { model: 'shower', metal: 'black' },
+  't-calacatta': { model: 'tiles', ceramic: 'white', stone: 'calacatta' },
+  't-travertine': { model: 'tiles', ceramic: 'travertine', stone: 'travertine' },
+  't-nero': { model: 'tiles', stone: 'nero' },
+  't-verde': { model: 'tiles', stone: 'verde' },
+  't-cemento': { model: 'tiles', stone: 'cemento' },
+};

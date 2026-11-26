@@ -2,9 +2,9 @@
   "name": "evora-website",
   "version": "1.0.0",
   "private": true,
-  "description": "Evora — Bath & Design · sanitaryware & ceramic tiles showroom website with procedural Three.js scenes",
+  "description": "Evora \u2014 Bath & Design \u00b7 sanitaryware & ceramic tiles showroom website with a procedural Three.js 3D showroom",
   "scripts": {
-    "build": "esbuild src/main.js --bundle --minify --format=iife --target=es2020 --legal-comments=none --outfile=assets/app.js",
+    "build": "esbuild src/main.js --bundle --minify --format=iife --target=es2020 --legal-comments=none --outfile=assets/app.js && node scripts/standalone.mjs",
     "dev": "esbuild src/main.js --bundle --format=iife --target=es2020 --sourcemap --outfile=assets/app.js --watch --servedir=. --serve=5173",
     "serve": "python3 -m http.server 5173"
   },

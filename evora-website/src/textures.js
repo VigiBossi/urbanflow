@@ -291,3 +291,223 @@ export function stoneCanvas(name, w = 1024, aspect = 1) {
 export function stoneDataURL(name, w = 360, aspect = 1) {
   return stoneCanvas(name, w, aspect).toDataURL('image/jpeg', 0.86);
 }
+
+// ─────────────────────────────────────────────────────────────
+//  PBR surface maps: normal (from height) + roughness, generated
+//  procedurally so every material has real micro-surface detail.
+// ─────────────────────────────────────────────────────────────
+
+const mapCache = new Map();
+function cached(key, fn) {
+  if (!mapCache.has(key)) mapCache.set(key, fn());
+  return mapCache.get(key);
+}
+
+function heightsFrom(canvas, w, h, { invert = false, blur = 0 } = {}) {
+  const c = makeCanvas(w, h);
+  const ctx = c.getContext('2d');
+  if (blur) ctx.filter = `blur(${blur}px)`;
+  ctx.drawImage(canvas, 0, 0, w, h);
+  const d = ctx.getImageData(0, 0, w, h).data;
+  const out = new Float32Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    const l = (d[i * 4] * 0.299 + d[i * 4 + 1] * 0.587 + d[i * 4 + 2] * 0.114) / 255;
+    out[i] = invert ? 1 - l : l;
+  }
+  return out;
+}
+
+// Sobel-style normal map (OpenGL / +Y convention, matching three.js + flipY canvas textures).
+export function heightToNormal(heights, w, h, strength = 2) {
+  const c = makeCanvas(w, h);
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(w, h);
+  const at = (x, y) => heights[((y + h) % h) * w + ((x + w) % w)];
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const dx = (at(x + 1, y) - at(x - 1, y)) * strength;
+      const dy = (at(x, y + 1) - at(x, y - 1)) * strength;
+      let nx = -dx;
+      let ny = dy;
+      let nz = 1;
+      const len = Math.hypot(nx, ny, nz);
+      nx /= len; ny /= len; nz /= len;
+      const i = (y * w + x) * 4;
+      img.data[i] = (nx * 0.5 + 0.5) * 255;
+      img.data[i + 1] = (ny * 0.5 + 0.5) * 255;
+      img.data[i + 2] = (nz * 0.5 + 0.5) * 255;
+      img.data[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return c;
+}
+
+// Roughness map: base level plus darker (lower-lying) areas rougher.
+function roughnessFrom(heights, w, h, base, k) {
+  const c = makeCanvas(w, h);
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(w, h);
+  for (let i = 0; i < w * h; i++) {
+    const v = Math.max(0, Math.min(1, base + (1 - heights[i]) * k)) * 255;
+    img.data[i * 4] = v;
+    img.data[i * 4 + 1] = v;
+    img.data[i * 4 + 2] = v;
+    img.data[i * 4 + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  return c;
+}
+
+const STONE_SURFACE = {
+  calacatta: { normal: 0.9, blur: 1, rough: [0.78, 0.45] },
+  nero: { normal: 0.9, blur: 1, rough: [0.78, 0.3], invert: true },
+  travertine: { normal: 4.5, blur: 0, rough: [0.62, 0.9] },
+  cemento: { normal: 2.6, blur: 0, rough: [0.7, 0.6] },
+  verde: { normal: 0.9, blur: 1, rough: [0.8, 0.3] },
+  limestone: { normal: 1.8, blur: 0, rough: [0.82, 0.4] },
+};
+
+/** Albedo + normal + roughness canvases for a stone. */
+export function stoneMaps(name, w = 1024, aspect = 1) {
+  return cached(`stone:${name}:${w}:${aspect}`, () => {
+    const albedo = stoneCanvas(name, w, aspect);
+    const s = STONE_SURFACE[name] || STONE_SURFACE.limestone;
+    const nw = Math.min(512, w);
+    const nh = Math.round(nw * aspect);
+    const hts = heightsFrom(albedo, nw, nh, { invert: s.invert, blur: s.blur });
+    return {
+      albedo,
+      normal: heightToNormal(hts, nw, nh, s.normal),
+      rough: roughnessFrom(hts, nw, nh, s.rough[0], s.rough[1]),
+    };
+  });
+}
+
+/** Brushed-metal grain: fine streaks along U, used as roughness + normal. */
+export function brushedMaps(w = 512) {
+  return cached(`brushed:${w}`, () => {
+    const c = makeCanvas(w, w);
+    const ctx = c.getContext('2d');
+    const rand = mulberry32(91);
+    ctx.fillStyle = 'rgb(205,205,205)';
+    ctx.fillRect(0, 0, w, w);
+    for (let i = 0; i < w * 3; i++) {
+      const y = rand() * w;
+      const g = 178 + Math.floor(rand() * 60);
+      ctx.globalAlpha = 0.15 + rand() * 0.3;
+      ctx.fillStyle = `rgb(${g},${g},${g})`;
+      const x = rand() * w;
+      const len = w * (0.3 + rand() * 0.9);
+      ctx.fillRect(x, y, len, 0.6 + rand() * 0.9);
+      ctx.fillRect(x - w, y, len, 0.6 + rand() * 0.9); // wrap seamlessly
+    }
+    ctx.globalAlpha = 1;
+    const hts = heightsFrom(c, w, w);
+    return { rough: c, normal: heightToNormal(hts, w, w, 0.8) };
+  });
+}
+
+/** Matte porcelain: soft "orange-peel" glaze micro-relief. */
+export function porcelainMaps(w = 512) {
+  return cached(`porcelain:${w}`, () => {
+    const c = makeCanvas(w, w);
+    const ctx = c.getContext('2d');
+    const rand = mulberry32(17);
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(0, 0, w, w);
+    cloudLayer(ctx, w, w, rand, { tint: [255, 255, 255], strength: 0.5, octaves: 3, base: 32 });
+    cloudLayer(ctx, w, w, rand, { tint: [0, 0, 0], strength: 0.45, octaves: 2, base: 64 });
+    const hts = heightsFrom(c, w, w, { blur: 1 });
+    return { rough: roughnessFrom(hts, w, w, 0.86, 0.22), normal: heightToNormal(hts, w, w, 1.6) };
+  });
+}
+
+/** Smoked oak veneer: vertical grain with pores. */
+export function woodMaps(w = 1024) {
+  return cached(`wood:${w}`, () => {
+    const c = makeCanvas(w, w);
+    const ctx = c.getContext('2d');
+    const rand = mulberry32(29);
+    const s = w / 1024;
+    ctx.fillStyle = '#5a4838';
+    ctx.fillRect(0, 0, w, w);
+    cloudLayer(ctx, w, w, rand, { tint: [40, 30, 22], strength: 0.35, octaves: 4, base: 2 });
+    for (let i = 0; i < 260; i++) {
+      const x0 = rand() * w;
+      const tone = rand();
+      ctx.strokeStyle = tone < 0.5 ? '#3d2f24' : '#7a6450';
+      ctx.globalAlpha = 0.15 + rand() * 0.35;
+      ctx.lineWidth = (0.6 + rand() * rand() * 5) * s;
+      const amp = (2 + rand() * 9) * s;
+      const ph = rand() * 6.28;
+      ctx.beginPath();
+      for (let y = 0; y <= w; y += 8) {
+        const x = x0 + Math.sin((y / w) * Math.PI * 2 * 2 + ph) * amp;
+        if (y === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = '#2a1f17';
+    for (let i = 0; i < 2600 * s * s; i++) ctx.fillRect(rand() * w, rand() * w, 0.8 * s, (2 + rand() * 7) * s);
+    ctx.globalAlpha = 1;
+    const nw = Math.min(512, w);
+    const hts = heightsFrom(c, nw, nw);
+    return { albedo: c, normal: heightToNormal(hts, nw, nw, 2.2), rough: roughnessFrom(hts, nw, nw, 0.62, 0.5) };
+  });
+}
+
+/** Soft rounded-rectangle glow (LED mirror halo on the wall). */
+export function glowCanvas(w = 512, h = 600, inset = 110, radius = 70) {
+  return cached(`glow:${w}:${h}:${inset}:${radius}`, () => {
+    const c = makeCanvas(w, h);
+    const ctx = c.getContext('2d');
+    ctx.filter = 'blur(38px)';
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 46;
+    ctx.beginPath();
+    ctx.roundRect(inset, inset, w - inset * 2, h - inset * 2, radius);
+    ctx.stroke();
+    ctx.filter = 'blur(16px)';
+    ctx.lineWidth = 12;
+    ctx.stroke();
+    return c;
+  });
+}
+
+/** Radial soft shadow used for contact shadows. */
+export function radialShadowCanvas(size = 256) {
+  return cached(`shadow:${size}`, () => {
+    const c = makeCanvas(size, size);
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    g.addColorStop(0, 'rgba(0,0,0,1)');
+    g.addColorStop(0.45, 'rgba(0,0,0,0.55)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, size, size);
+    return c;
+  });
+}
+
+/** Flowing-water streaks (alpha map scrolled along a tube). */
+export function waterStreakCanvas(w = 256, h = 64) {
+  return cached(`water:${w}:${h}`, () => {
+    const c = makeCanvas(w, h);
+    const ctx = c.getContext('2d');
+    const rand = mulberry32(5);
+    ctx.fillStyle = 'rgb(150,150,150)';
+    ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 90; i++) {
+      const g = 170 + Math.floor(rand() * 85);
+      ctx.fillStyle = `rgba(${g},${g},${g},${0.4 + rand() * 0.6})`;
+      const y = rand() * h;
+      const x = rand() * w;
+      const len = 10 + rand() * 60;
+      ctx.fillRect(x, y, len, 1 + rand() * 2);
+      ctx.fillRect(x - w, y, len, 1 + rand() * 2);
+    }
+    return c;
+  });
+}

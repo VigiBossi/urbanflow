@@ -1,13 +1,14 @@
 import { CONFIG } from './config.js';
 import { LANGS, t, setLang, getLang, detectLang, onLangChange } from './i18n.js';
-import { PRODUCTS, CATEGORIES, byId } from './products.js';
+import { PRODUCTS, CATEGORIES, byId, VIEW_3D } from './products.js';
 import { productArt } from './illustrations.js';
 import { stoneDataURL } from './textures.js';
 import {
   FINISHES, FINISH_ORDER, getFinishState, setFinish, onFinishChange, SLABS, SLAB_NAMES, SURFACES,
+  LIGHT_ORDER, getLighting, setLighting, onLightingChange, SHOWCASE,
 } from './finishes.js';
 import { webglAvailable, reducedMotion, coarsePointer } from './three/stage.js';
-import { createFixtureScene } from './three/fixture.js';
+import { createShowcase } from './three/fixture.js';
 import { createTileInspector } from './three/tiles.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -97,7 +98,9 @@ function initFinishUI() {
   };
   document.addEventListener('click', (e) => {
     const b = e.target.closest('[data-finish]');
-    if (b) setFinish(b.dataset.finish);
+    if (!b) return;
+    if (FINISHES[b.dataset.finish]?.group === 'ceramic') hero?.setStone(null);
+    setFinish(b.dataset.finish);
   });
   onFinishChange(renderSwatches);
   onLangChange(renderSwatches);
@@ -283,6 +286,9 @@ function renderGrid() {
   grid.innerHTML = PRODUCTS.map((p, i) => `
     <article class="card" data-cat="${p.cat}" style="--i:${i % 6}">
       <div class="card__tilt">
+        ${VIEW_3D[p.id] ? `<button type="button" class="card__3d" data-view3d="${p.id}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3Z M4 7.5 12 12l8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          <span>${esc(t('card.view3d'))}</span></button>` : ''}
         <button type="button" class="card__media ${p.art === 'tile' ? 'card__media--tile' : ''}" data-quick="${p.id}" aria-label="${esc(t('card.quick'))}: ${esc(p.name)}">
           ${thumbFor(p, 'lg')}
           <span class="card__badge">${esc(p.dims)}</span>
@@ -359,6 +365,8 @@ function initCatalog() {
     next.click();
   });
   $('#product-grid').addEventListener('click', (e) => {
+    const v3 = e.target.closest('[data-view3d]');
+    if (v3) { viewIn3D(v3.dataset.view3d); return; }
     const add = e.target.closest('[data-add]');
     if (add) { addToInquiry(add.dataset.add, 1, add); return; }
     const q = e.target.closest('[data-quick]');
@@ -525,22 +533,121 @@ function initReveal() {
   });
 }
 
-// ───────────────────────── 3D scenes ─────────────────────────
+// ───────────────────────── 3D showcase ─────────────────────────
+let hero = null;
+let pendingView = null;
+
+const ICONS = {
+  water: '<path d="M12 3.5c3.2 4 5.5 7.1 5.5 10a5.5 5.5 0 0 1-11 0c0-2.9 2.3-6 5.5-10Z" fill="none" stroke="currentColor" stroke-width="1.4"/>',
+  dims: '<path d="M4 8v8M20 8v8M4 12h16M7 9.5 4.5 12 7 14.5M17 9.5l2.5 2.5-2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.4"/>',
+  hotspots: '<circle cx="12" cy="12" r="3" fill="currentColor"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.3"/>',
+};
+
+function renderShowcaseUI() {
+  const st = hero ? hero.getState() : { product: 'basin', view: 'studio' };
+  $('#sc-products').innerHTML = SHOWCASE.map((id) => `
+    <button type="button" role="tab" class="sc-pill" data-sc-product="${id}" aria-selected="${st.product === id}">${esc(t(`sc.${id}`))}</button>`).join('');
+  $('#sc-light').innerHTML = LIGHT_ORDER.map((id) => `
+    <button type="button" role="radio" data-sc-light="${id}" aria-checked="${getLighting() === id}">${esc(t(`light.${id}`))}</button>`).join('');
+  $('#sc-views').innerHTML = ['front', 'studio', 'detail', 'reset'].map((id) => `
+    <button type="button" data-sc-view="${id}" aria-pressed="${st.view === id}">${esc(t(`ctl.${id}`))}</button>`).join('');
+  $('#sc-toggles').innerHTML = ['water', 'dims', 'hotspots'].map((id) => `
+    <button type="button" class="sc-toggle" data-sc-toggle="${id}" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[id]}</svg><span>${esc(t(`ctl.${id}`))}</span></button>`).join('');
+  if (hero) syncShowcaseUI(hero.getState());
+}
+
+function syncShowcaseUI(st) {
+  $$('[data-sc-product]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.scProduct === st.product)));
+  $$('[data-sc-light]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.scLight === st.lighting)));
+  $$('[data-sc-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.scView === st.view)));
+  const map = { water: st.water, dims: st.dims, hotspots: st.hotspots };
+  $$('[data-sc-toggle]').forEach((b) => b.setAttribute('aria-pressed', String(!!map[b.dataset.scToggle])));
+  const water = $('[data-sc-toggle="water"]');
+  if (water) {
+    water.disabled = st.waterAvailable === false;
+    water.title = water.disabled ? t('ctl.noWater') : '';
+  }
+  $('#hero-3d').classList.toggle('is-busy', !!st.switching);
+}
+
+function initShowcaseUI() {
+  renderShowcaseUI();
+  onLangChange(renderShowcaseUI);
+  onLightingChange(() => hero && syncShowcaseUI(hero.getState()));
+  $('.hero__stage').addEventListener('click', (e) => {
+    if (!hero) return;
+    const p = e.target.closest('[data-sc-product]');
+    if (p) { hero.setStone(null); hero.setProduct(p.dataset.scProduct); return; }
+    const l = e.target.closest('[data-sc-light]');
+    if (l) { setLighting(l.dataset.scLight); return; }
+    const v = e.target.closest('[data-sc-view]');
+    if (v) { hero.setView(v.dataset.scView); return; }
+    const tg = e.target.closest('[data-sc-toggle]');
+    if (tg && !tg.disabled) {
+      const st = hero.getState();
+      if (tg.dataset.scToggle === 'water') hero.setWater(!st.water);
+      if (tg.dataset.scToggle === 'dims') hero.setDims(!st.dims);
+      if (tg.dataset.scToggle === 'hotspots') hero.setHotspots(!st.hotspots);
+      return;
+    }
+    if (e.target.closest('#sc-zoom-in')) hero.zoom(0.8);
+    if (e.target.closest('#sc-zoom-out')) hero.zoom(1.25);
+  });
+  $('#sc-products').addEventListener('keydown', (e) => {
+    if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+    const tabs = $$('[data-sc-product]');
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+    next.focus();
+    next.click();
+  });
+}
+
+/** Catalog → main 3D viewer with the matching model and finishes preselected. */
+function viewIn3D(productId) {
+  const v = VIEW_3D[productId];
+  if (!v) return;
+  if (v.metal) setFinish(v.metal);
+  if (v.ceramic) setFinish(v.ceramic);
+  $('#showcase').scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'center' });
+  if (!hero) { pendingView = v; return; }
+  hero.setStone(v.stone || null);
+  if (hero.getState().product === v.model) hero.setView('studio');
+  else hero.setProduct(v.model);
+  setTimeout(() => $('#hero-3d').focus({ preventScroll: true }), reducedMotion() ? 0 : 700);
+}
+
 function initScenes() {
   const scenes = [];
   if (!webglAvailable()) {
     document.documentElement.classList.add('no-webgl');
     return;
   }
-  const boot = (fn) => { try { scenes.push(fn()); } catch (err) { console.error(err); document.documentElement.classList.add('no-webgl'); } };
-  boot(() => createFixtureScene($('#hero-3d')));
+  const boot = (fn) => {
+    try {
+      const s = fn();
+      scenes.push(s);
+      return s;
+    } catch (err) {
+      console.error(err);
+      document.documentElement.classList.add('no-webgl');
+      return null;
+    }
+  };
+  hero = boot(() => createShowcase($('#hero-3d'), { product: pendingView?.model || 'basin' }));
+  if (hero) {
+    if (pendingView?.stone) hero.setStone(pendingView.stone);
+    hero.onChange(syncShowcaseUI);
+  }
 
   // Studio scenes are created lazily when the section approaches the viewport.
   const studio = $('#studio');
   const io = new IntersectionObserver((entries) => {
     if (!entries[0].isIntersecting) return;
     io.disconnect();
-    boot(() => createFixtureScene($('#studio-3d'), { closeUp: true }));
+    boot(() => createShowcase($('#studio-3d'), { product: 'basin', compact: true, preset: 'detail' }));
     boot(() => {
       tileInspector = createTileInspector($('#tiles-3d'));
       tileInspector.setSlab(slabState.slab);
@@ -553,7 +660,7 @@ function initScenes() {
 
   window.addEventListener('pagehide', (e) => {
     if (e.persisted) return; // keep scenes alive in the back/forward cache
-    scenes.forEach((s) => s.dispose());
+    scenes.forEach((s) => s?.dispose());
   });
 }
 
@@ -567,6 +674,7 @@ function init() {
   initQuickView();
   initStudioUI();
   initContact();
+  initShowcaseUI();
 
   onLangChange(() => {
     renderMarquee();
