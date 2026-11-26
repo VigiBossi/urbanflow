@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #f8f8f6;
+  --surface: #ffffff;
+  --surface-2: #f2f2ef;
+  --fg: #18181b;
+  --fg-2: #3f3f46;
+  --muted: #71717a;
+  --border: #e4e4e0;
+  --accent: #4f46e5;
+  --accent-fg: #ffffff;
+  --accent-soft: #eef0ff;
+  --code-bg: #f6f6f3;
+  --good: #15803d;
+  --good-soft: #e9f7ee;
+  --warn: #b45309;
+  --warn-soft: #fdf3e4;
+  --bad: #be123c;
+  --bad-soft: #fdecef;
+
+  /* syntax */
+  --tok-keyword: #7c3aed;
+  --tok-type: #0f766e;
+  --tok-string: #b45309;
+  --tok-number: #be123c;
+  --tok-comment: #8a8a92;
+  --tok-fn: #1d4ed8;
+  --tok-literal: #be123c;
+}
+
+.dark {
+  --bg: #0e0e10;
+  --surface: #17171a;
+  --surface-2: #1f1f23;
+  --fg: #ececee;
+  --fg-2: #c4c4cc;
+  --muted: #8b8b95;
+  --border: #2a2a30;
+  --accent: #8b8cff;
+  --accent-fg: #0e0e10;
+  --accent-soft: #23233a;
+  --code-bg: #121215;
+  --good: #4ade80;
+  --good-soft: #12261a;
+  --warn: #fbbf24;
+  --warn-soft: #2a2110;
+  --bad: #fb7185;
+  --bad-soft: #2d1319;
+
+  --tok-keyword: #c4a5ff;
+  --tok-type: #5eead4;
+  --tok-string: #fcd34d;
+  --tok-number: #fda4af;
+  --tok-comment: #6b6b75;
+  --tok-fn: #93c5fd;
+  --tok-literal: #fda4af;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-code: var(--code-bg);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.inline-code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  padding: 0.1em 0.35em;
+  border-radius: 0.3rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.prose-lite {
+  color: var(--fg-2);
+  line-height: 1.7;
+}
+
+.tok-keyword { color: var(--tok-keyword); }
+.tok-type { color: var(--tok-type); }
+.tok-string, .tok-char { color: var(--tok-string); }
+.tok-number { color: var(--tok-number); }
+.tok-literal { color: var(--tok-literal); }
+.tok-comment { color: var(--tok-comment); font-style: italic; }
+.tok-fn { color: var(--tok-fn); }
+.tok-annotation { color: var(--tok-keyword); }
+
+@keyframes flash {
+  0% { background: var(--accent-soft); }
+  100% { background: transparent; }
+}
+.flash { animation: flash 1.2s ease-out; }
+
+/* Editor overlay: textarea and highlighted pre must line up exactly */
+.editor-layer {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.6;
+  tab-size: 4;
+  white-space: pre;
+  padding: 14px 16px;
+  margin: 0;
+  border: 0;
+  letter-spacing: 0;
+  word-spacing: 0;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* Never render programming ligatures: students must see >= and == exactly as typed */
+code, pre, kbd, samp, textarea, .font-mono, .inline-code, .editor-layer {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
