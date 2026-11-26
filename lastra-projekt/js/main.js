@@ -45,7 +45,7 @@
       <a class="skip" href="#main" data-i18n="skip"></a>
       <div class="container nav-wrap">
         <a class="logo" href="index.html" aria-label="Lastra Projekt"><span class="logo-mark">${MARK}</span><span class="logo-word">Lastra<b>Projekt</b></span></a>
-        <nav class="nav" aria-label="Main"><ul>${nav.slice(1).map(([h, k]) => `<li><a href="${h}"${h === active ? ' aria-current="page"' : ""}><span data-i18n="${k}"></span></a></li>`).join("")}</ul></nav>
+        <nav class="nav" aria-label="Main"><ul>${nav.map(([h, k]) => `<li><a href="${h}"${h === active ? ' aria-current="page"' : ""}><span data-i18n="${k}"></span></a></li>`).join("")}</ul></nav>
         <div class="nav-right">
           <div class="lang" role="group" data-i18n-aria="lang">${langBtns()}</div>
           <a class="btn btn-primary btn-sm nav-cta" href="contact.html"><span data-i18n="cta_quote"></span></a>
@@ -97,6 +97,11 @@
         <p class="fine" data-i18n="fine_print"></p>
         <div class="f-bottom">
           <span class="f-copy">© ${new Date().getFullYear()} Lastra Projekt · Gostivar</span>
+          <ul class="f-legal">
+            <li><a href="privacy.html"${active === "privacy.html" ? ' aria-current="page"' : ""} data-i18n="privacy_link"></a></li>
+            <li><a href="terms.html"${active === "terms.html" ? ' aria-current="page"' : ""} data-i18n="terms_link"></a></li>
+            <li><button type="button" data-consent-open data-i18n="cookie_prefs"></button></li>
+          </ul>
           <button type="button" class="to-top"><span data-i18n="back_top"></span><i aria-hidden="true">↑</i></button>
         </div>
       </div>`;
@@ -114,7 +119,7 @@
     };
     b.addEventListener("click", () => setMenu(!document.body.classList.contains("nav-open")));
     addEventListener("keydown", e => { if (e.key === "Escape" && document.body.classList.contains("nav-open")) { setMenu(false); b.focus(); } });
-    addEventListener("resize", () => { if (innerWidth > 1080 && document.body.classList.contains("nav-open")) setMenu(false); });
+    addEventListener("resize", () => { if (innerWidth > 1180 && document.body.classList.contains("nav-open")) setMenu(false); });
     document.addEventListener("click", e => { const btn = e.target.closest(".lang button"); if (btn) setLang(btn.dataset.lang); });
     qs(".to-top").addEventListener("click", () => {
       /* long pages: jump close to the top first so the smooth part stays short (and the 3D story isn't replayed backwards) */
@@ -154,6 +159,9 @@
       if (k === "email") { el.href = "mailto:" + S.email; el.textContent = S.email; }
       if (k === "address") el.textContent = S.address;
       if (k === "hours") el.textContent = L(S.officeHours);
+      if (k === "company") el.textContent = (S.legal && S.legal.companyName) || S.name;
+      if (k === "regno" || k === "taxno") { const v = S.legal && S.legal[k === "regno" ? "registrationNo" : "taxNo"]; const row = el.closest("li, tr, div") || el; row.hidden = !v; el.textContent = v || ""; }
+      if (k === "updated") el.textContent = (S.legal && S.legal.updated) || "";
       if (k === "instagram") el.href = S.instagram;
       if (k === "facebook") el.href = S.facebook;
       if (k === "whatsapp") el.href = "https://wa.me/" + S.whatsapp;
@@ -241,6 +249,7 @@
     let n = 0;
     qsa("#project-grid .pcard").forEach(c => { const show = f === "all" || c.dataset.status === f; c.hidden = !show; if (show) n++; });
     const cnt = qs(".filter-count"); if (cnt) cnt.textContent = pad(n);
+    document.dispatchEvent(new CustomEvent("lp:filter", { detail: f }));
   }
 
   /* ---------------- i18n ---------------- */

@@ -128,6 +128,10 @@ function init() {
     img.src = TEX + `stone_diff${MOBILE ? "_1k" : ""}.jpg`;
     SET.stone.map = warm; disposablesLate.push(warm);
   }
+  /* rippled water surface: its own normal-map instance, offset drifts slowly in frame() */
+  const waterNormal = new THREE.TextureLoader().load(TEX + "plaster_nor.jpg");
+  waterNormal.wrapS = waterNormal.wrapT = THREE.RepeatWrapping; waterNormal.repeat.set(.35, .35);
+  disposablesLate.push(waterNormal);
   /* brick (no photo set in the repo): procedural clay brick, 250 × 65 mm with 10 mm joints */
   function canvasTex(draw, size, tile, srgb) {
     const c = document.createElement("canvas"); c.width = c.height = size; draw(c.getContext("2d"), size);
@@ -474,13 +478,21 @@ function init() {
     /* straight concrete flights with oak treads, one per storey (switchback) */
     for (const st of spec.stairs || []) {
       const n = 18, y0 = level(st.lv), rise = F / n, run = (st.x1 - st.x0) / n, w = st.z1 - st.z0, zc = (st.z0 + st.z1) / 2;
+      /* floating stair: cantilevered concrete treads with oak tops on a slim steel spine */
       for (let i = 0; i < n; i++) {
-        const k = st.dir > 0 ? i : n - 1 - i, x = st.x0 + run * (k + .5), hgt = rise * (i + 1);
-        add("stair", geoBox(run + .002, hgt, w, x, y0 - .01, zc));
-        add("tread", geoBox(run + .03, .03, w - .04, x, y0 + hgt - .01, zc));
+        const k = st.dir > 0 ? i : n - 1 - i, x = st.x0 + run * (k + .5), top = y0 + rise * (i + 1);
+        add("stair", geoBox(run - .012, .065, w, x, top - .085, zc));
+        add("tread", geoBox(run + .015, .022, w - .03, x, top - .022, zc));
       }
+      const len = Math.hypot(st.x1 - st.x0, F), ang = Math.atan2(F, st.x1 - st.x0) * (st.dir > 0 ? 1 : -1);
+      add("spine", planarUV(new THREE.BoxGeometry(len, .1, .16).rotateZ(ang).translate((st.x0 + st.x1) / 2, y0 + F / 2 - .16, zc)));
     }
-    for (const it of spec.interior || []) add(it[0], geoBox(it[1], it[2], it[3], it[4], level(it[7] || 0) + it[5], it[6]));
+    for (const it of spec.interior || []) {
+      if (it[0] === "plant") {            /* indoor plant: dark pot + faceted foliage */
+        const y = level(it[7] || 0) + it[5]; add("intDark", geoBox(it[1] * .7, it[2] * .35, it[3] * .7, it[4], y, it[6]));
+        add("plantIn", planarUV(new THREE.IcosahedronGeometry(it[1] * .55, 1).scale(1, it[2] / it[1] * .9, 1).translate(it[4], y + it[2] * .62, it[6])));
+      } else add(it[0], geoBox(it[1], it[2], it[3], it[4], level(it[7] || 0) + it[5], it[6]));
+    }
     /* excavation pit + backfill (paved surround) */
     add("pit", geoBox(PIT.x1 - PIT.x0, .1, PIT.z1 - PIT.z0, (PIT.x0 + PIT.x1) / 2, PD - .1, (PIT.z0 + PIT.z1) / 2));
     add("pit", geoBox(PIT.x1 - PIT.x0, -PD, .06, (PIT.x0 + PIT.x1) / 2, PD, PIT.z0)); add("pit", geoBox(PIT.x1 - PIT.x0, -PD, .06, (PIT.x0 + PIT.x1) / 2, PD, PIT.z1));
@@ -494,6 +506,21 @@ function init() {
       if (L.t === "cypress") { add("trunk", geoCyl(.08, .5, L.x, 0, L.z, 6)); add("leafDark", planarUV(new THREE.ConeGeometry(L.r, L.h, 10).translate(L.x, .35 + L.h / 2, L.z))); }
     }
     for (const u of uplights) add("fixture", geoBox(.14, .08, .14, u.x + u.nx * .05, .0, u.z + u.nz * .05));
+    /* warm bollard lights along the drive and the footpath */
+    if (spec.drive) {
+      const px = spec.drive.x0 > 0 ? -2 : 2, lines = [spec.drive.x0 - .45, spec.drive.x1 + .45, px - .95, px + .95];
+      for (const x of lines) for (let z = PIT.z1 + 2.2; z < 23; z += 3.6) {
+        add("bollard", geoCyl(.07, .72, x, 0, z, 12));
+        add("bollardLight", geoCyl(.072, .07, x, .58, z, 12));
+      }
+    }
+    /* reflecting pool: stone coping + still water surface */
+    if (spec.pool) {
+      const P = spec.pool, cw = .3, ch = .16;
+      add("coping", geoBox(P.x1 - P.x0, ch, cw, (P.x0 + P.x1) / 2, 0, P.z0 + cw / 2)); add("coping", geoBox(P.x1 - P.x0, ch, cw, (P.x0 + P.x1) / 2, 0, P.z1 - cw / 2));
+      add("coping", geoBox(cw, ch, P.z1 - P.z0 - 2 * cw, P.x0 + cw / 2, 0, (P.z0 + P.z1) / 2)); add("coping", geoBox(cw, ch, P.z1 - P.z0 - 2 * cw, P.x1 - cw / 2, 0, (P.z0 + P.z1) / 2));
+      add("water", geoBox(P.x1 - P.x0 - 2 * cw + .02, .02, P.z1 - P.z0 - 2 * cw + .02, (P.x0 + P.x1) / 2, ch - .06, (P.z0 + P.z1) / 2));
+    }
 
     /* ---- parts: material, timing window (in build-stage units 0–4) and animation mode */
     const Hmax = level(top) + .5;
@@ -510,6 +537,14 @@ function init() {
       col2: { mat: BASE.concrete, mode: "rise", w: [1.72, 1.9], lo: level(2), hi: level(3) - SLAB },
       stair: { mat: BASE.raw, mode: "rise", w: [1.2, 1.9], lo: FL0 - .02, hi: level(top) },
       tread: { mat: BASE.wood, mode: "show", at: 3.3, cast: false },
+      spine: { mat: BASE.alu, mode: "rise", w: [1.2, 1.9], lo: FL0 - .3, hi: level(top) },
+      intRug: { mat: () => new THREE.MeshStandardMaterial({ color: "#cdbfab", roughness: 1 }), mode: "show", at: 2.6, cast: false },
+      pendant: { mat: () => new THREE.MeshStandardMaterial({ color: "#1d1e21", emissive: "#ffd9ab", emissiveIntensity: 0, roughness: .4, metalness: .6 }), mode: "show", at: 3.3, cast: false },
+      plantIn: { mat: () => std(null, { color: "#4f6b38", roughness: .9, flatShading: true }), mode: "show", at: 3.3, cast: false },
+      bollard: { mat: BASE.alu, mode: "grow", w: [3.4, 3.75], cut: false },
+      bollardLight: { mat: () => new THREE.MeshStandardMaterial({ color: "#f3efe8", emissive: "#ffcf96", emissiveIntensity: 0, roughness: .4 }), mode: "show", at: 3.6, cast: false, cut: false },
+      coping: { mat: BASE.raw, mode: "grow", w: [3.3, 3.6], cut: false },
+      water: { mat: () => new THREE.MeshPhysicalMaterial({ color: "#22404a", roughness: .03, metalness: .1, envMapIntensity: 1.9, clearcoat: 1, clearcoatRoughness: .02, normalMap: waterNormal, normalScale: new THREE.Vector2(.18, .18) }), mode: "show", at: 3.5, cast: false, cut: false },
       brick: { mat: BASE.brick, mode: "rise", w: [1.12, 1.96], lo: FL0, hi: level(top) - SLAB },
       roof: { mat: BASE.concrete, mode: "sweep", w: [2.0, 2.34], lo: -16, hi: 16 },
       membrane: { mat: BASE.membrane, mode: "rise", w: [2.3, 2.45], lo: level(1) - 1, hi: Hmax },
@@ -598,15 +633,17 @@ function init() {
       interior: [
         ["intWall", .12, H, 4.2, -1.6, 0, -.9], ["intWall", 3.6, H, .12, 4.2, 0, -.2],
         ["intFab", 2.6, .42, .95, -4.2, 0, 2.6], ["intFab", .95, .42, 1.9, -2.6, 0, 2.2], ["intDark", 1.1, .3, .7, -4.0, 0, 3.6],
-        ["intDark", 2.0, .76, .95, 1.2, 0, 2.2], ["intWall", 2.6, .92, .9, 1.4, 0, -1.6], ["intFab", 1.7, .5, 2.1, 6.2, 0, -6.4]
+        ["intDark", 2.0, .76, .95, 1.2, 0, 2.2], ["intWall", 2.6, .92, .9, 1.4, 0, -1.6], ["intFab", 1.7, .5, 2.1, 6.2, 0, -6.4],
+        ["intRug", 3.2, .015, 2.4, -3.6, .005, 3.0], ["plant", .6, 1.2, .6, -7.2, 0, 4.2], ["pendant", .7, .05, .7, 1.2, 2.1, 2.2], ["intDark", .012, .65, .012, 1.2, 2.15, 2.2]
       ],
       land: [
         { t: "hedge", x: -14, z: 21.5, w: 7, h: 1.0, d: .9 }, { t: "hedge", x: 11, z: 21.5, w: 11, h: 1.0, d: .9 },
         { t: "planter", x: -10.6, z: 1.6, w: 1.2, d: 2.6 }, { t: "planter", x: -10.6, z: 6.4, w: 1.2, d: 1.2 },
-        { t: "tree", x: 15.5, z: 1.5, h: 5.2, r: 1.5 }, { t: "tree", x: -15, z: 10, h: 4.6, r: 1.3 }, { t: "tree", x: 14.5, z: -5, h: 5.8, r: 1.7 },
+        { t: "tree", x: 15.5, z: 1.5, h: 5.2, r: 1.5 }, { t: "tree", x: -16.5, z: 14, h: 4.6, r: 1.3 }, { t: "tree", x: 14.5, z: -5, h: 5.8, r: 1.7 },
         { t: "cypress", x: -16, z: -12, h: 7, r: .8 }, { t: "cypress", x: -12.5, z: -13, h: 6.2, r: .75 }, { t: "cypress", x: 16, z: -12.5, h: 7.4, r: .85 }
       ],
       drive: { x0: -12.2, x1: -9.2 },
+      pool: { x0: 4.5, x1: 9.5, z0: 8.4, z1: 11.6 },
       cutZ: .5,
       keys: [[24, 9.5, 30, 0, 1.2, 0], [12, 5.8, 13.5, 0, -.6, 0], [-16, 6.4, 13, 0, 1.7, -1], [-5, 18.5, 18, 0, 1.6, -1.2], [14.5, 2.7, 19.5, -.6, 1.75, 0]],
       presets: { front: [14.5, 2.8, 19.5, -.6, 1.75, 0], terrace: [8.6, 1.9, 11.2, -2.4, 1.5, 3.4], aerial: [17, 24, 20, 0, 0, -1], cutaway: [5, 4.2, 22, 0, 1.7, -1] },
@@ -641,20 +678,27 @@ function init() {
         ["intFab", 2.8, .42, .95, -4.0, 0, -.75], ["intFab", 2.8, .4, .22, -4.0, .42, -1.12], ["intFab", .95, .42, 1.7, -5.15, 0, -.1], ["intDark", 1.2, .32, .7, -4.0, 0, .55],
         ["intWall", 2.8, .9, .9, 2.0, 0, .05], ["intDark", 2.95, .04, 1.0, 2.0, .9, .05], ["intDark", .62, 2.3, 4.0, 5.5, 0, -1.6],
         ["intDark", .22, .72, .6, 3.9, 0, 2.6], ["intDark", 2.0, .05, .95, 3.9, .72, 2.6], ["intFab", .45, .46, .45, 3.3, 0, 1.85], ["intFab", .45, .46, .45, 4.5, 0, 1.85], ["intFab", .45, .46, .45, 3.3, 0, 3.35], ["intFab", .45, .46, .45, 4.5, 0, 3.35],
+        ["intRug", 3.4, .015, 2.4, -4.0, .005, -.1], ["intDark", .38, .66, .38, 1.2, 0, .85], ["intDark", .38, .66, .38, 2.0, 0, .85], ["intDark", .38, .66, .38, 2.8, 0, .85],
+        ["pendant", 1.2, .05, .14, 2.0, 2.3, .05], ["intDark", .012, .62, .012, 2.0, 2.35, .05], ["pendant", .7, .05, .7, 3.9, 2.15, 2.6], ["intDark", .012, .78, .012, 3.9, 2.2, 2.6],
+        ["plant", .6, 1.3, .6, -5.4, 0, 2.9], ["plant", .5, 1.0, .5, 5.3, 0, 4.2],
         /* 1st floor: master suite */
         ["intFab", 2.0, .5, 2.1, -6.6, 0, -.5, 1], ["intDark", .12, 1.15, 2.4, -7.7, 0, -.5, 1], ["intDark", .45, .5, .45, -7.3, 0, -2.0, 1], ["intDark", .45, .5, .45, -7.3, 0, 1.0, 1],
         ["intWall", 3.4, 2.4, .6, -5.8, 0, -3.95, 1], ["intFab", .85, .45, .85, -3.2, 0, 2.6, 1], ["intDark", 1.6, .74, .7, 3.2, 0, 1.8, 1],
+        ["intRug", 3.0, .015, 3.0, -6.3, .005, -.5, 1], ["plant", .5, 1.1, .5, -7.4, 0, 2.8, 1], ["pendant", .35, .05, .35, -7.3, 1.9, -2.0, 1], ["pendant", .35, .05, .35, -7.3, 1.9, 1.0, 1],
         /* 2nd floor: penthouse lounge, bar, roof terrace seating */
         ["intFab", 2.6, .42, .95, -3.2, 0, .9, 2], ["intFab", 2.6, .4, .22, -3.2, .42, .5, 2], ["intDark", 1.0, .3, .6, -3.2, 0, 1.95, 2],
-        ["intDark", 1.7, 1.05, .6, -4.8, 0, -3.85, 2], ["intFab", .85, .45, .85, .6, 0, 1.4, 2], ["intFab", 2.4, .4, .9, -3.0, .08, 4.7, 2], ["intDark", .9, .3, .6, -3.0, .08, 3.7, 2]
+        ["intDark", 1.7, 1.05, .6, -4.8, 0, -3.85, 2], ["intFab", .85, .45, .85, .6, 0, 1.4, 2], ["intFab", 2.4, .4, .9, -3.0, .08, 4.7, 2], ["intDark", .9, .3, .6, -3.0, .08, 3.7, 2],
+        ["intRug", 3.0, .015, 2.2, -3.2, .005, 1.3, 2], ["plant", .6, 1.2, .6, -5.4, 0, 1.9, 2], ["plant", .7, 1.0, .7, 3.6, .08, 4.8, 2], ["plant", .7, 1.0, .7, -7.2, .08, 4.8, 2], ["pendant", 1.6, .05, .12, -4.8, 2.0, -3.85, 2]
       ],
       land: [
         { t: "hedge", x: -13.5, z: 21.5, w: 8, h: 1.0, d: .9 }, { t: "hedge", x: 3, z: 21.5, w: 9, h: 1.0, d: .9 },
         { t: "planter", x: -8.2, z: 7.4, w: 2.6, d: 1.0 }, { t: "planter", x: 2.9, z: 7.3, w: 1.0, d: 1.0 },
-        { t: "tree", x: -13, z: 9, h: 5.2, r: 1.5 }, { t: "tree", x: 14.5, z: 10, h: 4.8, r: 1.35 }, { t: "tree", x: -14.5, z: -6, h: 6, r: 1.7 },
+        { t: "tree", x: -15, z: 13.5, h: 5.2, r: 1.5 }, { t: "tree", x: 14.5, z: 10, h: 4.8, r: 1.35 }, { t: "tree", x: -14.5, z: -6, h: 6, r: 1.7 },
+        { t: "planter", x: -8.2, z: 10.4, w: .9, d: .9 }, { t: "planter", x: -13.6, z: 10.4, w: .9, d: .9 },
         { t: "cypress", x: -16, z: -12, h: 7.4, r: .85 }, { t: "cypress", x: -12.5, z: -13, h: 6.4, r: .75 }, { t: "cypress", x: 16, z: -12.5, h: 7.8, r: .85 }
       ],
       drive: { x0: 6.6, x1: 10.4 },
+      pool: { x0: -12.8, x1: -9.0, z0: 8.6, z1: 12.2 },
       cutZ: .8,
       keys: [[28, 13, 34, 0, 3.2, 0], [13, 6.5, 15, 0, -.5, 0], [-19, 9.5, 17, 0, 4.6, 0], [-7, 26, 23, 0, 5, 0], [17, 4.6, 26, -.6, 4.4, 0]],
       presets: { front: [17, 4.6, 26, -.6, 4.4, 0], terrace: [13, 13.5, 16, -2.5, 7.2, 2.5], aerial: [22, 33, 26, 0, 2, 0], cutaway: [4.5, 6.6, 27.5, 0, 4.9, 0] },
@@ -752,7 +796,9 @@ function init() {
 
   /* ------------------------------------------------------------ post-processing */
   let composer = null, bloom = null, grain = null;
-  const usePost = !MOBILE;
+  /* heavy post chain only on desktop-class devices: never on touch / phones / low-power CPUs */
+  const lowPower = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory && navigator.deviceMemory <= 4);
+  const usePost = !MOBILE && !coarse && !lowPower;
   if (usePost) {
     const rt = new THREE.WebGLRenderTarget(innerWidth * PR, innerHeight * PR, { type: THREE.HalfFloatType, samples: 4 });
     composer = new EffectComposer(renderer, rt);
@@ -790,7 +836,7 @@ function init() {
     parX: 0, parY: 0, parTX: 0, parTY: 0, film: 0, filmT: 0,
     flight: null, pendingModel: null, swap: null, visible: true,
     fov: 34, fovT: 34, light: 0,
-    tour: { on: false, k: 0, u: 0, stop: 0, yaw: 0, pitch: 0, yawT: 0, pitchT: 0, dolly: 0, dollyT: 0 }
+    tour: { on: false, k: 0, u: 0, stop: 0, yaw: 0, pitch: 0, yawT: 0, pitchT: 0, dolly: 0, dollyT: 0, zoom: 0, zoomT: 0 }
   };
   const built = {};
   const getModel = id => built[id] || (built[id] = buildModel(MODELS[id]));
@@ -1024,7 +1070,7 @@ function init() {
   function goStop(i, first) {
     const T = tourSpec(); i = Math.max(0, Math.min(T.stops.length - 1, i));
     const target = T.stops[i] / (T.nodes.length - 1), segs = Math.abs(target - S.tour.u) * (T.nodes.length - 1);
-    S.tour.stop = i; S.tour.yawT = 0; S.tour.pitchT = 0; S.tour.dollyT = 0;
+    S.tour.stop = i; S.tour.yawT = 0; S.tour.pitchT = 0; S.tour.dollyT = 0; S.tour.zoomT = 0;
     window.gsap.to(S.tour, { u: target, duration: first ? .01 : 1.3 + segs * .55, ease: "power2.inOut", overwrite: true });
     S.cutT = i === T.stops.length - 1 ? MODELS.residence.cutZ : 60;
     tourHUD();
@@ -1076,15 +1122,26 @@ function init() {
     tourEls.pills.forEach(b => b.addEventListener("click", () => goStop(+b.dataset.tourGo)));
     tourEls.marks.forEach((b, i) => b.addEventListener("click", () => goStop(i)));
     /* free look: drag (mouse or one finger) */
-    canvas.addEventListener("pointerdown", e => { if (!S.tour.on) return; tourDrag = { x: e.clientX, y: e.clientY, yaw: S.tour.yawT, pitch: S.tour.pitchT, id: e.pointerId }; canvas.setPointerCapture(e.pointerId); });
+    const ptrs = new Map(); let pinch = null;
+    const pdist = () => { const [a, b] = [...ptrs.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
+    canvas.addEventListener("pointerdown", e => {
+      if (!S.tour.on) return;
+      ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+      if (ptrs.size === 2) { tourDrag = null; pinch = { d: pdist(), z: S.tour.zoomT }; return; }
+      tourDrag = { x: e.clientX, y: e.clientY, yaw: S.tour.yawT, pitch: S.tour.pitchT, id: e.pointerId };
+    });
     canvas.addEventListener("pointermove", e => {
-      if (!S.tour.on || !tourDrag || e.pointerId !== tourDrag.id) return;
+      if (!S.tour.on) return;
+      if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pinch && ptrs.size === 2) { S.tour.zoomT = THREE.MathUtils.clamp(pinch.z + (pinch.d - pdist()) * .06, -22, 12); return; }
+      if (!tourDrag || e.pointerId !== tourDrag.id) return;
       const s = (e.pointerType === "touch" ? 1.5 : 1) * Math.PI / Math.max(600, innerWidth);
       S.tour.yawT = tourDrag.yaw + (e.clientX - tourDrag.x) * s * 1.6;
       S.tour.pitchT = THREE.MathUtils.clamp(tourDrag.pitch + (e.clientY - tourDrag.y) * s, -.7, .55);
     });
-    const endDrag = () => { tourDrag = null; };
+    const endDrag = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (tourDrag && tourDrag.id === e.pointerId) tourDrag = null; };
     canvas.addEventListener("pointerup", endDrag); canvas.addEventListener("pointercancel", endDrag);
+    canvas.addEventListener("wheel", e => { if (!S.tour.on) return; e.preventDefault(); S.tour.zoomT = THREE.MathUtils.clamp(S.tour.zoomT + e.deltaY * .02, -22, 12); }, { passive: false });
     /* keyboard: WASD / arrows look + walk a few steps, Page Up / Down = next / previous stop */
     addEventListener("keydown", e => {
       if (!S.tour.on || e.altKey || e.ctrlKey || e.metaKey) return;
@@ -1094,6 +1151,8 @@ function init() {
       else if (k === "arrowright" || k === "d") S.tour.yawT -= .22;
       else if (k === "arrowup" || k === "w") S.tour.dollyT = Math.min(1.6, S.tour.dollyT + .45);
       else if (k === "arrowdown" || k === "s") S.tour.dollyT = Math.max(-1.4, S.tour.dollyT - .45);
+      else if (k === "+" || k === "=") S.tour.zoomT = Math.max(-22, S.tour.zoomT - 4);
+      else if (k === "-" || k === "_") S.tour.zoomT = Math.min(12, S.tour.zoomT + 4);
       else if (k === "pagedown" || k === "n") goStop(S.tour.stop + 1);
       else if (k === "pageup" || k === "p") goStop(S.tour.stop - 1);
       else used = false;
@@ -1156,12 +1215,24 @@ function init() {
       if (part.k === "lining") part.mat.emissiveIntensity = L * .22;
       else if (part.k === "ceilLight") part.mat.emissiveIntensity = .2 + L * 7;
       else if (part.k === "led") part.mat.emissiveIntensity = S.glow * 5;
+      else if (part.k === "pendant") part.mat.emissiveIntensity = .15 + L * 5;
+      else if (part.k === "bollardLight") part.mat.emissiveIntensity = .1 + S.glow * 6;
       else if (part.k === "wash") part.mesh.visible = S.glow > .01 && cutK < .01 && !S.tour.on;
     }
     washMat.uniforms.uI.value = S.glow;
   }
 
+  /* GPU context lost (iOS memory pressure, driver reset): stop rendering, show the photo story */
+  let lost = false;
+  canvas.addEventListener("webglcontextlost", e => {
+    e.preventDefault(); lost = true;
+    if (S.tour.on) exitTour();
+    document.body.classList.remove("gl-on", "gl-ready"); document.body.classList.add("gl-fallback");
+    chapters.forEach(c => { c.style.opacity = ""; c.style.visibility = ""; c.style.transform = ""; });
+    storyFallback();
+  }, false);
   function frame(t, dtMs) {
+    if (lost) return;
     if (!onScreen && !firstFrame) return;
     const dt = Math.min(.05, (dtMs || 16.7) / 1000);
     time += dt;
@@ -1221,6 +1292,7 @@ function init() {
       if (best >= 0 && best !== envIdx) { envIdx = best; scene.environment = envTex[best]; }
     }
     if (Math.abs(d - S.duskT) > 1e-4) shadowDirty = true;
+    if (!reduce) { waterNormal.offset.x = time * .006; waterNormal.offset.y = time * .004; }
     if (motes) { motes.material.uniforms.uTime.value = time; motes.material.uniforms.uO.value = lerp(.42, .85, d) * (S.mode === "explore" ? .7 : 1) * lerp(.7, 1, sstep(3.3, 4, S.stage)); }
 
     /* ---- camera */
@@ -1252,7 +1324,8 @@ function init() {
     S.filmT = !wide || S.tour.on ? 0 : S.mode === "story" ? (chapter < 0 ? -4.2 : -3.4) : -3.6;
     /* field of view: wider inside the tour */
     const portrait = innerWidth / innerHeight < 1;
-    S.fovT = S.tour.on ? (portrait ? 68 : 58) : innerWidth < 768 ? 44 : portrait ? 42 : 34;
+    S.tour.zoom = lerp(S.tour.zoom, S.tour.on ? S.tour.zoomT : 0, kdt(DAMP.cam, dt));
+    S.fovT = S.tour.on ? (portrait ? 68 : 58) + S.tour.zoom : innerWidth < 768 ? 44 : portrait ? 42 : 34;
     S.fov = lerp(S.fov, S.fovT, kdt(DAMP.cam, dt));
     if (Math.abs(camera.fov - S.fov) > .01) { camera.fov = S.fov; camera.updateProjectionMatrix(); }
     S.film = lerp(S.film, S.filmT, kdt(DAMP.cam, dt));
@@ -1308,8 +1381,8 @@ function init() {
   }
 
   /* ------------------------------------------------------------ optional glTF model */
-  if (SITE.glbModel) {
-    import("three/addons/loaders/GLTFLoader.js").then(({ GLTFLoader }) => new GLTFLoader().load(SITE.glbModel, gltf => {
+  if (((SITE.models && SITE.models.house) || SITE.glbModel)) {
+    import("three/addons/loaders/GLTFLoader.js").then(({ GLTFLoader }) => new GLTFLoader().load(((SITE.models && SITE.models.house) || SITE.glbModel), gltf => {
       const root = gltf.scene, box = new THREE.Box3().setFromObject(root), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
       const s = size.length() > 80 ? 30 / size.length() : 1;
       root.scale.setScalar(s); root.position.set(-c.x * s, -box.min.y * s + FL0, -c.z * s);

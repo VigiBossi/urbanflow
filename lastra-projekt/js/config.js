@@ -67,11 +67,39 @@ window.SITE = {
     }
   },
 
-  /* ---- 3D ----
-     Optional real model: put a glTF binary at assets/models/house.glb and set the path here.
-     It is offered as a third model in the 3D switcher; if it is missing or fails to load,
-     the procedural villa / residence stay in place. Units: metres, Y up, ground at y = 0. */
-  glbModel: null,                      // e.g. "assets/models/house.glb"
+  /* ---- 3D model slots ----
+     Drop real glTF binaries (.glb) into assets/models/ and set the path for that slot.
+     Every slot loads with GLTFLoader under the scene's HDRI / studio lighting and shadows;
+     while a slot is null (or the file is missing / fails), the procedural model is used.
+       house     – the 3D house on the home page (offered as "Your model" in the switcher;
+                   metres, Y up, ground at y = 0)
+       scale     – the architect scale model (home "The Architect" + architect.html)
+       services  – wall build-up on services.html      process  – 4-stage block on process.html
+       projects  – site massing on projects.html       about    – material monolith on about.html
+       contact   – site plinth & pin on contact.html
+     Example: house: "assets/models/house.glb" */
+  models: {
+    house: null,
+    scale: null,
+    services: null,
+    process: null,
+    projects: null,
+    about: null,
+    contact: null
+  },
+
+  /* ---- legal / imprint (privacy.html + terms.html) ----
+     Empty values are hidden. Fill in the official registration data when available. */
+  legal: {
+    companyName: "Lastra Projekt",
+    registrationNo: "",                // ЕМБС / company registration number
+    taxNo: "",                         // ЕДБ / tax number
+    updated: "26.11.2026"              // "last updated" date shown on both legal pages
+  },
+
+  /* ---- optional analytics: loaded ONLY after the visitor chooses "Accept all" in the cookie notice.
+     Leave empty for none (the site sets no tracking cookies). Self-hosted script path, e.g. "js/analytics.js". */
+  analytics: "",
 
   /* ---- turnkey estimator ----
      Duration (months) = base + size × perM2 (+ extraFloor for 2 floors).

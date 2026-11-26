@@ -32,6 +32,15 @@ Root Directory `lastra-projekt`, framework preset **Other**, no build command. `
   `prefers-reduced-motion` renders a still frame. Without WebGL 2 the real photos are shown.
 - `js/home.js` – before/after slider, projects + modal, turnkey estimator.
 - `js/main.js` – shell (header, menu, footer, i18n, forms, lightbox) shared by every page.
+- `js/page3d.js` – shared 3D viewer core (lazy WebGL context, single clock, IO pause, pixel-ratio caps,
+  context-loss fallback, `.glb` slots) + the page scenes: services wall layers, process 4-stage block,
+  projects site massing, about material monolith, contact site pin.
+- `js/architect3d.js` – the architect scale model (home + `architect.html`), built on `page3d.js`.
+- `js/consent.js` – cookie / privacy notice; optional analytics (`SITE.analytics`) load only after "Accept all".
+- `privacy.html`, `terms.html` – legal pages (SQ/MK/EN); company data from `SITE.legal` in `js/config.js`.
+- `vercel.json` – HSTS, CSP (hash-pinned inline scripts), frame/referrer/permissions policies, cache rules.
+  If you edit an inline `<script>` in any page, update its sha256 hash in the CSP.
+- `assets/models/` – drop `.glb` files here and set `SITE.models.<slot>` in `js/config.js`.
 
 Note: the repo has no brick photo set, so brick and wood are generated procedurally; the `stone_*` set
 (a blue slate tile) is re-toned at load into warm limestone.

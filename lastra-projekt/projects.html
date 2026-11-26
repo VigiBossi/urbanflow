@@ -23,6 +23,7 @@
 <link rel="preload" href="assets/fonts/noto-serif-display-normal-300-600-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/home.css">
 <script>document.documentElement.classList.add("js");</script>
 </head>
 <body data-page="projects">
@@ -35,7 +36,12 @@
   <h1 class="display-xl" data-split data-i18n="proj_title">Projektet</h1>
   <p class="lead ph-sub reveal" data-i18n="proj_sub">Shtëpi të përfunduara dhe në ndërtim.</p>
  </div>
- <figure class="ph-media reveal-clip"><img src="assets/img/img10.webp" srcset="assets/img/img10-800.webp 800w, assets/img/img10.webp 1600w" sizes="100vw" width="1600" height="1067" alt="Shtëpi moderne me xhama të mëdhenj në muzg" data-i18n-alt="alt_house_dusk" fetchpriority="high" decoding="async" data-parallax=".08"></figure>
+ <div class="container reveal"><div class="ph-3d p3d" data-p3d="massing">
+   <img class="p3d-img" src="assets/img/img10.webp" srcset="assets/img/img10-800.webp 800w, assets/img/img10.webp 1600w" sizes="100vw" width="1600" height="1067" alt="Shtëpi moderne me xhama të mëdhenj në muzg" data-i18n-alt="alt_house_dusk" fetchpriority="high" decoding="async">
+   <canvas class="p3d-canvas"></canvas>
+   <p class="p3d-hint mono" data-i18n="drag_rotate">Tërhiqni për ta rrotulluar</p>
+   <p class="p3d-label mono"><span data-i18n="mass_cap">Maketa e sitit · filtroni projektet më poshtë</span></p>
+  </div></div>
 </header>
 <section class="section container">
  <div class="filters" role="group" aria-label="Filter"><button type="button" class="on" aria-pressed="true" data-filter="all" data-i18n="f_all">Të gjitha</button><button type="button" aria-pressed="false" data-filter="finished" data-i18n="f_finished">Të përfunduara</button><button type="button" aria-pressed="false" data-filter="progress" data-i18n="f_progress">Në ndërtim</button><span class="filter-count mono" aria-live="polite"></span></div>
@@ -52,6 +58,7 @@
 </section>
 </main>
 <footer id="site-footer"></footer>
+<script type="importmap">{"imports":{"three":"./assets/js/three.module.min.js","three/addons/":"./assets/js/addons/"}}</script>
 <script src="assets/js/vendor/gsap.min.js"></script>
 <script src="assets/js/vendor/ScrollTrigger.min.js"></script>
 <script src="assets/js/vendor/lenis.min.js"></script>
@@ -59,5 +66,7 @@
 <script src="js/config.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/main.js"></script>
+<script src="js/consent.js"></script>
+<script type="module" src="js/page3d.js"></script>
 </body>
 </html>

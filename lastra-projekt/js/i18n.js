@@ -1,5 +1,5 @@
 window.I18N = {
- sq: { drag_rotate:"Tërhiqni për ta rrotulluar", fm_msgr:"Dërgo në Messenger", msgr_note:"Butoni hap Facebook Messenger dhe kopjon mesazhin tuaj – ju e ngjitni dhe e dërgoni vetë.", msgr_copied:"Mesazhi u kopjua. Ngjiteni në bisedën e Messenger që sapo u hap.", msgr_manual:"Kopjoni mesazhin më poshtë dhe ngjiteni në Messenger:", t_404:"Faqja nuk u gjet | Lastra Projekt", nf_t:"Kjo faqe nuk ekziston.", nf_d:"Lidhja mund të jetë e vjetër ose e shkruar gabim.", nf_home:"Kthehu në ballinë", intro_eyebrow:"Cilësi pa kompromis", learn_more:"Mëso më shumë", fine_print:"Çmimet dhe afatet janë orientuese dhe konfirmohen me ofertë me shkrim. Fotot janë ilustruese.", cine_t:"Ndërtuar për të zgjatur.", cine_d:"Beton, gur dhe dritë – çdo detaj i menduar.", story_kicker:"Si punojmë", story_title:"Nga themeli te çelësi, hap pas hapi.", stage_construction:"Në ndërtim", stage_finished:"E përfunduar", stage_inside:"Brenda", inside_k:"Mirë se erdhët në shtëpi", scroll_hint:"Rrëshqit për të parë ndërtimin", nav_home:"Ballina", nav_projects:"Projektet", nav_services:"Shërbimet", nav_process:"Si punojmë", nav_about:"Rreth nesh", nav_contact:"Kontakt", cta_quote:"Kërko ofertë falas",
+ sq: { drag_rotate:"Tërhiqni për ta rrotulluar", fm_msgr:"Dërgo në Messenger", msgr_note:"Butoni hap Facebook Messenger dhe kopjon mesazhin tuaj – ju e ngjitni dhe e dërgoni vetë.", msgr_copied:"Mesazhi u kopjua. Ngjiteni në bisedën e Messenger që sapo u hap.", msgr_manual:"Kopjoni mesazhin më poshtë dhe ngjiteni në Messenger:", t_404:"Faqja nuk u gjet | Lastra Projekt", nf_t:"Kjo faqe nuk ekziston.", nf_d:"Lidhja mund të jetë e vjetër ose e shkruar gabim.", nf_home:"Kthehu në ballinë", intro_eyebrow:"Cilësi pa kompromis", learn_more:"Mëso më shumë", fine_print:"Çmimet dhe afatet janë orientuese dhe konfirmohen me ofertë me shkrim. Fotot janë ilustruese.", cine_t:"Ndërtuar për të zgjatur.", cine_d:"Beton, gur dhe dritë – çdo detaj i menduar.", story_kicker:"Si punojmë", story_title:"Nga themeli te çelësi, hap pas hapi.", stage_construction:"Në ndërtim", stage_finished:"E përfunduar", stage_inside:"Brenda", inside_k:"Mirë se erdhët në shtëpi", scroll_hint:"Rrëshqit për të parë ndërtimin", nav_home:"Kryefaqja", nav_projects:"Projektet", nav_services:"Shërbimet", nav_process:"Si punojmë", nav_about:"Rreth nesh", nav_contact:"Kontakt", cta_quote:"Kërko ofertë falas",
   hero_kicker:"Ndërtim shtëpish në Gostivar", hero_title:"Shtëpi moderne, nga themeli deri te çelësi", hero_sub:"Projektim, leje, konstruksion, çati dhe përfundim – gjithçka me një partner të besueshëm.", hero_btn2:"Shiko projektet",
   stat_years:"Vite përvojë", stat_houses:"Shtëpi të ndërtuara", stat_sat:"% klientë të kënaqur",
   feat_title:"Projekte të zgjedhura", feat_sub:"Disa nga shtëpitë që kemi ndërtuar.", all_projects:"Të gjitha projektet", view:"Shiko projektin",
@@ -237,4 +237,105 @@ Object.assign(window.I18N.en, {
   ap3_t:"Structural & material specs", ap3_d:"Coordination with the structural engineer and the specification of materials, windows and façade.",
   ap4_t:"On-site supervision to turnkey", ap4_d:"The architect follows the works on site – from the foundation to the key handover.",
   ahc_t:"Let's draw your house together.", ahc_d:"A free consultation with the architect: we listen to your plan, look at the plot and show you the next steps."
+});
+/* ---- page 3D viewers ---- */
+Object.assign(window.I18N.sq, {
+  lay_k:"Shtresat e murit", lay_view:"Pamja e shtresave", lay_exploded:"E ndarë", lay_assembled:"E bashkuar",
+  lay_footing:"Themel betoni", lay_brick:"Mur me tulla", lay_insul:"Izolim termik", lay_plaster:"Fasadë me suva", lay_glass:"Alumin me xham të trefishtë",
+  lay_intro:"Rrotulloni murin dhe zgjidhni një shtresë për të parë nga se përbëhet ndërtimi ynë – nga themeli te xhami.",
+  lay_footing_d:"Themeli prej betoni të armuar mbart të gjithë murin dhe e mbron nga lagështia e tokës.",
+  lay_brick_d:"Muratura me tulla jep masën, qëndrueshmërinë dhe akumulimin e nxehtësisë.",
+  lay_insul_d:"Pllakat izoluese mbështjellin murin pa ndërprerje – më pak humbje energjie në dimër dhe verë.",
+  lay_plaster_d:"Suva arkitektonike e fasadës mbron izolimin dhe i jep shtëpisë pamjen përfundimtare.",
+  lay_glass_d:"Profile alumini me ndërprerje termike dhe xham të trefishtë: dritë, qetësi dhe kursim energjie.",
+  mass_cap:"Maketa e sitit · filtroni projektet më poshtë", mono_cap:"Bronz · Travertin · Beton · Xham"
+});
+Object.assign(window.I18N.mk, {
+  lay_k:"Слоеви на ѕидот", lay_view:"Приказ на слоевите", lay_exploded:"Раздвоено", lay_assembled:"Склопено",
+  lay_footing:"Бетонски темел", lay_brick:"Ѕид од тули", lay_insul:"Термоизолација", lay_plaster:"Фасада со малтер", lay_glass:"Алуминиум со тројно стакло",
+  lay_intro:"Ротирајте го ѕидот и изберете слој за да видите од што се состои нашата градба – од темелот до стаклото.",
+  lay_footing_d:"Армирано-бетонскиот темел го носи целиот ѕид и го штити од влагата од земјата.",
+  lay_brick_d:"Ѕидањето со тули дава маса, стабилност и акумулација на топлина.",
+  lay_insul_d:"Изолациските плочи го обвиткуваат ѕидот без прекин – помали загуби на енергија во зима и лето.",
+  lay_plaster_d:"Архитектонскиот малтер на фасадата ја штити изолацијата и ѝ дава на куќата конечен изглед.",
+  lay_glass_d:"Алуминиумски профили со термички прекин и тројно стакло: светлина, тишина и заштеда на енергија.",
+  mass_cap:"Макета на локацијата · филтрирајте ги проектите подолу", mono_cap:"Бронза · Травертин · Бетон · Стакло"
+});
+Object.assign(window.I18N.en, {
+  lay_k:"Wall build-up", lay_view:"Layer view", lay_exploded:"Exploded", lay_assembled:"Assembled",
+  lay_footing:"Concrete footing", lay_brick:"Brick masonry", lay_insul:"Thermal insulation", lay_plaster:"Plaster façade", lay_glass:"Triple-glazed aluminium",
+  lay_intro:"Rotate the wall and pick a layer to see what our construction is made of – from the footing to the glass.",
+  lay_footing_d:"The reinforced-concrete footing carries the whole wall and keeps ground moisture out.",
+  lay_brick_d:"Brick masonry gives mass, stability and thermal storage.",
+  lay_insul_d:"Insulation boards wrap the wall without gaps – less energy lost in winter and summer.",
+  lay_plaster_d:"Architectural façade plaster protects the insulation and gives the house its finished look.",
+  lay_glass_d:"Thermally broken aluminium profiles with triple glazing: light, quiet and lower energy bills.",
+  mass_cap:"Site massing model · filter the projects below", mono_cap:"Bronze · Travertine · Concrete · Glass"
+});
+/* ---- consent notice + legal pages (privacy.html, terms.html) ---- */
+Object.assign(window.I18N.sq, {
+  consent_t:"Privatësia juaj", consent_d:"Ne nuk përdorim cookies gjurmuese. Ruajmë vetëm gjuhën dhe këtë zgjedhje në pajisjen tuaj. Analitika opsionale ngarkohet vetëm nëse e pranoni.", consent_all:"Prano të gjitha", consent_ess:"Vetëm të domosdoshmet",
+  cookie_prefs:"Preferencat e cookies", privacy_link:"Privatësia", terms_link:"Kushtet e përdorimit", t_privacy:"Privatësia & cookies | Lastra Projekt", t_terms:"Kushtet & të dhënat e kompanisë | Lastra Projekt", legal_updated:"Përditësuar më",
+  pv_k:"Privatësia", pv_t:"Politika e privatësisë dhe e cookies", pv_lead:"Si i trajtojmë të dhënat që na dërgoni përmes këtij uebsajti, formularit, WhatsApp-it ose email-it.",
+  pv_h1:"Kush jemi", pv_p1:"Kontrollues i të dhënave është kompania e mëposhtme. Për çdo pyetje rreth privatësisë na shkruani në kanalet e kontaktit më poshtë.",
+  pv_h2:"Çfarë të dhënash marrim", pv_p2:"Kur kërkoni ofertë na jepni emrin, telefonin, vendndodhjen e truallit, sipërfaqen, buxhetin dhe mesazhin tuaj. Uebsajti nuk ka server apo bazë të dhënash: formulari vetëm përgatit mesazhin, të cilin ju e dërgoni vetë me WhatsApp, email ose Facebook Messenger. Ne e marrim në atë aplikacion dhe e përdorim vetëm për t'ju përgjigjur dhe për t'ju përgatitur ofertën.",
+  pv_h3:"Baza ligjore", pv_p3:"Hapat para lidhjes së kontratës me kërkesën tuaj dhe interesi ynë legjitim për t'iu përgjigjur pyetjeve – sipas Rregullores së Përgjithshme për Mbrojtjen e të Dhënave (GDPR, neni 6) dhe Ligjit për mbrojtjen e të dhënave personale të Republikës së Maqedonisë së Veriut.",
+  pv_h4:"Sa kohë i ruajmë", pv_p4:"Kërkesat i ruajmë për aq kohë sa nevojitet për t'ju përgjigjur, për ofertën dhe – nëse lidhim kontratë – për realizimin e saj. Pastaj i fshijmë, përveç nëse ligji kërkon ruajtje më të gjatë (p.sh. dokumentet kontabël).",
+  pv_h5:"Cookies dhe ruajtja lokale", pv_p5:"Ky uebsajt nuk vendos cookies reklamuese apo gjurmuese. Në pajisjen tuaj (localStorage) ruhen vetëm gjuha e zgjedhur dhe zgjedhja juaj për cookies. Analitika opsionale aktivizohet vetëm pasi zgjidhni «Prano të gjitha». Zgjedhjen mund ta ndryshoni në çdo kohë te «Preferencat e cookies» në fund të faqes.",
+  pv_h6:"Shërbime të palëve të treta", pv_p6:"Nëse na shkruani me WhatsApp ose Facebook Messenger (Meta Platforms) apo me email, mesazhi kalon përmes atij shërbimi sipas kushteve të tij. Harta në faqen e kontaktit ngarkohet nga OpenStreetMap. Shkronjat, skriptet dhe modelet 3D shërbehen nga serveri ynë – pa CDN të jashtme.",
+  pv_h7:"Të drejtat tuaja", pv_p7:"Keni të drejtë për qasje, korrigjim, fshirje, kufizim, kundërshtim dhe bartje të të dhënave. Mund të ankoheni edhe te Agjencia për Mbrojtjen e të Dhënave Personale e Republikës së Maqedonisë së Veriut.",
+  pv_h8:"Kontakt për privatësinë", pv_p8:"Na shkruani në kanalet më poshtë dhe do t'ju përgjigjemi pa vonesë.",
+  tm_k:"Kushtet", tm_t:"Kushtet e përdorimit dhe të dhënat e kompanisë", tm_lead:"Rregullat për përdorimin e këtij uebsajti dhe të dhënat ligjore të Lastra Projekt.",
+  tm_imp:"Të dhënat e kompanisë", tm_company:"Kompania", tm_regno:"Numri i regjistrimit (EMBS)", tm_taxno:"Numri tatimor (EDB)",
+  tm_h1:"Përdorimi i uebsajtit", tm_p1:"Uebsajti shërben për t'ju informuar për shërbimet e ndërtimit të Lastra Projekt. Duke e përdorur, pranoni këto kushte.",
+  tm_h2:"Informacione dhe vlerësime orientuese", tm_p2:"Afatet, kalkulatori, vizualizimet 3D, fotografitë dhe përshkrimet janë orientuese. Detyrues është vetëm oferta me shkrim dhe kontrata e nënshkruar.",
+  tm_h3:"Pronësia intelektuale", tm_p3:"Tekstet, fotografitë, modelet 3D dhe dizajni i uebsajtit i përkasin Lastra Projekt ose licencuesve të tij. Nuk lejohet ripublikimi pa leje me shkrim.",
+  tm_h4:"Lidhje të jashtme", tm_p4:"Lidhjet drejt WhatsApp, Facebook, OpenStreetMap ose faqeve të tjera janë për lehtësi. Për përmbajtjen dhe kushtet e tyre përgjigjen pronarët e tyre.",
+  tm_h5:"Përgjegjësia", tm_p5:"Kujdesemi që informacionet të jenë të sakta dhe të përditësuara, por nuk garantojmë se uebsajti është gjithmonë pa gabime apo pa ndërprerje. Përgjegjësia jonë kufizohet aq sa lejon ligji.",
+  tm_h6:"Ligji i zbatueshëm", tm_p6:"Për këto kushte zbatohet ligji i Republikës së Maqedonisë së Veriut. Mosmarrëveshjet i zgjidh gjykata kompetente në Republikën e Maqedonisë së Veriut.",
+  tm_h7:"Ndryshimet", tm_p7:"Kushtet mund t'i përditësojmë herë pas here. Data e versionit të fundit shënohet në krye të faqes."
+});
+Object.assign(window.I18N.mk, {
+  consent_t:"Вашата приватност", consent_d:"Не користиме колачиња за следење. На вашиот уред ги чуваме само јазикот и овој избор. Опционалната аналитика се вчитува само ако се согласите.", consent_all:"Прифати ги сите", consent_ess:"Само неопходните",
+  cookie_prefs:"Поставки за колачиња", privacy_link:"Приватност", terms_link:"Услови за користење", t_privacy:"Приватност и колачиња | Lastra Projekt", t_terms:"Услови и податоци за компанијата | Lastra Projekt", legal_updated:"Ажурирано на",
+  pv_k:"Приватност", pv_t:"Политика за приватност и колачиња", pv_lead:"Како ги обработуваме податоците што ни ги праќате преку оваа веб-страница, формуларот, WhatsApp или е-пошта.",
+  pv_h1:"Кои сме ние", pv_p1:"Контролор на податоците е компанијата наведена подолу. За секое прашање за приватноста пишете ни преку каналите за контакт подолу.",
+  pv_h2:"Кои податоци ги добиваме", pv_p2:"Кога барате понуда ни ги давате името, телефонот, локацијата на плацот, површината, буџетот и пораката. Веб-страницата нема сервер ниту база на податоци: формуларот само ја подготвува пораката, која вие сами ја испраќате преку WhatsApp, е-пошта или Facebook Messenger. Ја добиваме во таа апликација и ја користиме само за да ви одговориме и да подготвиме понуда.",
+  pv_h3:"Правна основа", pv_p3:"Чекори пред склучување договор на ваше барање и наш легитимен интерес да одговориме на прашањата – согласно Општата регулатива за заштита на податоци (GDPR, член 6) и Законот за заштита на личните податоци на Република Северна Македонија.",
+  pv_h4:"Колку долго ги чуваме", pv_p4:"Барањата ги чуваме онолку колку што е потребно за одговор, за понудата и – ако склучиме договор – за неговото извршување. Потоа ги бришеме, освен ако законот бара подолго чување (на пр. сметководствени документи).",
+  pv_h5:"Колачиња и локално складирање", pv_p5:"Оваа веб-страница не поставува рекламни ниту колачиња за следење. На вашиот уред (localStorage) се чуваат само избраниот јазик и вашиот избор за колачиња. Опционалната аналитика се вклучува само откако ќе изберете „Прифати ги сите“. Изборот можете да го промените во секое време преку „Поставки за колачиња“ на дното на страницата.",
+  pv_h6:"Услуги на трети страни", pv_p6:"Ако ни пишете преку WhatsApp или Facebook Messenger (Meta Platforms) или по е-пошта, пораката минува низ таа услуга според нејзините услови. Мапата на страницата за контакт се вчитува од OpenStreetMap. Фонтовите, скриптите и 3D моделите се служат од нашиот сервер – без надворешни CDN.",
+  pv_h7:"Вашите права", pv_p7:"Имате право на пристап, исправка, бришење, ограничување, приговор и пренесување на податоците. Можете да поднесете и претставка до Агенцијата за заштита на личните податоци на Република Северна Македонија.",
+  pv_h8:"Контакт за приватност", pv_p8:"Пишете ни преку каналите подолу и ќе ви одговориме без одлагање.",
+  tm_k:"Услови", tm_t:"Услови за користење и податоци за компанијата", tm_lead:"Правила за користење на оваа веб-страница и правни податоци за Lastra Projekt.",
+  tm_imp:"Податоци за компанијата", tm_company:"Компанија", tm_regno:"Матичен број (ЕМБС)", tm_taxno:"Даночен број (ЕДБ)",
+  tm_h1:"Користење на веб-страницата", tm_p1:"Веб-страницата служи да ве информира за градежните услуги на Lastra Projekt. Со користењето ги прифаќате овие услови.",
+  tm_h2:"Ориентациони информации и проценки", tm_p2:"Роковите, калкулаторот, 3D визуелизациите, фотографиите и описите се ориентациони. Обврзувачки се само писмената понуда и потпишаниот договор.",
+  tm_h3:"Интелектуална сопственост", tm_p3:"Текстовите, фотографиите, 3D моделите и дизајнот на веб-страницата му припаѓаат на Lastra Projekt или на неговите даватели на лиценца. Не е дозволено повторно објавување без писмена дозвола.",
+  tm_h4:"Надворешни врски", tm_p4:"Врските кон WhatsApp, Facebook, OpenStreetMap или други страници се за полесно користење. За нивната содржина и услови одговорни се нивните сопственици.",
+  tm_h5:"Одговорност", tm_p5:"Се трудиме информациите да бидат точни и ажурни, но не гарантираме дека веб-страницата е секогаш без грешки или прекини. Нашата одговорност е ограничена до мера дозволена со закон.",
+  tm_h6:"Применливо право", tm_p6:"За овие услови се применува правото на Република Северна Македонија. Споровите ги решава надлежниот суд во Република Северна Македонија.",
+  tm_h7:"Измени", tm_p7:"Условите може повремено да ги ажурираме. Датумот на последната верзија е наведен на врвот на страницата."
+});
+Object.assign(window.I18N.en, {
+  consent_t:"Your privacy", consent_d:"We don't use tracking cookies. Only your language and this choice are stored on your device. Optional analytics load only if you accept.", consent_all:"Accept all", consent_ess:"Essential only",
+  cookie_prefs:"Cookie preferences", privacy_link:"Privacy", terms_link:"Terms of use", t_privacy:"Privacy & cookies | Lastra Projekt", t_terms:"Terms & company imprint | Lastra Projekt", legal_updated:"Last updated",
+  pv_k:"Privacy", pv_t:"Privacy & cookie policy", pv_lead:"How we handle the information you send us through this website, the form, WhatsApp or email.",
+  pv_h1:"Who we are", pv_p1:"The data controller is the company below. For any privacy question, write to us through the contact channels listed below.",
+  pv_h2:"What we receive", pv_p2:"When you ask for a quote you give us your name, phone, plot location, floor area, budget and message. The website has no server or database: the form only prepares the message, which you send yourself via WhatsApp, email or Facebook Messenger. We receive it in that app and use it only to reply and prepare your quote.",
+  pv_h3:"Legal basis", pv_p3:"Steps prior to entering into a contract at your request, and our legitimate interest in answering enquiries – under the General Data Protection Regulation (GDPR, Article 6) and the Law on Personal Data Protection of the Republic of North Macedonia.",
+  pv_h4:"How long we keep it", pv_p4:"We keep enquiries as long as needed to reply, for the quote and – if we sign a contract – to carry it out. After that we delete them, unless the law requires a longer period (e.g. accounting records).",
+  pv_h5:"Cookies and local storage", pv_p5:"This website sets no advertising or tracking cookies. Only your chosen language and your cookie choice are stored on your device (localStorage). Optional analytics are enabled only after you choose “Accept all”. You can change your choice at any time via “Cookie preferences” at the bottom of every page.",
+  pv_h6:"Third-party services", pv_p6:"If you write to us via WhatsApp or Facebook Messenger (Meta Platforms) or by email, the message passes through that service under its own terms. The map on the contact page loads from OpenStreetMap. Fonts, scripts and 3D models are served from our own server – no external CDNs.",
+  pv_h7:"Your rights", pv_p7:"You have the right to access, rectify, erase, restrict, object to and port your data. You may also lodge a complaint with the Personal Data Protection Agency of the Republic of North Macedonia.",
+  pv_h8:"Privacy contact", pv_p8:"Write to us through the channels below and we will reply without delay.",
+  tm_k:"Terms", tm_t:"Terms of use & company imprint", tm_lead:"The rules for using this website and the legal details of Lastra Projekt.",
+  tm_imp:"Company imprint", tm_company:"Company", tm_regno:"Registration number (EMBS)", tm_taxno:"Tax number (EDB)",
+  tm_h1:"Using this website", tm_p1:"This website informs you about Lastra Projekt's construction services. By using it you accept these terms.",
+  tm_h2:"Indicative information and estimates", tm_p2:"Timelines, the estimator, 3D visualisations, photos and descriptions are indicative. Only a written quote and a signed contract are binding.",
+  tm_h3:"Intellectual property", tm_p3:"Texts, photos, 3D models and the website design belong to Lastra Projekt or its licensors. Republishing is not allowed without written permission.",
+  tm_h4:"External links", tm_p4:"Links to WhatsApp, Facebook, OpenStreetMap or other sites are provided for convenience. Their owners are responsible for their content and terms.",
+  tm_h5:"Liability", tm_p5:"We take care that the information is accurate and up to date, but we cannot guarantee the website is always free of errors or interruptions. Our liability is limited to the extent permitted by law.",
+  tm_h6:"Governing law", tm_p6:"These terms are governed by the law of the Republic of North Macedonia. Disputes are settled by the competent court in the Republic of North Macedonia.",
+  tm_h7:"Changes", tm_p7:"We may update these terms from time to time. The date of the latest version is shown at the top of the page."
 });
