@@ -374,15 +374,15 @@ function init() {
           const [a, b] = ext(a0, b0);
           piece("brick", info, a, b, y0, h, T);
           piece(clad, info, a - (a0 > 0 ? .02 : 0), b + (b0 < info.len ? .02 : 0), y0 - .02, h + .04, TC);
-          if (v.room !== false) piece("lining", info, a, b, y0, h, .02, T / 2 + .012);
+          if (v.room !== false) piece("lining", info, a, b, y0, h, .02, TC / 2 + .012);
           if (v.lv === 0 && b0 - a0 > 1.1 && s !== "N" && v.uplights !== false) {           // façade uplight on each solid pier
             const [x, z] = at(info, (a0 + b0) / 2), nrm = s === "S" ? [0, 1] : s === "W" ? [-1, 0] : s === "E" ? [1, 0] : [0, -1];
             uplights.push({ x: x + nrm[0] * (TC / 2 + .04), z: z + nrm[1] * (TC / 2 + .04), nx: nrm[0], nz: nrm[1], top: y0 + h });
           }
         }
         for (const o of ops) {
-          if (o.sill > 0) { piece("brick", info, o.a, o.b, y0, o.sill, T); piece(clad, info, o.a - .02, o.b + .02, y0 - .02, o.sill + .04, TC); if (v.room !== false) piece("lining", info, o.a, o.b, y0, o.sill, .02, T / 2 + .012); }
-          if (o.head < h) { piece("brick", info, o.a, o.b, y0 + o.head, h - o.head, T); piece(clad, info, o.a - .02, o.b + .02, y0 + o.head - .02, h - o.head + .04, TC); if (v.room !== false) piece("lining", info, o.a, o.b, y0 + o.head, h - o.head, .02, T / 2 + .012); }
+          if (o.sill > 0) { piece("brick", info, o.a, o.b, y0, o.sill, T); piece(clad, info, o.a - .02, o.b + .02, y0 - .02, o.sill + .04, TC); if (v.room !== false) piece("lining", info, o.a, o.b, y0, o.sill, .02, TC / 2 + .012); }
+          if (o.head < h) { piece("brick", info, o.a, o.b, y0 + o.head, h - o.head, T); piece(clad, info, o.a - .02, o.b + .02, y0 + o.head - .02, h - o.head + .04, TC); if (v.room !== false) piece("lining", info, o.a, o.b, y0 + o.head, h - o.head, .02, TC / 2 + .012); }
           /* aluminium frame + glass (or a solid door leaf) in the wall plane */
           const w = o.b - o.a, hh = o.head - o.sill, fp = .06, fd = .12, yb = y0 + o.sill;
           piece("frame", info, o.a, o.b, yb, fp, fd); piece("frame", info, o.a, o.b, yb + hh - fp, fp, fd);
@@ -523,9 +523,9 @@ function init() {
       deck: { mat: BASE.wood, mode: "rise", w: [3.3, 3.5], lo: 0, hi: Hmax },
       backfill: { mat: BASE.paving, mode: "rise", w: [3.05, 3.42], lo: PD, hi: -.02, cut: false },
       /* interior wall + ceiling lining: warm plaster that glows softly at dusk (seen through the glass) */
-      lining: { mat: () => std("plaster", { map: null, color: "#ece6dc", roughness: .95, envMapIntensity: .8, emissive: "#ffb36b", emissiveIntensity: 0, normalScale: new THREE.Vector2(.4, .4) }), mode: "show", at: 2.45, cast: false },
+      lining: { mat: () => std("plaster", { map: null, color: "#ece6dc", roughness: .95, envMapIntensity: .8, emissive: "#ffe4c8", emissiveIntensity: 0, normalScale: new THREE.Vector2(.4, .4) }), mode: "show", at: 2.45, cast: false },
       ceilLight: { mat: () => new THREE.MeshStandardMaterial({ color: "#f3efe8", emissive: "#ffd9ab", emissiveIntensity: 0, roughness: .4 }), mode: "show", at: 3.3, cast: false },
-      intFloor: { mat: BASE.wood, mode: "show", at: 2.45, cast: false },
+      intFloor: { mat: () => new THREE.MeshStandardMaterial({ map: woodMap, bumpMap: woodMap, bumpScale: .3, color: "#f3e2cc", roughness: .55, envMapIntensity: .9 }), mode: "show", at: 2.45, cast: false },
       intWall: { mat: BASE.plaster, mode: "show", at: 2.45, cast: false },
       intFab: { mat: () => new THREE.MeshStandardMaterial({ color: "#b5a691", roughness: 1 }), mode: "show", at: 2.6, cast: false },
       intDark: { mat: () => new THREE.MeshStandardMaterial({ color: "#2b2522", roughness: .6 }), mode: "show", at: 2.6, cast: false },
@@ -671,7 +671,7 @@ function init() {
           [15, 3.4, 21, -1, 4.6, 0], [3.5, 1.7, 10.5, 1.8, 1.6, 0], [1.8, 1.65, 5.6, 0, 1.5, -2],
           [.6, 1.6, 3.2, -4.5, 1.15, -1.2],
           [-4.4, 1.7, -3.2, 1.3, 4.6, -3.2], [1.8, 4.95, -3.2, 3, 4.9, -1],
-          [-1.6, 4.95, -.6, -5.4, 4.3, 4.4],
+          [-1.4, 4.95, -.4, -6.6, 4.25, 2.2],
           [2.0, 4.95, -1.8, -3.5, 7.9, -1.8], [-4.2, 8.15, -1.8, -4, 8, 1],
           [-.4, 8.15, -2.8, -3, 7.75, 6],
           [-2.2, 8.2, 4.2, -2, 7.8, 10], [4, 9.5, 15, 0, 5, 0],
@@ -1153,7 +1153,7 @@ function init() {
   function applyLights(model) {
     const L = S.light, cutK = clamp01((50 - S.cut) / 40);
     for (const part of model.parts) {
-      if (part.k === "lining") part.mat.emissiveIntensity = L * .32;
+      if (part.k === "lining") part.mat.emissiveIntensity = L * .22;
       else if (part.k === "ceilLight") part.mat.emissiveIntensity = .2 + L * 7;
       else if (part.k === "led") part.mat.emissiveIntensity = S.glow * 5;
       else if (part.k === "wash") part.mesh.visible = S.glow > .01 && cutK < .01 && !S.tour.on;
@@ -1189,7 +1189,8 @@ function init() {
     S.dusk = lerp(S.dusk, S.duskT, kdt(DAMP.light * .55, dt));
     const glowT = S.dusk * sstep(3.35, 3.9, S.stage);
     S.glow = lerp(S.glow, glowT, kdt(DAMP.light, dt));
-    S.cut = lerp(S.cut, S.cutT, kdt(DAMP.cam * .8, dt));
+    if (S.cutT < 50 && S.cut > 12) S.cut = 12;                     // slice starts at the façade, then sweeps in
+    S.cut = lerp(S.cut, S.cutT, kdt(S.cutT < 50 ? .05 : .2, dt));
     S.tour.k = lerp(S.tour.k, S.tour.on ? 1 : 0, kdt(DAMP.light, dt));
     const lightT = Math.max(glowT, clamp01((50 - S.cut) / 40) * .85, S.tour.k * (S.stage > 3.3 ? .7 : 0));
     S.light = lerp(S.light, lightT, kdt(DAMP.light, dt));
