@@ -211,11 +211,45 @@
  </div>
 </section>
 
+<!-- ============ THE ARCHITECT (content: SITE.architect in js/config.js) ============ -->
+<section class="arch section-pad" id="architect" aria-labelledby="arch-h">
+ <div class="container arch-grid">
+  <figure class="arch-portrait reveal-clip">
+   <img alt="" width="800" height="1000" loading="lazy" decoding="async" hidden>
+   <div class="arch-fallback" aria-hidden="true">
+    <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+     <defs><pattern id="arch-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="currentColor" stroke-width=".5" opacity=".35"/></pattern></defs>
+     <rect width="400" height="500" fill="url(#arch-grid)"/>
+     <g fill="none" stroke="currentColor" stroke-width="1.4">
+      <path d="M40 360H360"/><path d="M70 360V250H230V360"/><path d="M50 250H250"/><path d="M110 250V160H330V250"/><path d="M90 160H350"/><path d="M230 250H330V360H230"/>
+      <path d="M90 360V280H160V360M180 280H215V330H180Z"/><path d="M135 225V180H220V225M245 225V180H310V225"/><path d="M250 275H310V340H250Z"/><path d="M95 160V150H345V160"/>
+     </g>
+     <g fill="none" stroke="currentColor" stroke-width=".8" opacity=".6"><path d="M40 400H360M40 394V406M360 394V406"/><path d="M380 160V360M374 160H386M374 360H386"/></g>
+     <text x="200" y="422" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="2" fill="currentColor" opacity=".7">ELEVATION · 1:100</text>
+    </svg>
+    <span class="arch-mono">L</span>
+   </div>
+   <span class="arch-hair arch-hair-t" aria-hidden="true"></span><span class="arch-hair arch-hair-l" aria-hidden="true"></span>
+   <figcaption class="arch-cap mono"><span data-i18n="arch_studio">Studio · Gostivar</span><span class="arch-years" data-arch="years" hidden><b></b> <span></span></span></figcaption>
+  </figure>
+  <div class="arch-copy">
+   <p class="eyebrow reveal"><span class="idx">05</span><span data-i18n="arch_k">Arkitekti Kryesor</span></p>
+   <h2 id="arch-h" class="display arch-name" data-split data-arch="name">Arkitekti i Lastra Projekt</h2>
+   <p class="arch-role mono reveal" data-arch="role"></p>
+   <blockquote class="arch-quote reveal"><p data-arch="quote"></p></blockquote>
+   <p class="arch-bio reveal" data-arch="bio"></p>
+   <h3 class="sr-only" data-i18n="arch_specs">Specializimet</h3>
+   <ol class="arch-specs reveal" data-arch="specs"></ol>
+   <a class="btn btn-primary magnetic arch-cta reveal" href="#contact" data-focus-form="#f-name"><span data-i18n="arch_cta">Konsultohu me arkitektin</span><i class="arr" aria-hidden="true"></i></a>
+  </div>
+ </div>
+</section>
+
 <!-- ============ CONTACT ============ -->
 <section class="home-contact section-pad" id="contact" aria-labelledby="ct-h">
  <div class="container contact-grid">
   <div>
-   <p class="eyebrow eyebrow-light reveal"><span class="idx">05</span><span data-i18n="contact_title">Kontakt / Ofertë</span></p>
+   <p class="eyebrow eyebrow-light reveal"><span class="idx">06</span><span data-i18n="contact_title">Kontakt / Ofertë</span></p>
    <h2 id="ct-h" class="display" data-split data-i18n="cta_title">Gati për shtëpinë tuaj të re?</h2>
    <p class="lead reveal" data-i18n="ct_d">Rezervoni një konsultë falas – vijmë në truall, dëgjojmë planin tuaj dhe ju dërgojmë ofertë me shkrim.</p>
    <ul class="cinfo cinfo-dark reveal">

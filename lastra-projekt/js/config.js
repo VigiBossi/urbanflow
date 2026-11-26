@@ -23,6 +23,50 @@ window.SITE = {
   mapEmbed: "https://www.openstreetmap.org/export/embed.html?bbox=20.86%2C41.77%2C20.94%2C41.82&layer=mapnik&marker=41.7961%2C20.9087",
   stats: { years: 10, houses: 50, satisfaction: 100 },
 
+  /* ---- the architect (home page "The Architect" section) ----
+     PLACEHOLDERS – replace these values:
+       name: a value starting with "TODO" is never shown; the section reads "Lastra Projekt's architect" instead.
+       photo: "" shows the framed architectural drawing; set e.g. "assets/img/architect.jpg" (portrait, 4:5, ≥ 1000 px wide).
+       experienceYears: 0 hides the years badge; set the real number (e.g. 12) to show "12+ years".
+     role / quote / bio / specialties are localised {sq, mk, en}; edit them freely. */
+  architect: {
+    name: "TODO Emri Mbiemri",           // e.g. "Arb. Filan Filani"
+    photo: "",                           // e.g. "assets/img/architect.jpg"
+    experienceYears: 0,                  // e.g. 12
+    role: {
+      sq: "Arkitekt i diplomuar · Drejtues i projektimit",
+      mk: "Дипломиран архитект · Раководител на проектирање",
+      en: "Graduate architect · Head of design"
+    },
+    quote: {
+      sq: "Një shtëpi e mirë vizatohet një herë – dhe ndërtohet saktësisht ashtu siç është vizatuar.",
+      mk: "Добрата куќа се црта еднаш – и се гради точно онака како што е нацртана.",
+      en: "A good house is drawn once – and built exactly the way it was drawn."
+    },
+    bio: {
+      sq: "Te Lastra Projekt projektimi dhe ndërtimi janë nën një çati. Arkitekti që vizaton shtëpinë tuaj e ndjek atë edhe në kantier – nga skica e parë dhe lejet, deri në ditën kur merrni çelësat. Pa ndërmjetës, pa humbje informacioni mes zyrës dhe kantierit.",
+      mk: "Во Lastra Projekt проектирањето и градбата се под ист покрив. Архитектот што ја црта вашата куќа ја следи и на градилиштето – од првата скица и дозволите, до денот кога ги добивате клучевите. Без посредници, без губење информации меѓу канцеларијата и градилиштето.",
+      en: "At Lastra Projekt, design and construction sit under one roof. The architect who draws your house also follows it on site – from the first sketch and the permits to the day you receive the keys. No middlemen, nothing lost between the studio and the site."
+    },
+    specialties: {
+      sq: [
+        { t: "Koncept arkitektonik & vizualizim 3D", d: "Plane, fasada dhe pamje 3D që i shihni para se të fillojë ndërtimi." },
+        { t: "Leje & koordinim konstruktiv", d: "Dokumentacioni, lejet dhe bashkëpunimi me inxhinierin konstruktiv." },
+        { t: "Mbikëqyrje në kantier deri te çelësi", d: "Kontroll i rregullt i punimeve, nga themeli deri te dorëzimi." }
+      ],
+      mk: [
+        { t: "Архитектонски концепт и 3D визуелизација", d: "Основи, фасади и 3D приказ што ги гледате пред да почне градбата." },
+        { t: "Дозволи и конструктивна координација", d: "Документација, дозволи и соработка со градежниот инженер." },
+        { t: "Надзор на градилиште до клуч на рака", d: "Редовна контрола на работите, од темел до предавање." }
+      ],
+      en: [
+        { t: "Conceptual design & 3D visualisation", d: "Plans, elevations and 3D views you see before construction starts." },
+        { t: "Permits & structural coordination", d: "Documentation, permits and close work with the structural engineer." },
+        { t: "On-site supervision to turnkey", d: "Regular inspection of the works, from the foundation to handover." }
+      ]
+    }
+  },
+
   /* ---- 3D ----
      Optional real model: put a glTF binary at assets/models/house.glb and set the path here.
      It is offered as a third model in the 3D switcher; if it is missing or fails to load,

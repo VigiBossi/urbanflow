@@ -61,20 +61,44 @@
       </div>`;
     hdr.after(m);
     const year = new Date().getFullYear();
+    /* footer: brand · navigation · contact & location · quick action, then a 1px-divided bottom bar */
+    const ctaHref = page === "home" ? "#contact" : "contact.html";
     qs("#site-footer").innerHTML = `
       <div class="container">
-        <div class="f-cols">
-          <div class="f-brand"><a class="logo logo-light" href="index.html" aria-label="Lastra Projekt"><span class="logo-mark">${MARK}</span><span class="logo-word">Lastra<b>Projekt</b></span></a><p data-i18n="hero_kicker"></p><p class="mono f-geo">41.79° N · 20.90° E</p></div>
-          <div><h2 class="f-h mono" data-i18n="menu"></h2><ul class="flinks">${nav.map(([h, k]) => `<li><a href="${h}" data-i18n="${k}"></a></li>`).join("")}</ul></div>
-          <div><h2 class="f-h mono" data-i18n="nav_contact"></h2><ul class="flinks">
-            <li><a data-site="phone" href="#"></a></li><li><a data-site="email" href="#"></a></li>
-            <li><a data-site="whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a></li><li><a data-site="facebook" href="#" target="_blank" rel="noopener">Facebook</a></li></ul></div>
-          <div><h2 class="f-h mono" data-i18n="c_addr"></h2><ul class="flinks"><li data-site="address"></li></ul>
-            <div class="lang lang-dark" role="group" data-i18n-aria="lang">${langBtns()}</div></div>
+        <div class="f-grid">
+          <div class="f-col f-brand">
+            <a class="f-word" href="index.html" aria-label="Lastra Projekt"><span class="logo-mark">${MARK}</span><span>Lastra Projekt</span></a>
+            <p class="f-tag" data-i18n="f_tagline"></p>
+            <p class="f-geo mono">41.79° N · 20.90° E — Gostivar</p>
+          </div>
+          <nav class="f-col" data-i18n-aria="f_nav">
+            <h2 class="f-h mono" data-i18n="f_nav"></h2>
+            <ul class="flinks">${nav.map(([h, k]) => `<li><a href="${h}"${h === active ? ' aria-current="page"' : ""} data-i18n="${k}"></a></li>`).join("")}</ul>
+          </nav>
+          <div class="f-col">
+            <h2 class="f-h mono" data-i18n="f_contact"></h2>
+            <ul class="flinks fcontact">
+              <li class="f-static"><span class="f-k mono" data-i18n="c_addr"></span><span data-site="address"></span></li>
+              <li class="f-static"><span class="f-k mono" data-i18n="c_hours"></span><span data-site="hours"></span></li>
+              <li><a data-site="phone" href="#"></a></li>
+              <li><a data-site="whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a></li>
+              <li><a data-site="email" href="#"></a></li>
+              <li><a data-site="facebook" href="#" target="_blank" rel="noopener">Facebook</a></li>
+              <li><a data-site="instagram" href="#" target="_blank" rel="noopener">Instagram</a></li>
+            </ul>
+          </div>
+          <div class="f-col f-act">
+            <h2 class="f-h mono" data-i18n="f_action"></h2>
+            <p class="f-act-d" data-i18n="f_cta_d"></p>
+            <a class="btn btn-light f-cta" href="${ctaHref}"${page === "home" ? ' data-focus-form="#f-name"' : ""}><span data-i18n="f_cta"></span><i class="arr" aria-hidden="true"></i></a>
+            <div class="f-lang"><span class="f-k mono" data-i18n="lang"></span><div class="lang lang-dark" role="group" data-i18n-aria="lang">${langBtns()}</div></div>
+          </div>
         </div>
         <p class="fine" data-i18n="fine_print"></p>
-        <div class="f-word" aria-hidden="true">Lastra Projekt</div>
-        <div class="f-bottom"><span>© ${year} Lastra Projekt. <span data-i18n="footer_rights"></span></span><button type="button" class="to-top"><span data-i18n="back_top"></span> ↑</button></div>
+        <div class="f-bottom">
+          <span class="f-copy">© ${new Date().getFullYear()} Lastra Projekt · Gostivar</span>
+          <button type="button" class="to-top"><span data-i18n="back_top"></span><i aria-hidden="true">↑</i></button>
+        </div>
       </div>`;
     const fab = document.createElement("div");
     fab.className = "fab";
@@ -124,6 +148,7 @@
     qsa("[data-site]").forEach(el => {
       const k = el.dataset.site, need = k === "phone-icon" ? "phone" : k;
       if (need in has && !has[need]) { (el.closest(".cinfo li, .flinks li") || el).hidden = true; return; }
+      const row = el.closest(".cinfo li, .flinks li"); if (row) row.hidden = false;
       if (k === "phone") { el.href = "tel:" + S.phoneLink; el.textContent = S.phone; }
       if (k === "phone-icon") el.href = "tel:" + S.phoneLink;
       if (k === "email") { el.href = "mailto:" + S.email; el.textContent = S.email; }
@@ -134,6 +159,7 @@
       if (k === "whatsapp") el.href = "https://wa.me/" + S.whatsapp;
       if (k === "map" && el.getAttribute("src") !== S.mapEmbed) el.src = S.mapEmbed;
     });
+    architect();
     const det = qs("#project-detail");
     if (det) {
       const id = new URLSearchParams(location.search).get("id");
@@ -176,6 +202,34 @@
       compare();
     }
   }
+
+  /* ---------------- the architect (home) – all data from SITE.architect ---------------- */
+  function architect() {
+    const sec = qs("#architect"), A = S.architect; if (!sec || !A) return;
+    const isSet = v => !!v && !/^TODO/i.test(String(v).trim());
+    const set = (k, v) => qsa(`[data-arch="${k}"]`, sec).forEach(el => { el.textContent = v; });
+    set("name", isSet(A.name) ? A.name : t("arch_fallback"));
+    set("role", L(A.role)); set("quote", L(A.quote)); set("bio", L(A.bio));
+    const yrs = qs('[data-arch="years"]', sec);
+    if (yrs) { yrs.hidden = !(+A.experienceYears > 0); qs("b", yrs).textContent = (+A.experienceYears || 0) + "+"; qs("span", yrs).textContent = t("arch_years"); }
+    const fig = qs(".arch-portrait", sec), img = qs("img", fig), hasPhoto = isSet(A.photo);
+    fig.classList.toggle("has-photo", hasPhoto);
+    if (hasPhoto && img.getAttribute("src") !== A.photo) { img.src = A.photo; img.hidden = false; img.onerror = () => { img.hidden = true; fig.classList.remove("has-photo"); }; }
+    if (hasPhoto) img.alt = `${isSet(A.name) ? A.name : t("arch_fallback")} – ${L(A.role)}`;
+    const list = qs('[data-arch="specs"]', sec), specs = (A.specialties && (A.specialties[lang] || A.specialties.sq)) || [];
+    if (list) list.innerHTML = specs.map((x, i) => `<li><span class="as-n mono">${pad(i + 1)}</span><span class="as-t">${x.t}</span><span class="as-d">${x.d}</span></li>`).join("");
+  }
+
+  /* links that should land on a form field: smooth scroll (Lenis), then focus without a second jump */
+  document.addEventListener("click", e => {
+    const a = e.target.closest && e.target.closest("[data-focus-form]"); if (!a) return;
+    const target = qs(a.getAttribute("href")), field = qs(a.dataset.focusForm); if (!target) return;
+    e.preventDefault();
+    let fired = false;
+    const done = () => { if (fired) return; fired = true; field && field.focus({ preventScroll: true }); };
+    if (LP.lenis) { LP.lenis.scrollTo(target, { offset: -72, duration: 1.6, onComplete: done }); setTimeout(done, 1900); }
+    else { target.scrollIntoView({ behavior: reduce ? "auto" : "smooth" }); setTimeout(done, reduce ? 0 : 700); }
+  });
 
   function applyFilter(f) {
     qsa(".filters button").forEach(b => { b.classList.toggle("on", b.dataset.filter === f); b.setAttribute("aria-pressed", b.dataset.filter === f); });

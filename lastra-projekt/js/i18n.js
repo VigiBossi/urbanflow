@@ -161,3 +161,22 @@ Object.assign(window.I18N.en, {
   st3_t:"Roof & façade", st3_d:"A waterproofed roof, windows, thermal insulation and the façade you choose.", st4_t:"Keys in hand", st4_d:"Installations, floors, interior finishes, a final inspection – and the keys handed over.",
   ct_d:"Book a free consultation – we visit the plot, listen to your plan and send a written quote.", c_hours:"Office hours"
 });
+/* ---- footer + the architect ---- */
+Object.assign(window.I18N.sq, {
+  f_tagline:"Shtëpi moderne në Gostivar, nga themeli deri te çelësi.", f_nav:"Navigimi", f_contact:"Kontakt & vendndodhja", f_action:"Fillo projektin",
+  f_cta_d:"Një bisedë falas, një vizitë në truall dhe një ofertë me shkrim – pa asnjë detyrim.", f_cta:"Rezervo konsultë falas", back_top:"Kthehu lart",
+  arch_k:"Arkitekti Kryesor", arch_fallback:"Arkitekti i Lastra Projekt", arch_years:"vite përvojë", arch_cta:"Konsultohu me arkitektin",
+  arch_studio:"Studio · Gostivar", arch_specs:"Specializimet"
+});
+Object.assign(window.I18N.mk, {
+  f_tagline:"Модерни куќи во Гостивар, од темел до клуч.", f_nav:"Навигација", f_contact:"Контакт и локација", f_action:"Започнете проект",
+  f_cta_d:"Бесплатен разговор, посета на плацот и писмена понуда – без никаква обврска.", f_cta:"Закажете бесплатна консултација", back_top:"Назад горе",
+  arch_k:"Главен архитект", arch_fallback:"Архитектот на Lastra Projekt", arch_years:"години искуство", arch_cta:"Консултација со архитектот",
+  arch_studio:"Студио · Гостивар", arch_specs:"Специјализации"
+});
+Object.assign(window.I18N.en, {
+  f_tagline:"Modern homes in Gostivar, from foundation to keys.", f_nav:"Navigation", f_contact:"Contact & location", f_action:"Start your project",
+  f_cta_d:"A free conversation, a site visit and a written quote – no obligation.", f_cta:"Book a free consultation", back_top:"Back to top",
+  arch_k:"Lead Architect", arch_fallback:"Lastra Projekt's architect", arch_years:"years of experience", arch_cta:"Consult with our Architect",
+  arch_studio:"Studio · Gostivar", arch_specs:"Specialties"
+});
