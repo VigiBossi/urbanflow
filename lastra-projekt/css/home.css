@@ -523,3 +523,4 @@ body.gl-fallback .x-panel,body.gl-fallback .hotspots,body.gl-fallback .x-tour,bo
   .hs{padding:5px}.hs-dot{width:38px;height:38px}
   .tour-arrow{width:52px;height:48px}
 }
+@media (pointer:coarse){ input[type=range]{height:44px} }

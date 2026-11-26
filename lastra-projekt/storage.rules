@@ -1,0 +1,30 @@
+rules_version = '2';
+
+// Lastra Projekt – Cloud Storage security rules
+// Public: anyone may READ files under public/ (project photos, architect portrait, .glb models).
+// Admin:  only the signed-in admin account may upload, replace or delete them.
+// Uploads are limited to images (≤ 15 MB, compressed to WebP by the panel) and .glb models (≤ 15 MB).
+// Replace ADMIN_EMAIL_HERE with your admin login email (exactly as in Firebase Authentication).
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == "ADMIN_EMAIL_HERE";
+    }
+
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.size < 15 * 1024 * 1024
+        && (request.resource.contentType.matches('image/.*')
+            || request.resource.contentType == 'model/gltf-binary'
+            || request.resource.contentType == 'application/octet-stream');
+      allow delete: if isAdmin();
+    }
+
+    // everything else is closed
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -12,6 +12,14 @@ Then open http://localhost:8080/
 ## Deploy (Vercel)
 Root Directory `lastra-projekt`, framework preset **Other**, no build command. `vercel.json` adds security headers and asset caching.
 
+## Admin panel – `/lastra-admin/`
+Edit projects (SQ/MK/EN, photos, phases, publish/hide, order), the architect, contact details, estimator and
+3D model links from a browser or phone. Uses Firebase (Auth + Firestore + Storage); see **SETUP-FIREBASE.md**.
+- `js/firebase-config.js` – public Firebase web config (empty = Firebase off, site uses `js/config.js`).
+- `js/live.js` – loads published content via the Firestore REST API, caches it, falls back to `js/config.js`.
+- `firestore.rules`, `storage.rules`, `firebase.json` – deploy with the Firebase CLI (kept off Vercel by `.vercelignore`).
+- `lastra-admin/vendor/firebase.js` – self-hosted Firebase JS SDK v11 bundle (Apache-2.0).
+
 ## Edit content – `js/config.js`
 - Contact: `phone`, `phoneLink`, `whatsapp`, `email`, `address`, `officeHours`, `facebook`, `instagram`.
   Values that still look like placeholders are hidden everywhere; the quote form and the estimator then

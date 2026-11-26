@@ -1,0 +1,7 @@
+# not part of the public website (deployed to Firebase / kept in the repo only)
+firestore.rules
+storage.rules
+firebase.json
+.firebaserc
+SETUP-FIREBASE.md
+README.md

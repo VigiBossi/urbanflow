@@ -3,7 +3,7 @@
 (function () {
   const UI = window.LPUI, S = window.SITE, LP = window.LP || {}, G = window.gsap;
   if (!UI || document.body.dataset.page !== "home") return;
-  const { t, L, pad, has, messenger, reduce } = UI;
+  const { t, L, pad, has, reduce } = UI;
   const qs = (s, r = document) => r.querySelector(s), qsa = (s, r = document) => [...r.querySelectorAll(s)];
   const kdt = (k, dt) => 1 - Math.pow(1 - k, (dt || 16.7) / 16.7);
 
@@ -104,9 +104,11 @@
   /* ---------------- turnkey estimator ---------------- */
   function estimator() {
     const f = qs("#est-form"); if (!f) return;
-    const E = S.estimator, size = qs("#est-size", f), sizeOut = qs("#est-size-out"), num = qs("#est-num"), list = qs("#est-list"), send = qs("#est-send"), meter = qs(".est-meter i"), status = qs(".est-status");
+    let E = S.estimator; const size = qs("#est-size", f), sizeOut = qs("#est-size-out"), num = qs("#est-num"), list = qs("#est-list"), send = qs("#est-send"), meter = qs(".est-meter i"), status = qs(".est-status");
     Object.assign(size, { min: E.min, max: E.max, step: E.step }); size.value = E.start;
-    const mode = has.whatsapp ? "wa" : messenger ? "msgr" : has.email ? "mail" : "none";
+    let mode = "none";
+    const pickMode = () => { mode = has.whatsapp ? "wa" : UI.messenger ? "msgr" : has.email ? "mail" : "none"; send.hidden = mode === "none"; };
+    pickMode();
     const shown = { v: 0 };
     const calc = () => {
       const d = new FormData(f), m2 = +size.value, floors = +d.get("floors"), tier = d.get("tier"), T = E.tiers[tier];
@@ -126,13 +128,12 @@
       const text = msg(r);
       if (mode === "wa") send.href = "https://wa.me/" + S.whatsapp + "?text=" + encodeURIComponent(text);
       else if (mode === "mail") { send.href = "mailto:" + S.email + "?subject=" + encodeURIComponent("Lastra Projekt – " + t("est_k")) + "&body=" + encodeURIComponent(text); send.removeAttribute("target"); }
-      else if (mode === "msgr") send.href = messenger;
+      else if (mode === "msgr") send.href = UI.messenger;
       send.dataset.msg = text;
     };
     /* label reflects the channel actually available (placeholders in config.js are never used) */
     const lbl = qs("span", send);
     const setLbl = () => { lbl.dataset.i18n = mode === "wa" ? "est_wa" : mode === "mail" ? "est_mail" : "est_msgr"; lbl.textContent = t(lbl.dataset.i18n); qs(".wa-ic", send).style.display = mode === "wa" ? "" : "none"; };
-    if (mode === "none") send.hidden = true;
     send.addEventListener("click", () => {
       if (mode !== "msgr") return;
       const text = send.dataset.msg, done = ok => { status.hidden = false; status.textContent = ok ? t("msgr_copied") : t("msgr_manual") + "\n\n" + text; };
@@ -140,6 +141,13 @@
     });
     f.addEventListener("input", update); f.addEventListener("change", update);
     document.addEventListener("lp:lang", () => { setLbl(); update(); });
+    /* live content (Firestore) arrived: new ranges, durations or contact channel */
+    document.addEventListener("lp:data", () => {
+      E = S.estimator; Object.assign(size, { min: E.min, max: E.max, step: E.step });
+      if (+size.value < E.min || +size.value > E.max) size.value = E.start;
+      qsa(".est-scale span", f.parentElement).forEach((el, i) => { el.textContent = `${i ? E.max : E.min} m²`; });
+      pickMode(); setLbl(); update();
+    });
     setLbl(); update();
   }
 

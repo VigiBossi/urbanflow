@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /lastra-admin/
 
 Sitemap: https://lastra-projekt.vercel.app/sitemap.xml

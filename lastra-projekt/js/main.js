@@ -22,10 +22,20 @@
   const clockAdd = fn => (LP.clock ? LP.clock.add(fn) : null);
   /* contact channels: a value still holding a config.js placeholder is never shown or used */
   const fake = v => !v || /X|example\.|0{6,}/i.test(String(v));
-  const has = { phone: !fake(S.phone) && !fake(S.phoneLink), whatsapp: !fake(S.whatsapp), email: !fake(S.email), facebook: !!S.facebook, instagram: !!S.instagram, hours: !!S.officeHours };
-  const messenger = S.facebook ? "https://m.me/" + S.facebook.replace(/\/+$/, "").split("/").pop() : "";
+  /* contact channels are re-evaluated when live content (Firestore) arrives – see LPUI.refresh */
+  const has = {};
+  let messenger = "";
+  const computeHas = () => {
+    Object.assign(has, { phone: !fake(S.phone) && !fake(S.phoneLink), whatsapp: !fake(S.whatsapp), email: !fake(S.email), facebook: !!S.facebook, instagram: !!S.instagram, hours: !!S.officeHours });
+    messenger = S.facebook ? "https://m.me/" + S.facebook.replace(/\/+$/, "").split("/").pop() : "";
+  };
+  computeHas();
   /* jpg path from config -> optimised webp + 800w variant */
-  const webp = p => p.replace(/\.jpe?g$/i, ".webp"), webp8 = p => p.replace(/\.jpe?g$/i, "-800.webp");
+  /* images are either local paths ("assets/img/x.jpg" → optimised .webp + -800.webp next to it)
+     or uploads from the admin panel ({ url, url800 } on Firebase Storage, already WebP) */
+  const isRemote = p => typeof p === "string" && /^(https?:)?\/\//.test(p);
+  const webp = p => (!p ? "" : typeof p === "object" ? p.url : isRemote(p) ? p : p.replace(/\.jpe?g$/i, ".webp"));
+  const webp8 = p => (!p ? "" : typeof p === "object" ? (p.url800 || p.url) : isRemote(p) ? p : p.replace(/\.jpe?g$/i, "-800.webp"));
   const pic = (p, alt, sizes = "100vw", cls = "", lazy = true) =>
     `<img${cls ? ` class="${cls}"` : ""} src="${webp(p)}" srcset="${webp8(p)} 800w, ${webp(p)} 1600w" sizes="${sizes}" alt="${alt.replace(/"/g, "&quot;")}" width="1600" height="1067"${lazy ? ' loading="lazy"' : ""} decoding="async">`;
 
@@ -109,7 +119,7 @@
     fab.className = "fab";
     fab.innerHTML = `<a class="fab-call" data-site="phone-icon" href="#">${PH}<span data-i18n="call"></span></a><a class="fab-wa" data-site="whatsapp" href="#" target="_blank" rel="noopener">${WA}<span>WhatsApp</span></a>`;
     document.body.appendChild(fab);
-    if (!has.phone && !has.whatsapp) fab.hidden = true;
+    fab.hidden = !has.phone && !has.whatsapp;
 
     const b = qs(".burger");
     const setMenu = o => {
@@ -221,12 +231,13 @@
     const yrs = qs('[data-arch="years"]', sec);
     if (yrs) { yrs.hidden = !(+A.experienceYears > 0); qs("b", yrs).textContent = (+A.experienceYears || 0) + "+"; qs("span", yrs).textContent = t("arch_years"); }
     /* optional portrait: a small round avatar next to the name (home) or a framed portrait (architect.html) */
-    const hasPhoto = isSet(A.photo), alt = `${isSet(A.name) ? A.name : t("arch_fallback")} – ${L(A.role)}`;
+    const photoUrl = A.photo && typeof A.photo === "object" ? A.photo.url : A.photo;
+    const hasPhoto = isSet(photoUrl), alt = `${isSet(A.name) ? A.name : t("arch_fallback")} – ${L(A.role)}`;
     qsa(".arch-avatar, .arch-portrait", sec.ownerDocument).forEach(fig => {
       const img = qs("img", fig); if (!img) return;
       fig.hidden = fig.classList.contains("arch-avatar") ? !hasPhoto : false;
       fig.classList.toggle("has-photo", hasPhoto);
-      if (hasPhoto && img.getAttribute("src") !== A.photo) { img.src = A.photo; img.hidden = false; img.onerror = () => { img.hidden = true; fig.classList.remove("has-photo"); if (fig.classList.contains("arch-avatar")) fig.hidden = true; }; }
+      if (hasPhoto && img.getAttribute("src") !== photoUrl) { img.src = photoUrl; img.hidden = false; img.onerror = () => { img.hidden = true; fig.classList.remove("has-photo"); if (fig.classList.contains("arch-avatar")) fig.hidden = true; }; }
       if (hasPhoto) img.alt = alt;
     });
     const list = qs('[data-arch="specs"]', sec), specs = (A.specialties && (A.specialties[lang] || A.specialties.sq)) || [];
@@ -339,17 +350,22 @@
   }
 
   /* ---------------- contact form (WhatsApp / e-mail, no fake success) ---------------- */
+  let formLabels = () => {};
   function form() {
     const f = qs("#quote-form"); if (!f) return;
     const err = qs(".form-error", f);
     /* send channel: WhatsApp, else e-mail, else Facebook Messenger (copy + open) while the config still has placeholders */
-    const mode = has.whatsapp ? "wa" : has.email ? "mail" : messenger ? "msgr" : "none";
+    let mode = "none";
     const submitLbl = qs('button[type="submit"] span', f), mailBtn = qs("#send-mail", f), note = qs(".form-note", f);
     const setKey = (el, k) => { if (el) { el.dataset.i18n = k; el.textContent = t(k); } };
-    if (mode !== "wa" || !has.email) mailBtn.hidden = true;
-    if (mode === "mail") setKey(submitLbl, "fm_mail");
-    if (mode === "msgr") { setKey(submitLbl, "fm_msgr"); setKey(note, "msgr_note"); }
-    if (mode === "none") qs('button[type="submit"]', f).disabled = true;
+    formLabels = () => {
+      mode = has.whatsapp ? "wa" : has.email ? "mail" : messenger ? "msgr" : "none";
+      mailBtn.hidden = mode !== "wa" || !has.email;
+      setKey(submitLbl, mode === "mail" ? "fm_mail" : mode === "msgr" ? "fm_msgr" : "fm_wa");
+      setKey(note, mode === "msgr" ? "msgr_note" : "form_note");
+      qs('button[type="submit"]', f).disabled = mode === "none";
+    };
+    formLabels();
     const status = document.createElement("div"); status.className = "form-status full"; status.setAttribute("role", "status"); status.hidden = true;
     qs(".form-actions", f).after(status);
     const build = () => {
@@ -456,5 +472,14 @@
   nextFrame(() => document.body.classList.add("ready"));
   window.__lpLang = () => lang;
   /* small API for page scripts (home.js) */
-  window.LPUI = { t, L, pic, webp, pad, has, messenger, reduce, fine, lang: () => lang, observe: () => observe(), compare: () => compare() };
+  /* re-render everything that depends on SITE (called by js/live.js when fresh Firestore data arrives) */
+  const refresh = () => {
+    computeHas(); window.LPUI.messenger = messenger;
+    renderDynamic(); translate();
+    qsa("[data-split]").forEach(e => e.classList.add("in")); observe();
+    formLabels();
+    const fab = qs(".fab"); if (fab) fab.hidden = !has.phone && !has.whatsapp;
+    document.dispatchEvent(new CustomEvent("lp:data"));
+  };
+  window.LPUI = { t, L, pic, webp, webp8, pad, has, messenger, reduce, fine, lang: () => lang, observe: () => observe(), compare: () => compare(), refresh };
 })();
