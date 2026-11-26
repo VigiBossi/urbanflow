@@ -15,9 +15,14 @@
   const fine = matchMedia("(pointer: fine)").matches;
   const small = () => innerWidth < 900;
   const pad = n => String(n).padStart(2, "0");
+  /* single clock: every per-frame job runs inside gsap.ticker (js/clock.js) – no requestAnimationFrame here */
+  const LP = window.LP || {};
+  const G = window.gsap;
+  const nextFrame = fn => (G ? G.delayedCall(0, fn) : setTimeout(fn, 16));
+  const clockAdd = fn => (LP.clock ? LP.clock.add(fn) : null);
   /* contact channels: a value still holding a config.js placeholder is never shown or used */
   const fake = v => !v || /X|example\.|0{6,}/i.test(String(v));
-  const has = { phone: !fake(S.phone) && !fake(S.phoneLink), whatsapp: !fake(S.whatsapp), email: !fake(S.email), facebook: !!S.facebook };
+  const has = { phone: !fake(S.phone) && !fake(S.phoneLink), whatsapp: !fake(S.whatsapp), email: !fake(S.email), facebook: !!S.facebook, instagram: !!S.instagram, hours: !!S.officeHours };
   const messenger = S.facebook ? "https://m.me/" + S.facebook.replace(/\/+$/, "").split("/").pop() : "";
   /* jpg path from config -> optimised webp + 800w variant */
   const webp = p => p.replace(/\.jpe?g$/i, ".webp"), webp8 = p => p.replace(/\.jpe?g$/i, "-800.webp");
@@ -80,8 +85,8 @@
     const b = qs(".burger");
     const setMenu = o => {
       document.body.classList.toggle("nav-open", o); b.setAttribute("aria-expanded", o);
-      if (o) { m.hidden = false; requestAnimationFrame(() => m.classList.add("open")); qs("a", m).focus({ preventScroll: true }); }
-      else { m.classList.remove("open"); setTimeout(() => { if (!m.classList.contains("open")) m.hidden = true; }, 450); }
+      if (o) { m.hidden = false; nextFrame(() => m.classList.add("open")); qs("a", m).focus({ preventScroll: true }); LP.stopScroll && LP.stopScroll(); }
+      else { m.classList.remove("open"); LP.startScroll && LP.startScroll(); setTimeout(() => { if (!m.classList.contains("open")) m.hidden = true; }, 450); }
     };
     b.addEventListener("click", () => setMenu(!document.body.classList.contains("nav-open")));
     addEventListener("keydown", e => { if (e.key === "Escape" && document.body.classList.contains("nav-open")) { setMenu(false); b.focus(); } });
@@ -89,8 +94,8 @@
     document.addEventListener("click", e => { const btn = e.target.closest(".lang button"); if (btn) setLang(btn.dataset.lang); });
     qs(".to-top").addEventListener("click", () => {
       /* long pages: jump close to the top first so the smooth part stays short (and the 3D story isn't replayed backwards) */
-      if (!reduce && scrollY > innerHeight * 3) scrollTo({ top: innerHeight * .6, behavior: "auto" });
-      scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+      if (LP.lenis) LP.lenis.scrollTo(0, { immediate: scrollY > innerHeight * 6, duration: 1.8 });
+      else scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
       qs(".logo", hdr).focus({ preventScroll: true });
     });
     /* hidden header comes back for keyboard users and when the pointer reaches the top edge */
@@ -123,6 +128,8 @@
       if (k === "phone-icon") el.href = "tel:" + S.phoneLink;
       if (k === "email") { el.href = "mailto:" + S.email; el.textContent = S.email; }
       if (k === "address") el.textContent = S.address;
+      if (k === "hours") el.textContent = L(S.officeHours);
+      if (k === "instagram") el.href = S.instagram;
       if (k === "facebook") el.href = S.facebook;
       if (k === "whatsapp") el.href = "https://wa.me/" + S.whatsapp;
       if (k === "map" && el.getAttribute("src") !== S.mapEmbed) el.src = S.mapEmbed;
@@ -205,9 +212,9 @@
   let io;
   function countUp(el) {
     if (el.dataset.counted || reduce) return; el.dataset.counted = 1;
-    const v = +el.dataset.val, suf = el.dataset.suf || "", t0 = performance.now(), dur = 1400;
-    const step = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(v * e) + suf; if (k < 1) requestAnimationFrame(step); };
-    requestAnimationFrame(step);
+    const v = +el.dataset.val, suf = el.dataset.suf || "", o = { n: 0 };
+    if (!G) { el.textContent = v + suf; return; }
+    G.to(o, { n: v, duration: 1.4, ease: "power3.out", onUpdate: () => { el.textContent = Math.round(o.n) + suf; } });
   }
   function observe() {
     const els = qsa(".reveal:not(.in), .reveal-clip:not(.in), [data-split]:not(.in)");
@@ -235,9 +242,9 @@
     const open = g => {
       const seen = new Set(); list = qsa(".gitem").filter(x => !seen.has(x.dataset.full) && seen.add(x.dataset.full)).map(x => ({ src: x.dataset.full, cap: x.dataset.cap || "" }));
       idx = Math.max(0, list.findIndex(x => x.src === g.dataset.full)); last = g;
-      show(); el.hidden = false; requestAnimationFrame(() => el.classList.add("open")); document.documentElement.classList.add("lock"); qs(".lb-close", el).focus();
+      show(); el.hidden = false; nextFrame(() => el.classList.add("open")); document.documentElement.classList.add("lock"); LP.stopScroll && LP.stopScroll(); qs(".lb-close", el).focus();
     };
-    const close = () => { el.classList.remove("open"); document.documentElement.classList.remove("lock"); setTimeout(() => { el.hidden = true; }, 300); last && last.focus(); };
+    const close = () => { el.classList.remove("open"); document.documentElement.classList.remove("lock"); LP.startScroll && LP.startScroll(); setTimeout(() => { el.hidden = true; }, 300); last && last.focus(); };
     const go = d => { idx = (idx + d + list.length) % list.length; show(); };
     document.addEventListener("click", e => { const g = e.target.closest(".gitem"); if (g) open(g); });
     el.addEventListener("click", e => { if (e.target === el || e.target.closest(".lb-close")) close(); });
@@ -259,7 +266,7 @@
       const r = qs("input", c); if (!r || r.dataset.bound) return; r.dataset.bound = 1;
       const set = v => c.style.setProperty("--pos", v + "%");
       r.addEventListener("input", () => set(r.value));
-      if (!reduce) { let shown = false; new IntersectionObserver(([e], o) => { if (e.isIntersecting && !shown) { shown = true; o.disconnect(); const t0 = performance.now(); const a = now => { const k = Math.min(1, (now - t0) / 1600); const v = 50 + Math.sin(k * Math.PI * 2) * 16 * (1 - k); set(v); r.value = v; if (k < 1) requestAnimationFrame(a); }; requestAnimationFrame(a); } }, { threshold: .5 }).observe(c); }
+      if (!reduce && G) { let shown = false; new IntersectionObserver(([e], o) => { if (e.isIntersecting && !shown) { shown = true; o.disconnect(); const s = { k: 0 }; G.to(s, { k: 1, duration: 1.6, ease: "none", onUpdate: () => { const v = 50 + Math.sin(s.k * Math.PI * 2) * 16 * (1 - s.k); set(v); r.value = v; } }); } }, { threshold: .5 }).observe(c); }
     });
   }
 
@@ -305,20 +312,7 @@
   function services() {
     const items = qsa(".sv-item"); if (!items.length) return;
     const pv = qs(".sv-preview"), imgs = qsa(".sv-preview img"), tag = qs(".sv-tag");
-    let model = null, cur = 0;
-    const preview = i => { if (i < 0) return; cur = i; imgs.forEach((im, k) => im.classList.toggle("on", k === i)); if (tag) tag.textContent = `${pad(i + 1)} / ${pad(items.length)}`; if (model) model.set(i); };
-    /* interactive 3D maquette: fetched only when the block approaches the viewport; the photos stay as the fallback */
-    const gl2 = () => { try { return !!document.createElement("canvas").getContext("webgl2"); } catch (e) { return false; } };
-    if (pv && "IntersectionObserver" in window && gl2()) {
-      const lazy = new IntersectionObserver(([e]) => {
-        if (!e.isIntersecting) return; lazy.disconnect();
-        import("./layers3d.js").then(m => {
-          model = m.mount(pv); if (!model) return; model.set(cur);
-          const hint = document.createElement("span"); hint.className = "sv-hint mono"; hint.dataset.i18n = "drag_rotate"; hint.textContent = t("drag_rotate"); pv.appendChild(hint);
-        }).catch(err => console.warn("3D model unavailable, showing photos", err));
-      }, { rootMargin: "600px 0px" });
-      lazy.observe(pv);
-    }
+    const preview = i => { if (i < 0) return; imgs.forEach((im, k) => im.classList.toggle("on", k === i)); if (tag) tag.textContent = `${pad(i + 1)} / ${pad(items.length)}`; };
     const openI = i => items.forEach((it, k) => { const o = k === i; it.classList.toggle("open", o); qs(".sv-btn", it).setAttribute("aria-expanded", o); if (o) preview(k); });
     items.forEach((it, i) => {
       qs(".sv-btn", it).addEventListener("click", () => openI(it.classList.contains("open") && small() ? -1 : i));
@@ -332,13 +326,13 @@
     const sc = qs(".scrub");
     const steps = sc ? qsa(".scrub-steps li", sc) : [], imgs = sc ? qsa(".scrub-media img", sc) : [], bar = sc && qs(".scrub-bar i", sc), count = sc && qs(".scrub-count b", sc);
     const par = qsa("[data-parallax]"), prog = qs(".scroll-progress i"), hdr = qs("#site-header");
-    let curStep = -1, tick = false, lastY = scrollY;
+    let curStep = -1, dirty = true, lastY = scrollY;
     const upd = () => {
-      tick = false; const vh = innerHeight, y = scrollY;
+      if (!dirty) return; dirty = false; const vh = innerHeight, y = scrollY;
       if (prog) prog.style.transform = `scaleX(${(y / Math.max(1, document.documentElement.scrollHeight - vh)).toFixed(4)})`;
       document.body.classList.toggle("scrolled", y > 20);
-      const hero = qs(".hero3d"), heroEnd = hero ? hero.offsetTop + hero.offsetHeight - vh : 0;
-      document.body.classList.toggle("past-hero", !hero || y > heroEnd - 10);
+      const hero = qs(".story"), heroEnd = hero ? hero.offsetTop + hero.offsetHeight - vh : 0;
+      if (page !== "home") document.body.classList.toggle("past-hero", !hero || y > heroEnd - 10);   // home.js owns it there
       if (!document.body.classList.contains("nav-open")) hdr.classList.toggle("hdr-hidden", y > 320 && y > lastY + 2 && !(hero && y < 40));
       if (y < lastY - 2) hdr.classList.remove("hdr-hidden");
       lastY = y;
@@ -350,8 +344,9 @@
         if (bar) bar.style.transform = `scaleX(${((i + 1) / steps.length).toFixed(3)})`;
       }
     };
-    const req = () => { if (!tick) { tick = true; requestAnimationFrame(upd); } };
-    addEventListener("scroll", req, { passive: true }); addEventListener("resize", req); upd();
+    const req = () => { dirty = true; if (!LP.clock) upd(); };
+    addEventListener("scroll", req, { passive: true }); addEventListener("resize", req);
+    clockAdd(upd); upd();
   }
 
   /* ---------------- pointer niceties (desktop only) ---------------- */
@@ -366,11 +361,12 @@
     /* "View" chip that follows the pointer over project cards */
     const chip = document.createElement("div"); chip.className = "cursor-chip"; chip.setAttribute("aria-hidden", "true"); document.body.appendChild(chip);
     let tx = 0, ty = 0, x = 0, y = 0, on = false, raf = 0;
-    const loop = () => { x += (tx - x) * .2; y += (ty - y) * .2; chip.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%) scale(${on ? 1 : .2})`; if (on || Math.abs(tx - x) > .5) raf = requestAnimationFrame(loop); else raf = 0; };
+    const loop = (t, dt) => { if (!raf) return; const k = 1 - Math.pow(1 - .2, (dt || 16.7) / 16.7); x += (tx - x) * k; y += (ty - y) * k; chip.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) translate(-50%,-50%) scale(${on ? 1 : .2})`; if (!on && Math.abs(tx - x) < .5) raf = 0; };
+    clockAdd(loop);
     document.addEventListener("pointermove", e => {
       tx = e.clientX; ty = e.clientY; const c = e.target.closest && e.target.closest(".pcard-media, .gitem");
       if (!!c !== on) { on = !!c; chip.classList.toggle("on", on); chip.textContent = t("view_short"); if (on && !raf) { x = tx; y = ty; } }
-      if (!raf && on) raf = requestAnimationFrame(loop);
+      if (!raf && on) raf = 1;
     }, { passive: true });
   }
 
@@ -389,6 +385,8 @@
   shell(); renderDynamic(); translate();
   qsa(".filters button").forEach(b => b.addEventListener("click", () => applyFilter(b.dataset.filter)));
   lightbox(); form(); services(); observe(); motion(); pointer(); transitions();
-  requestAnimationFrame(() => document.body.classList.add("ready"));
+  nextFrame(() => document.body.classList.add("ready"));
   window.__lpLang = () => lang;
+  /* small API for page scripts (home.js) */
+  window.LPUI = { t, L, pic, webp, pad, has, messenger, reduce, fine, lang: () => lang, observe: () => observe(), compare: () => compare() };
 })();

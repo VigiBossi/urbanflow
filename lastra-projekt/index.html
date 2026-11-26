@@ -4,144 +4,264 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lastra Projekt – Ndërtim shtëpish moderne në Gostivar</title>
-<meta name="description" content="Lastra Projekt ndërton shtëpi moderne banimi në Gostivar, nga themeli deri te çelësi: projektim dhe leje, konstruksion, çati dhe përfundim – me një partner të vetëm.">
-<meta name="theme-color" content="#f4f1eb">
+<meta name="description" content="Lastra Projekt ndërton shtëpi moderne banimi në Gostivar, nga themeli deri te çelësi: projektim dhe leje, konstruksion, çati, fasadë dhe përfundim – me një partner të vetëm.">
+<meta name="theme-color" content="#f5f3ef">
 <meta name="color-scheme" content="light">
 <link rel="canonical" href="https://lastra-projekt.vercel.app/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Lastra Projekt">
 <meta property="og:locale" content="sq_AL"><meta property="og:locale:alternate" content="mk_MK"><meta property="og:locale:alternate" content="en_US">
 <meta property="og:title" content="Lastra Projekt – Ndërtim shtëpish moderne në Gostivar">
-<meta property="og:description" content="Lastra Projekt ndërton shtëpi moderne banimi në Gostivar, nga themeli deri te çelësi: projektim dhe leje, konstruksion, çati dhe përfundim – me një partner të vetëm.">
+<meta property="og:description" content="Nga themeli deri te çelësi: projektim dhe leje, konstruksion, çati, fasadë dhe përfundim – me një partner të vetëm.">
 <meta property="og:url" content="https://lastra-projekt.vercel.app/">
 <meta property="og:image" content="https://lastra-projekt.vercel.app/assets/img/lastra-finished.jpg">
 <meta property="og:image:width" content="1500"><meta property="og:image:height" content="844">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Lastra Projekt – Ndërtim shtëpish moderne në Gostivar"><meta name="twitter:description" content="Lastra Projekt ndërton shtëpi moderne banimi në Gostivar, nga themeli deri te çelësi: projektim dhe leje, konstruksion, çati dhe përfundim – me një partner të vetëm."><meta name="twitter:image" content="https://lastra-projekt.vercel.app/assets/img/lastra-finished.jpg">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23141413'/%3E%3Cpath d='M22 16v32h22' fill='none' stroke='%23d39a68' stroke-width='6'/%3E%3C/svg%3E">
+<meta name="twitter:title" content="Lastra Projekt – Ndërtim shtëpish moderne në Gostivar"><meta name="twitter:description" content="Nga themeli deri te çelësi: projektim dhe leje, konstruksion, çati, fasadë dhe përfundim – me një partner të vetëm."><meta name="twitter:image" content="https://lastra-projekt.vercel.app/assets/img/lastra-finished.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23121316'/%3E%3Cpath d='M22 16v32h22' fill='none' stroke='%23b8845a' stroke-width='6'/%3E%3C/svg%3E">
 <link rel="preload" href="assets/fonts/inter-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/noto-serif-display-normal-300-600-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/home.css">
 <script>document.documentElement.classList.add("js");</script>
 <link rel="modulepreload" href="assets/js/three.module.min.js">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "GeneralContractor", "name": "Lastra Projekt", "url": "https://lastra-projekt.vercel.app/", "image": "https://lastra-projekt.vercel.app/assets/img/lastra-finished.jpg", "description": "Ndërtim shtëpish moderne në Gostivar – nga themeli deri te çelësi.", "areaServed": "Gostivar", "address": {"@type": "PostalAddress", "addressLocality": "Gostivar", "addressCountry": "MK"}, "sameAs": ["https://www.facebook.com/LastraProjekt1"]}</script>
 </head>
-<body data-page="home">
+<body data-page="home" class="home">
+<!-- the one WebGL canvas: fixed, full viewport, behind every chapter -->
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="gl-fallback-img" aria-hidden="true"><img src="assets/img/lastra-construction.webp" srcset="assets/img/lastra-construction-800.webp 800w, assets/img/lastra-construction.webp 1500w" sizes="100vw" width="1500" height="844" alt="" decoding="async"><img class="fb-after" src="assets/img/lastra-finished.webp" srcset="assets/img/lastra-finished-800.webp 800w, assets/img/lastra-finished.webp 1500w" sizes="100vw" width="1500" height="844" alt="" decoding="async"></div>
+<div class="gl-vignette" aria-hidden="true"></div>
 <div class="page-curtain" aria-hidden="true"></div>
 <header id="site-header"></header>
 <main id="main" tabindex="-1">
-<section class="hero3d" aria-labelledby="hero-h">
- <div class="hero-sticky">
-  <canvas id="hero-canvas" aria-hidden="true"></canvas>
-  <div class="hero-fb" aria-hidden="true"><img src="assets/img/lastra-construction.webp" srcset="assets/img/lastra-construction-800.webp 800w, assets/img/lastra-construction.webp 1500w" sizes="100vw" width="1500" height="844" alt="" fetchpriority="high" decoding="async"><img class="fb-after" src="assets/img/lastra-finished.webp" srcset="assets/img/lastra-finished-800.webp 800w, assets/img/lastra-finished.webp 1500w" sizes="100vw" width="1500" height="844" alt="" loading="lazy" decoding="async"></div>
-  <div class="hero-loading" aria-hidden="true"><span class="hl-word">Lastra<b>Projekt</b></span><i></i></div>
-  <div class="hero-overlay"><div class="container hero-copy">
-   <p class="kicker"><span class="kline" aria-hidden="true"></span><span data-i18n="hero_kicker">Ndërtim shtëpish në Gostivar</span></p>
-   <h1 id="hero-h" class="hero-title" data-split data-i18n="hero_title">Shtëpi moderne, nga themeli deri te çelësi</h1>
-   <p class="hero-sub" data-i18n="hero_sub">Projektim, leje, konstruksion, çati dhe përfundim – gjithçka me një partner të besueshëm.</p>
-   <div class="btn-row"><a class="btn btn-primary magnetic" href="contact.html"><span data-i18n="cta_quote">Kërko ofertë falas</span><i class="arr" aria-hidden="true"></i></a><a class="btn btn-glass" href="projects.html"><span data-i18n="hero_btn2">Shiko projektet</span></a></div>
-  </div></div>
-  <div class="hero-interior" aria-hidden="true">
-   <div class="hi-wall"></div><div class="hi-floor"></div><div class="hi-sun"></div>
-   <div class="container hi-copy">
-    <p class="eyebrow">Lastra Projekt</p><h2 class="display" data-i18n="inside_k">Mirë se erdhët në shtëpi</h2>
-    <div class="rooms">
-     <div class="room"><span class="room-n">01</span><b class="stat-num" data-stat="years"></b><span class="room-l" data-i18n="stat_years">Vite përvojë</span></div>
-     <div class="room"><span class="room-n">02</span><b class="stat-num" data-stat="houses"></b><span class="room-l" data-i18n="stat_houses">Shtëpi të ndërtuara</span></div>
-     <div class="room"><span class="room-n">03</span><b class="stat-num" data-stat="satisfaction"></b><span class="room-l" data-i18n="stat_sat">% klientë të kënaqur</span></div>
+
+<!-- ============ STORY: pinned build sequence ============ -->
+<section class="story is-hero" id="story" aria-labelledby="hero-h">
+ <div class="story-sticky">
+  <div class="story-scrim" aria-hidden="true"></div>
+  <div class="container story-in">
+   <div class="hero-copy">
+    <p class="kicker mono"><span data-i18n="hero_kicker">Ndërtim shtëpish në Gostivar</span></p>
+    <h1 id="hero-h" class="hero-title" data-i18n="hero_title">Shtëpi moderne, nga themeli deri te çelësi</h1>
+    <p class="hero-sub" data-i18n="hero_sub">Projektim dhe leje, konstruksion, çati, fasadë dhe përfundim – një partner i vetëm, nga fillimi deri në fund.</p>
+    <div class="btn-row"><a class="btn btn-primary magnetic" href="#contact"><span data-i18n="cta_quote">Kërko ofertë falas</span><i class="arr" aria-hidden="true"></i></a><a class="btn btn-glass" href="#explore"><span data-i18n="hero_btn3d">Eksploro shtëpinë në 3D</span></a></div>
+   </div>
+   <ol class="chapters">
+    <li class="chapter" data-ch="0" aria-hidden="true">
+     <p class="ch-n mono"><b>01</b><span data-i18n="ph1_k">Themeli & trualli</span></p>
+     <h2 class="ch-t" data-i18n="ph1_t">Gjithçka fillon poshtë tokës.</h2>
+     <p class="ch-d" data-i18n="ph1_d">Gërmim, themele të armuara dhe pllaka e betonit – baza mbi të cilën qëndron shtëpia juaj për dekada.</p>
+     <ul class="ch-s mono"><li data-i18n="ph1_s1">Themele pikë & shirit</li><li data-i18n="ph1_s2">Kafaze armature</li><li data-i18n="ph1_s3">Pllaka e përdheses</li></ul>
+    </li>
+    <li class="chapter" data-ch="1" aria-hidden="true">
+     <p class="ch-n mono"><b>02</b><span data-i18n="ph2_k">Konstruksioni</span></p>
+     <h2 class="ch-t" data-i18n="ph2_t">Skelet betoni, mure që ngrihen pastër.</h2>
+     <p class="ch-d" data-i18n="ph2_d">Kolona dhe trarë prej betoni të armuar, pllakë me konzolë dhe mure me tulla – të ngritura me saktësi milimetrike.</p>
+     <ul class="ch-s mono"><li data-i18n="ph2_s1">Kolona b/a</li><li data-i18n="ph2_s2">Pllakë me konzolë</li><li data-i18n="ph2_s3">Mure me tulla</li></ul>
+    </li>
+    <li class="chapter" data-ch="2" aria-hidden="true">
+     <p class="ch-n mono"><b>03</b><span data-i18n="ph3_k">Çatia & xhamat</span></p>
+     <h2 class="ch-t" data-i18n="ph3_t">Një çati e sheshtë, dritë nga çdo anë.</h2>
+     <p class="ch-d" data-i18n="ph3_d">Çati e sheshtë me strehë, korniza të holla alumini me xham reflektues dhe parmakë xhami pa kornizë.</p>
+     <ul class="ch-s mono"><li data-i18n="ph3_s1">Çati e sheshtë me strehë</li><li data-i18n="ph3_s2">Alumin i errët + xham</li><li data-i18n="ph3_s3">Parmakë xhami</li></ul>
+    </li>
+    <li class="chapter" data-ch="3" aria-hidden="true">
+     <p class="ch-n mono"><b>04</b><span data-i18n="ph4_k">Çelës në dorë</span></p>
+     <h2 class="ch-t" data-i18n="ph4_t">Ndizni dritat. Mirë se erdhët në shtëpi.</h2>
+     <p class="ch-d" data-i18n="ph4_d">Suva arkitektonike, gur natyral, ndriçim i ngrohtë i fasadës, oborr i rregulluar – dhe çelësat në dorën tuaj.</p>
+     <ul class="ch-s mono"><li data-i18n="ph4_s1">Suva & gur</li><li data-i18n="ph4_s2">Ndriçim 3000K</li><li data-i18n="ph4_s3">Oborr i rregulluar</li></ul>
+    </li>
+   </ol>
+  </div>
+  <div class="story-hud">
+   <nav class="phase-nav" data-i18n-aria="phase_nav" aria-label="Fazat e ndërtimit">
+    <button type="button" data-go="0"><span class="mono">01</span><span data-i18n="ph1_k">Themeli & trualli</span></button>
+    <button type="button" data-go="1"><span class="mono">02</span><span data-i18n="ph2_k">Konstruksioni</span></button>
+    <button type="button" data-go="2"><span class="mono">03</span><span data-i18n="ph3_k">Çatia & xhamat</span></button>
+    <button type="button" data-go="3"><span class="mono">04</span><span data-i18n="ph4_k">Çelës në dorë</span></button>
+   </nav>
+   <span class="phase-bar" aria-hidden="true"><i></i></span>
+   <p class="story-hint mono" aria-hidden="true"><span data-i18n="scroll_hint">Rrëshqit për të parë ndërtimin</span><i></i></p>
+   <p class="story-geo mono" aria-hidden="true">41.79° N · 20.90° E — Gostivar</p>
+  </div>
+ </div>
+</section>
+
+<!-- ============ EXPLORE: interactive 3D ============ -->
+<section class="explore" id="explore" aria-labelledby="x-h">
+ <div class="x-head container">
+  <p class="eyebrow eyebrow-light"><span class="idx">3D</span><span data-i18n="x_kicker">Konfiguratori 3D</span></p>
+  <h2 id="x-h" class="display" data-i18n="x_title">Shëtisni rreth shtëpisë suaj.</h2>
+  <p class="x-sub" data-i18n="x_sub">Rrotulloni modelin, ndërroni fasadën, ndizni muzgun dhe ndiqni çdo fazë të ndërtimit.</p>
+ </div>
+ <div class="hotspots" aria-label="Detaje arkitektonike" data-i18n-aria="x_hs">
+  <button type="button" class="hs" data-hs="seismic" aria-expanded="false"><span class="hs-dot mono">01</span><span class="hs-l" data-i18n="hs_seismic_t">Beton i armuar antisizmik</span></button>
+  <button type="button" class="hs" data-hs="thermal" aria-expanded="false"><span class="hs-dot mono">02</span><span class="hs-l" data-i18n="hs_thermal_t">Izolim termik i fasadës</span></button>
+  <button type="button" class="hs" data-hs="glazing" aria-expanded="false"><span class="hs-dot mono">03</span><span class="hs-l" data-i18n="hs_glazing_t">Alumin me xham të trefishtë</span></button>
+  <button type="button" class="hs" data-hs="turnkey" aria-expanded="false"><span class="hs-dot mono">04</span><span class="hs-l" data-i18n="hs_turnkey_t">Garanci çelës në dorë</span></button>
+  <div class="hs-card" role="dialog" aria-live="polite"><span class="hs-n mono"></span><h3 class="hs-t"></h3><p class="hs-d"></p><button type="button" class="hs-close" data-i18n-aria="close" aria-label="Mbyll">✕</button></div>
+ </div>
+ <div class="x-panel" role="group" data-i18n-aria="x_kicker" aria-label="Konfiguratori 3D">
+  <div class="x-row x-row-stage">
+   <label class="x-l mono" for="x-stage" data-i18n="x_phase">Faza e ndërtimit</label>
+   <input id="x-stage" type="range" min="0" max="4" step="0.01" value="4">
+   <output id="x-stage-out" class="mono" for="x-stage"></output>
+  </div>
+  <div class="x-row"><span class="x-l mono" data-i18n="x_light">Drita</span>
+   <div class="seg"><button type="button" data-x-light="day" aria-pressed="false" data-i18n="x_day">Ditë</button><button type="button" data-x-light="dusk" aria-pressed="true" data-i18n="x_dusk">Muzg</button></div></div>
+  <div class="x-row"><span class="x-l mono" data-i18n="x_model">Modeli</span>
+   <div class="seg seg-wrap"><button type="button" data-x-model="villa" aria-pressed="false"><span data-i18n="x_villa">Vilë minimaliste</span> <b class="mono">180 m²</b></button><button type="button" data-x-model="residence" aria-pressed="true"><span data-i18n="x_res">Rezidencë me dy kate</span> <b class="mono">300 m²</b></button><button type="button" data-x-model="glb" aria-pressed="false" hidden><span data-i18n="x_glb">Modeli juaj</span></button></div></div>
+  <div class="x-row"><span class="x-l mono" data-i18n="x_facade">Fasada</span>
+   <div class="seg seg-wrap"><button type="button" data-x-facade="plaster" aria-pressed="true"><i class="sw sw-plaster" aria-hidden="true"></i><span data-i18n="x_f_plaster">Suva e bardhë</span></button><button type="button" data-x-facade="stone" aria-pressed="false"><i class="sw sw-stone" aria-hidden="true"></i><span data-i18n="x_f_stone">Gur natyral</span></button><button type="button" data-x-facade="concrete" aria-pressed="false"><i class="sw sw-concrete" aria-hidden="true"></i><span data-i18n="x_f_concrete">Beton + dru</span></button></div></div>
+  <div class="x-row"><span class="x-l mono" data-i18n="x_view">Kamera</span>
+   <div class="seg seg-wrap"><button type="button" data-x-view="front" aria-pressed="true" data-i18n="x_front">Përpara</button><button type="button" data-x-view="terrace" aria-pressed="false" data-i18n="x_terrace">Tarraca</button><button type="button" data-x-view="aerial" aria-pressed="false" data-i18n="x_aerial">Nga lart</button><button type="button" data-x-view="cutaway" aria-pressed="false" data-i18n="x_cut">Prerje</button></div></div>
+  <div class="x-row x-row-last"><button type="button" class="x-toggle" data-x-hotspots aria-pressed="true"><i aria-hidden="true"></i><span data-i18n="x_hs">Detajet arkitektonike</span></button><span class="x-hint mono" data-i18n="drag_rotate">Tërhiqni për ta rrotulluar</span></div>
+  <p id="x-live" class="sr-only" aria-live="polite"></p>
+ </div>
+ <button type="button" class="btn btn-light x-engage"><span data-i18n="x_engage">Eksploro në 3D</span></button>
+ <button type="button" class="btn btn-light x-done"><span data-i18n="x_done">Mbaro</span> ✕</button>
+</section>
+
+<!-- ============ BEFORE / AFTER ============ -->
+<section class="ba section-pad" id="before-after" aria-labelledby="ba-h">
+ <div class="container">
+  <header class="sec-head">
+   <p class="eyebrow reveal"><span class="idx">01</span><span data-i18n="ba_k">Projekt real · Çellopek, Gostivar</span></p>
+   <h2 id="ba-h" class="display" data-split data-i18n="ba_t">Gjatë ndërtimit. Pas çelësave.</h2>
+   <p class="lead reveal" data-i18n="ba_d">E njëjta shtëpi, e fotografuar në kantier dhe pas dorëzimit. Tërhiqni dorezën.</p>
+  </header>
+  <div class="ba-slider reveal" style="--pos:50%">
+   <img class="ba-after" src="assets/img/lastra-finished.webp" srcset="assets/img/lastra-finished-800.webp 800w, assets/img/lastra-finished.webp 1500w" sizes="(max-width: 1400px) 100vw, 1300px" width="1500" height="844" alt="Vila e Lastra Projekt në Çellopek pas përfundimit" data-i18n-alt="alt_villa" loading="lazy" decoding="async">
+   <div class="ba-before"><img src="assets/img/lastra-construction.webp" srcset="assets/img/lastra-construction-800.webp 800w, assets/img/lastra-construction.webp 1500w" sizes="(max-width: 1400px) 100vw, 1300px" width="1500" height="844" alt="Vila në Çellopek gjatë ndërtimit" data-i18n-alt="alt_site" loading="lazy" decoding="async"></div>
+   <span class="ba-tag ba-tag-l mono" data-i18n="during">Gjatë</span><span class="ba-tag ba-tag-r mono" data-i18n="after">Pas</span>
+   <span class="ba-handle" aria-hidden="true"><i></i></span>
+   <input class="ba-range" type="range" min="0" max="100" step="0.1" value="50" data-i18n-aria="compare_hint" aria-label="Tërhiqni për të krahasuar">
+  </div>
+ </div>
+</section>
+
+<!-- ============ PROJECTS ============ -->
+<section class="projects section-pad" id="projects" aria-labelledby="pj-h">
+ <div class="container">
+  <header class="sec-head sec-head-row2">
+   <div><p class="eyebrow reveal"><span class="idx">02</span><span data-i18n="feat_title">Projekte të zgjedhura</span></p>
+   <h2 id="pj-h" class="display" data-split data-i18n="pj_t">Shtëpi që kemi ndërtuar – dhe që po ndërtojmë.</h2></div>
+   <div class="filters reveal" role="group" data-i18n-aria="filter" aria-label="Filtro">
+    <button type="button" data-filter="all" aria-pressed="true" class="on"><span data-i18n="f_all">Të gjitha</span></button><button type="button" data-filter="finished" aria-pressed="false"><span data-i18n="f_finished">Të përfunduara</span></button><button type="button" data-filter="progress" aria-pressed="false"><span data-i18n="f_progress">Në ndërtim</span></button>
+    <span class="filter-count mono" aria-live="polite"></span>
+   </div>
+  </header>
+  <div class="pgrid" id="project-grid"></div>
+ </div>
+</section>
+
+<!-- ============ ESTIMATOR ============ -->
+<section class="est section-pad" id="estimator" aria-labelledby="est-h">
+ <div class="container est-grid">
+  <header class="est-head">
+   <p class="eyebrow eyebrow-light reveal"><span class="idx">03</span><span data-i18n="est_k">Kalkulatori çelës në dorë</span></p>
+   <h2 id="est-h" class="display" data-split data-i18n="est_t">Sa kohë do t'ju duhet deri te çelësat?</h2>
+   <p class="lead reveal" data-i18n="est_d">Zgjidhni madhësinë, katet dhe nivelin e përfundimit. Specifikat ua dërgoni me një prekje.</p>
+  </header>
+  <form class="est-form reveal" id="est-form" novalidate>
+   <div class="est-field">
+    <div class="est-lab"><label for="est-size" class="mono" data-i18n="est_size">Sipërfaqja</label><output class="est-val" for="est-size" id="est-size-out">180 m²</output></div>
+    <input id="est-size" name="size" type="range" min="120" max="400" step="10" value="180">
+    <div class="est-scale mono" aria-hidden="true"><span>120 m²</span><span>400 m²</span></div>
+   </div>
+   <fieldset class="est-field"><legend class="mono" data-i18n="est_floors">Katet</legend>
+    <div class="seg seg-light"><label><input type="radio" name="floors" value="1"><span data-i18n="est_f1">1 kat</span></label><label><input type="radio" name="floors" value="2" checked><span data-i18n="est_f2">2 kate</span></label></div>
+   </fieldset>
+   <fieldset class="est-field"><legend class="mono" data-i18n="est_tier">Niveli i përfundimit</legend>
+    <div class="tiers">
+     <label class="tier"><input type="radio" name="tier" value="structure"><span class="tier-in"><b data-i18n="tier_structure">Vetëm konstruksioni</b><small data-i18n="tier_structure_d">Themele, skelet, mure dhe pllaka e çatisë.</small></span></label>
+     <label class="tier"><input type="radio" name="tier" value="standard" checked><span class="tier-in"><b data-i18n="tier_standard">Çelës në dorë standard</b><small data-i18n="tier_standard_d">Gati për banim, me materiale cilësore.</small></span></label>
+     <label class="tier"><input type="radio" name="tier" value="premium"><span class="tier-in"><b data-i18n="tier_premium">Çelës në dorë premium</b><small data-i18n="tier_premium_d">Xham i trefishtë, gur, ndriçim dhe oborr.</small></span></label>
     </div>
-   </div>
-  </div>
-  <div class="hero-hud" aria-hidden="true">
-   <ol class="hud-chapters">
-    <li data-ch="0"><span class="mono">01</span><b data-i18n="stage_construction">Në ndërtim</b></li>
-    <li data-ch="1"><span class="mono">02</span><b data-i18n="stage_finished">E përfunduar</b></li>
-    <li data-ch="2"><span class="mono">03</span><b data-i18n="stage_inside">Brenda</b></li>
-   </ol>
-   <div class="hud-bar"><span class="hero-progress"><i></i></span><span id="hero-stage" class="mono"></span></div>
-   <div class="hud-scroll"><span data-i18n="scroll_hint">Rrëshqit për të parë ndërtimin</span><i></i></div>
-   <div class="hud-geo mono">41.79° N&nbsp;&nbsp;20.90° E · Gostivar</div>
-  </div>
+   </fieldset>
+  </form>
+  <aside class="est-out reveal" aria-live="polite">
+   <p class="mono est-out-k" data-i18n="est_dur">Kohëzgjatja e vlerësuar</p>
+   <p class="est-months"><span class="est-num" id="est-num">9–11</span> <span class="est-unit" data-i18n="est_months">muaj</span></p>
+   <div class="est-meter" aria-hidden="true"><i></i></div>
+   <p class="mono est-out-k" data-i18n="est_incl">Çfarë përfshihet</p>
+   <ul class="est-list" id="est-list"></ul>
+   <a class="btn btn-light est-send" id="est-send" href="#contact" target="_blank" rel="noopener"><svg class="wa-ic" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.4z"/></svg><span data-i18n="est_wa">Dërgo specifikat me WhatsApp</span></a>
+   <p class="est-note" data-i18n="est_note">Vlerësim orientues. Afati përfundimtar konfirmohet me ofertë me shkrim pas vizitës në truall.</p>
+   <p class="est-status" role="status" hidden></p>
+  </aside>
  </div>
 </section>
-<section class="stats-strip" aria-label="Lastra Projekt"><div class="container stats-grid">
- <div class="reveal"><b class="stat-num" data-stat="years"></b><span data-i18n="stat_years">Vite përvojë</span></div>
- <div class="reveal"><b class="stat-num" data-stat="houses"></b><span data-i18n="stat_houses">Shtëpi të ndërtuara</span></div>
- <div class="reveal"><b class="stat-num" data-stat="satisfaction"></b><span data-i18n="stat_sat">% klientë të kënaqur</span></div>
-</div></section>
-<section class="manifesto" aria-labelledby="man-h">
- <div class="container man-grid">
-  <p class="eyebrow reveal"><span class="idx">01</span><span data-i18n="intro_eyebrow">Cilësi pa kompromis</span></p>
-  <h2 id="man-h" class="display-xl" data-split data-i18n="cine_t">Ndërtuar për të zgjatur.</h2>
-  <div class="man-copy reveal"><p class="lead" data-i18n="cine_d">Beton, gur dhe dritë – çdo detaj i menduar.</p><p data-i18n="about_p">Lastra Projekt është kompani ndërtimi nga Gostivari që ndërton shtëpi moderne banimi nga themeli deri te çelësi. Besojmë në punë të ndershme, materiale cilësore dhe komunikim të hapur me çdo klient.</p><a class="link" href="about.html"><span data-i18n="about_title">Rreth nesh</span><i class="arr" aria-hidden="true"></i></a></div>
- </div>
- <figure class="man-media reveal-clip"><img src="assets/img/img2.webp" srcset="assets/img/img2-800.webp 800w, assets/img/img2.webp 1600w" sizes="100vw" width="1600" height="1067" alt="Shtëpi moderne me xhama të mëdhenj në muzg" data-i18n-alt="alt_house_dusk" loading="lazy" decoding="async" data-parallax=".1"></figure>
-</section>
-<section class="services" aria-labelledby="sv-h">
+
+<!-- ============ PROCESS ============ -->
+<section class="process section-pad" id="process" aria-labelledby="pr-h">
  <div class="container">
   <header class="sec-head">
-   <p class="eyebrow reveal"><span class="idx">02</span><span data-i18n="nav_services">Shërbimet</span></p>
-   <h2 id="sv-h" class="display" data-split data-i18n="serv_sub">Çdo fazë e ndërtimit, nën një çati.</h2>
-   <a class="link reveal" href="services.html"><span data-i18n="serv_more">Më shumë për shërbimet</span><i class="arr" aria-hidden="true"></i></a>
+   <p class="eyebrow reveal"><span class="idx">04</span><span data-i18n="story_kicker">Si punojmë</span></p>
+   <h2 id="pr-h" class="display" data-split data-i18n="pr_t">Katër hapa. Një partner.</h2>
   </header>
-  <div class="sv-wrap">
-   <ol class="sv-list" aria-label="Lastra Projekt">
-    <li class="sv-item reveal open" data-i="0"><h3><button type="button" class="sv-btn" id="sv-b0" aria-expanded="true" aria-controls="sv-p0"><span class="sv-n mono">01</span><span class="sv-t" data-i18n="s1_t">Projektim dhe leje</span><i class="plus" aria-hidden="true"></i></button></h3><div class="sv-panel" id="sv-p0" role="region" aria-labelledby="sv-b0"><div><p data-i18n="s1_d">Projekt arkitektonik, dokumentacion dhe marrja e lejeve të ndërtimit.</p></div></div></li>
-    <li class="sv-item reveal" data-i="1"><h3><button type="button" class="sv-btn" id="sv-b1" aria-expanded="false" aria-controls="sv-p1"><span class="sv-n mono">02</span><span class="sv-t" data-i18n="s2_t">Konstruksioni</span><i class="plus" aria-hidden="true"></i></button></h3><div class="sv-panel" id="sv-p1" role="region" aria-labelledby="sv-b1"><div><p data-i18n="s2_d">Themelet, skeleti i betonit dhe muret – ndërtim i fortë dhe i saktë.</p></div></div></li>
-    <li class="sv-item reveal" data-i="2"><h3><button type="button" class="sv-btn" id="sv-b2" aria-expanded="false" aria-controls="sv-p2"><span class="sv-n mono">03</span><span class="sv-t" data-i18n="s3_t">Çatia</span><i class="plus" aria-hidden="true"></i></button></h3><div class="sv-panel" id="sv-p2" role="region" aria-labelledby="sv-b2"><div><p data-i18n="s3_d">Çati të sheshta ose me pjerrësi, me izolim dhe hidroizolim cilësor.</p></div></div></li>
-    <li class="sv-item reveal" data-i="3"><h3><button type="button" class="sv-btn" id="sv-b3" aria-expanded="false" aria-controls="sv-p3"><span class="sv-n mono">04</span><span class="sv-t" data-i18n="s4_t">Përfundimi</span><i class="plus" aria-hidden="true"></i></button></h3><div class="sv-panel" id="sv-p3" role="region" aria-labelledby="sv-b3"><div><p data-i18n="s4_d">Fasada, suvatimi, dyshemetë, instalimet dhe detajet e brendshme.</p></div></div></li>
-    <li class="sv-item reveal" data-i="4"><h3><button type="button" class="sv-btn" id="sv-b4" aria-expanded="false" aria-controls="sv-p4"><span class="sv-n mono">05</span><span class="sv-t" data-i18n="s5_t">Çelës në dorë</span><i class="plus" aria-hidden="true"></i></button></h3><div class="sv-panel" id="sv-p4" role="region" aria-labelledby="sv-b4"><div><p data-i18n="s5_d">Ne menaxhojmë gjithçka – ju vetëm merrni çelësat e shtëpisë suaj.</p><a class="link" href="contact.html"><span data-i18n="cta_quote">Kërko ofertë falas</span><i class="arr" aria-hidden="true"></i></a></div></div></li>
-   </ol>
-   <div class="sv-preview" aria-hidden="true"><img class="on" src="assets/img/img7.webp" srcset="assets/img/img7-800.webp 800w, assets/img/img7.webp 1600w" sizes="(max-width: 900px) 100vw, 40vw" width="1600" height="900" alt="" loading="lazy" decoding="async"><img src="assets/img/img8.webp" srcset="assets/img/img8-800.webp 800w, assets/img/img8.webp 1600w" sizes="(max-width: 900px) 100vw, 40vw" width="1600" height="1060" alt="" loading="lazy" decoding="async"><img src="assets/img/lastra-construction.webp" srcset="assets/img/lastra-construction-800.webp 800w, assets/img/lastra-construction.webp 1500w" sizes="(max-width: 900px) 100vw, 40vw" width="1500" height="844" alt="" loading="lazy" decoding="async"><img src="assets/img/img12.webp" srcset="assets/img/img12-800.webp 800w, assets/img/img12.webp 1600w" sizes="(max-width: 900px) 100vw, 40vw" width="1600" height="1068" alt="" loading="lazy" decoding="async"><img src="assets/img/lastra-finished.webp" srcset="assets/img/lastra-finished-800.webp 800w, assets/img/lastra-finished.webp 1500w" sizes="(max-width: 900px) 100vw, 40vw" width="1500" height="844" alt="" loading="lazy" decoding="async"><span class="sv-tag mono"></span></div>
+  <ol class="steps">
+   <li class="step reveal" style="--d:0ms"><span class="step-n mono">01</span><h3 data-i18n="st1_t">Projektim & leje</h3><p data-i18n="st1_d">Takim, vizitë në truall, projekt arkitektonik dhe marrja e të gjitha lejeve të ndërtimit.</p><span class="step-line" aria-hidden="true"></span></li>
+   <li class="step reveal" style="--d:90ms"><span class="step-n mono">02</span><h3 data-i18n="st2_t">Konstruksioni</h3><p data-i18n="st2_d">Themelet, skeleti i betonit të armuar dhe muret – me raporte të rregullta nga kantieri.</p><span class="step-line" aria-hidden="true"></span></li>
+   <li class="step reveal" style="--d:180ms"><span class="step-n mono">03</span><h3 data-i18n="st3_t">Çatia & fasada</h3><p data-i18n="st3_d">Çatia me hidroizolim, dritaret, izolimi termik dhe fasada e zgjedhur.</p><span class="step-line" aria-hidden="true"></span></li>
+   <li class="step reveal" style="--d:270ms"><span class="step-n mono">04</span><h3 data-i18n="st4_t">Çelësat në dorë</h3><p data-i18n="st4_d">Instalimet, dyshemetë, përfundimet e brendshme, kontrolli final – dhe dorëzimi i çelësave.</p><span class="step-line" aria-hidden="true"></span></li>
+  </ol>
+ </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="home-contact section-pad" id="contact" aria-labelledby="ct-h">
+ <div class="container contact-grid">
+  <div>
+   <p class="eyebrow eyebrow-light reveal"><span class="idx">05</span><span data-i18n="contact_title">Kontakt / Ofertë</span></p>
+   <h2 id="ct-h" class="display" data-split data-i18n="cta_title">Gati për shtëpinë tuaj të re?</h2>
+   <p class="lead reveal" data-i18n="ct_d">Rezervoni një konsultë falas – vijmë në truall, dëgjojmë planin tuaj dhe ju dërgojmë ofertë me shkrim.</p>
+   <ul class="cinfo cinfo-dark reveal">
+    <li><span class="ci-k mono" data-i18n="c_phone">Telefon</span><a data-site="phone" href="#"></a></li>
+    <li><span class="ci-k mono">WhatsApp</span><a data-site="whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a></li>
+    <li><span class="ci-k mono" data-i18n="c_email">Email</span><a data-site="email" href="#"></a></li>
+    <li><span class="ci-k mono" data-i18n="c_addr">Adresa</span><span data-site="address"></span></li>
+    <li><span class="ci-k mono" data-i18n="c_hours">Orari</span><span data-site="hours"></span></li>
+    <li><span class="ci-k mono">Facebook</span><a data-site="facebook" href="#" target="_blank" rel="noopener" data-i18n="c_fb">Na ndiqni në Facebook</a></li>
+    <li><span class="ci-k mono">Instagram</span><a data-site="instagram" href="#" target="_blank" rel="noopener">Instagram</a></li>
+   </ul>
   </div>
- </div>
-</section>
-<section class="scrub" aria-labelledby="pr-h">
- <div class="scrub-sticky">
-  <div class="container scrub-grid">
-   <div class="scrub-head">
-    <p class="eyebrow eyebrow-light"><span class="idx">03</span><span data-i18n="story_kicker">Si punojmë</span></p>
-    <h2 id="pr-h" class="display" data-split data-i18n="story_title">Nga themeli te çelësi, hap pas hapi.</h2>
-   </div>
-   <ol class="scrub-steps">
-    <li data-img="0"><span class="mono">01</span><div><h3 data-i18n="p1_t">Takimi i parë</h3><p data-i18n="p1_d">Dëgjojmë dëshirat, buxhetin dhe vizitojmë truallin.</p></div></li>
-    <li data-img="0"><span class="mono">02</span><div><h3 data-i18n="p2_t">Oferta dhe kontrata</h3><p data-i18n="p2_d">Ofertë e qartë me çmime dhe afate, pa kosto të fshehura.</p></div></li>
-    <li data-img="0"><span class="mono">03</span><div><h3 data-i18n="p3_t">Projekti dhe lejet</h3><p data-i18n="p3_d">Përgatisim projektin dhe marrim të gjitha lejet.</p></div></li>
-    <li data-img="1"><span class="mono">04</span><div><h3 data-i18n="p4_t">Konstruksioni</h3><p data-i18n="p4_d">Themelet, skeleti dhe çatia – me raporte të rregullta.</p></div></li>
-    <li data-img="1"><span class="mono">05</span><div><h3 data-i18n="p5_t">Përfundimi</h3><p data-i18n="p5_d">Instalimet, fasada dhe punimet e brendshme.</p></div></li>
-    <li data-img="2"><span class="mono">06</span><div><h3 data-i18n="p6_t">Dorëzimi i çelësave</h3><p data-i18n="p6_d">Kontroll final së bashku dhe dorëzim i shtëpisë.</p></div></li>
-   </ol>
-   <div class="scrub-media"><img class="on" src="assets/img/img7.webp" srcset="assets/img/img7-800.webp 800w, assets/img/img7.webp 1600w" sizes="(max-width: 900px) 100vw, 45vw" width="1600" height="900" alt="Inxhinier duke punuar mbi projektin" data-i18n-alt="alt_plan" loading="lazy" decoding="async"><img src="assets/img/img8.webp" srcset="assets/img/img8-800.webp 800w, assets/img/img8.webp 1600w" sizes="(max-width: 900px) 100vw, 45vw" width="1600" height="1060" alt="Punëtorë mbi pllakën e betonit me armaturë" data-i18n-alt="alt_works" loading="lazy" decoding="async"><img src="assets/img/lastra-finished.webp" srcset="assets/img/lastra-finished-800.webp 800w, assets/img/lastra-finished.webp 1500w" sizes="(max-width: 900px) 100vw, 45vw" width="1500" height="844" alt="Vila e Lastra Projekt në Çellopek në muzg" data-i18n-alt="alt_villa" loading="lazy" decoding="async"><div class="scrub-bar"><i></i></div><span class="scrub-count mono"><b>01</b> / 06</span></div>
-   <a class="link link-light scrub-more" href="process.html"><span data-i18n="learn_more">Mëso më shumë</span><i class="arr" aria-hidden="true"></i></a>
-  </div>
- </div>
-</section>
-<section class="projects" aria-labelledby="pj-h">
- <div class="container">
-  <header class="sec-head">
-   <p class="eyebrow reveal"><span class="idx">04</span><span data-i18n="feat_title">Projekte të zgjedhura</span></p>
-   <h2 id="pj-h" class="display" data-split data-i18n="feat_sub">Disa nga shtëpitë që kemi ndërtuar.</h2>
-   <a class="link reveal" href="projects.html"><span data-i18n="all_projects">Të gjitha projektet</span><i class="arr" aria-hidden="true"></i></a>
-  </header>
-  <div class="proj-editorial" id="featured"></div>
- </div>
-</section>
-<section class="cta" aria-labelledby="cta-h">
- <div class="cta-media" aria-hidden="true"><img class="cta-img" src="assets/img/lastra-finished.webp" srcset="assets/img/lastra-finished-800.webp 800w, assets/img/lastra-finished.webp 1500w" sizes="100vw" width="1500" height="844" alt="" loading="lazy" decoding="async" data-parallax=".12"></div>
- <div class="container cta-inner">
-  <p class="eyebrow eyebrow-light" data-i18n="contact_title">Kontakt / Ofertë</p>
-  <h2 id="cta-h" class="display" data-split data-i18n="cta_title">Gati për shtëpinë tuaj të re?</h2>
-  <p class="lead" data-i18n="cta_sub">Na tregoni për planin tuaj dhe ju dërgojmë një ofertë falas.</p>
-  <div class="btn-row"><a class="btn btn-light magnetic" href="contact.html"><span data-i18n="cta_quote">Kërko ofertë falas</span><i class="arr" aria-hidden="true"></i></a><a class="btn btn-ghost-light" data-site="whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a></div>
+  <form id="quote-form" class="form form-dark reveal" novalidate>
+   <div class="field"><input id="f-name" name="name" required autocomplete="name" placeholder=" "><label for="f-name"><span data-i18n="fm_name">Emri dhe mbiemri</span> *</label></div>
+   <div class="field"><input id="f-phone" name="phone" type="tel" required autocomplete="tel" placeholder=" "><label for="f-phone"><span data-i18n="fm_phone">Telefoni</span> *</label></div>
+   <div class="field"><input id="f-loc" name="location" placeholder=" "><label for="f-loc" data-i18n="fm_loc">Vendndodhja e truallit</label></div>
+   <div class="field"><input id="f-size" name="size" type="number" min="20" step="1" inputmode="numeric" placeholder=" "><label for="f-size" data-i18n="fm_size">Sipërfaqja e shtëpisë (m²)</label></div>
+   <div class="field full field-select"><select id="f-budget" name="budget"><option value="" data-i18n="b_choose">Zgjidhni…</option><option value="1" data-i18n="b1">Deri 50.000 €</option><option value="2" data-i18n="b2">50.000 – 100.000 €</option><option value="3" data-i18n="b3">100.000 – 200.000 €</option><option value="4" data-i18n="b4">Mbi 200.000 €</option></select><label for="f-budget" data-i18n="fm_budget">Buxheti</label></div>
+   <div class="field full"><textarea id="f-msg" name="message" rows="4" placeholder=" "></textarea><label for="f-msg" data-i18n="fm_msg">Mesazhi</label></div>
+   <p class="form-error full" role="alert" hidden></p>
+   <div class="form-actions full"><button type="submit" class="btn btn-light magnetic"><span data-i18n="fm_wa">Dërgo me WhatsApp</span><i class="arr" aria-hidden="true"></i></button><button type="button" id="send-mail" class="btn btn-ghost-light"><span data-i18n="fm_mail">Dërgo me email</span></button></div>
+   <p class="form-note full" data-i18n="form_note">Butonat hapin WhatsApp ose aplikacionin tuaj të email-it me mesazhin të plotësuar – ju e dërgoni vetë.</p>
+  </form>
  </div>
 </section>
 </main>
 <footer id="site-footer"></footer>
+
+<!-- project modal -->
+<div class="pmodal" id="pmodal" role="dialog" aria-modal="true" aria-labelledby="pm-title" hidden>
+ <div class="pm-scrim" data-close></div>
+ <div class="pm-panel" data-lenis-prevent>
+  <button type="button" class="pm-close" data-close><span data-i18n="close">Mbyll</span> ✕</button>
+  <div class="pm-body"></div>
+ </div>
+</div>
+
 <script type="importmap">{"imports":{"three":"./assets/js/three.module.min.js","three/addons/":"./assets/js/addons/"}}</script>
+<script src="assets/js/vendor/gsap.min.js"></script>
+<script src="assets/js/vendor/ScrollTrigger.min.js"></script>
+<script src="assets/js/vendor/lenis.min.js"></script>
+<script src="js/clock.js"></script>
 <script src="js/config.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/main.js"></script>
+<script src="js/home.js"></script>
 <script type="module" src="js/hero3d.js"></script>
 </body>
 </html>
